@@ -26,7 +26,7 @@ planet::sdl::drawframe::drawframe(
         std::uint8_t const r,
         std::uint8_t const g,
         std::uint8_t const b)
-: rend{re} {
+: rend{re}, w{rend.win.width()}, h{rend.win.height()} {
     colour(r, g, b);
     SDL_RenderClear(rend);
 }
