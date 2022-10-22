@@ -1,6 +1,8 @@
 #pragma once
 
 
+#include <planet/affine2d.hpp>
+
 #include <SDL.h>
 
 #include <cstdint>
