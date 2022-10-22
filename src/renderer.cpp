@@ -22,11 +22,29 @@ planet::sdl::renderer::~renderer() {
 
 
 planet::sdl::drawframe::drawframe(
-        renderer &re, std::uint8_t r, std::uint8_t g, std::uint8_t b)
+        renderer &re,
+        std::uint8_t const r,
+        std::uint8_t const g,
+        std::uint8_t const b)
 : rend{re} {
-    SDL_SetRenderDrawColor(rend, r, g, b, 255);
+    colour(r, g, b);
     SDL_RenderClear(rend);
 }
 
 
 planet::sdl::drawframe::~drawframe() { SDL_RenderPresent(rend); }
+
+
+void planet::sdl::drawframe::colour(
+        std::uint8_t const r, std::uint8_t const g, std::uint8_t const b) const {
+    SDL_SetRenderDrawColor(rend, r, g, b, 255);
+}
+
+
+void planet::sdl::drawframe::line(
+        std::size_t const x1,
+        std::size_t const y1,
+        std::size_t const x2,
+        std::size_t const y2) const {
+    SDL_RenderDrawLine(rend, x1, y1, x2, y2);
+}

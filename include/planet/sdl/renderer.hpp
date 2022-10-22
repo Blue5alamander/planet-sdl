@@ -20,6 +20,13 @@ namespace planet::sdl {
       public:
         drawframe(renderer &, std::uint8_t r, std::uint8_t g, std::uint8_t b);
         ~drawframe();
+
+        void colour(std::uint8_t r, std::uint8_t g, std::uint8_t b) const;
+        void
+                line(std::size_t x1,
+                     std::size_t y1,
+                     std::size_t x2,
+                     std::size_t y2) const;
     };
 
 
