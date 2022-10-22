@@ -10,7 +10,7 @@ namespace planet::sdl {
     class init;
 
 
-    class window {
+    class window final {
         SDL_Window *pw = nullptr;
 
       public:
