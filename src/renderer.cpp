@@ -37,7 +37,7 @@ planet::sdl::drawframe::~drawframe() { SDL_RenderPresent(rend); }
 
 void planet::sdl::drawframe::colour(
         std::uint8_t const r, std::uint8_t const g, std::uint8_t const b) const {
-    SDL_SetRenderDrawColor(rend, r, g, b, 255);
+    SDL_SetRenderDrawColor(rend, r, g, b, SDL_ALPHA_OPAQUE);
 }
 
 
