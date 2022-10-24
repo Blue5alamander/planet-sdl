@@ -29,7 +29,7 @@ planet::sdl::drawframe::drawframe(
 : rend{re}, w{rend.win.width()}, h{rend.win.height()} {
     colour(r, g, b);
     SDL_RenderClear(rend);
-    viewport.reflect_y().scale(0.01f);
+    viewport.reflect_y().scale(30.0f).translate({w / 2.0f, h / 2.0f});
 }
 
 

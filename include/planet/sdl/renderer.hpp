@@ -24,7 +24,7 @@ namespace planet::sdl {
         drawframe(renderer &, std::uint8_t r, std::uint8_t g, std::uint8_t b);
         ~drawframe();
 
-        transform viewport;
+        transform viewport = {};
 
         std::size_t width() const noexcept { return w; }
         std::size_t height() const noexcept { return h; }
