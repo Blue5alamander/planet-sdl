@@ -49,3 +49,8 @@ void planet::sdl::drawframe::line(
         std::size_t const y2) const {
     SDL_RenderDrawLine(rend, x1, y1, x2, y2);
 }
+
+
+void planet::sdl::drawframe::lines(std::span<SDL_Point> pts) const {
+    SDL_RenderDrawLines(rend, pts.data(), pts.size());
+}

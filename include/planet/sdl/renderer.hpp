@@ -6,6 +6,7 @@
 #include <SDL.h>
 
 #include <cstdint>
+#include <span>
 
 
 namespace planet::sdl {
@@ -35,6 +36,7 @@ namespace planet::sdl {
                      std::size_t y1,
                      std::size_t x2,
                      std::size_t y2) const;
+        void lines(std::span<SDL_Point>) const;
     };
 
 
