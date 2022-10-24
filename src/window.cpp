@@ -12,7 +12,9 @@ planet::sdl::window::window(
         SDL_WINDOWPOS_UNDEFINED,
         width,
         height,
-        0)} {}
+        0)},
+  w{width},
+  h{height} {}
 
 
 planet::sdl::window::~window() {
