@@ -25,13 +25,10 @@ planet::sdl::drawframe::drawframe(
         renderer &re,
         std::uint8_t const r,
         std::uint8_t const g,
-        std::uint8_t const b,
-        point2d const centre)
+        std::uint8_t const b)
 : rend{re}, w{rend.win.width()}, h{rend.win.height()} {
     colour(r, g, b);
     SDL_RenderClear(rend);
-    viewport.translate(-centre).reflect_y().scale(30.0f).translate(
-            {w / 2.0f, h / 2.0f});
 }
 
 

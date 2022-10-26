@@ -22,12 +22,7 @@ namespace planet::sdl {
         std::size_t w, h;
 
       public:
-        drawframe(
-                renderer &,
-                std::uint8_t r,
-                std::uint8_t g,
-                std::uint8_t b,
-                point2d);
+        drawframe(renderer &, std::uint8_t r, std::uint8_t g, std::uint8_t b);
         ~drawframe();
 
         transform viewport = {};
@@ -57,14 +52,7 @@ namespace planet::sdl {
         operator SDL_Renderer *() const noexcept { return pr; }
 
         drawframe operator()(std::uint8_t r, std::uint8_t g, std::uint8_t b) {
-            return {*this, r, g, b, {0, 0}};
-        }
-        drawframe operator()(
-                std::uint8_t r,
-                std::uint8_t g,
-                std::uint8_t b,
-                point2d const centre) {
-            return {*this, r, g, b, centre};
+            return {*this, r, g, b};
         }
     };
 
