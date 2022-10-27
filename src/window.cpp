@@ -15,8 +15,3 @@ planet::sdl::window::window(
         0)},
   w{width},
   h{height} {}
-
-
-planet::sdl::window::~window() {
-    if (pw) { SDL_DestroyWindow(pw); }
-}

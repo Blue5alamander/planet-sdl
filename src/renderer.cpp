@@ -11,11 +11,6 @@ planet::sdl::renderer::renderer(window &w)
 : win{w}, pr{SDL_CreateRenderer(win, -1, 0)} {}
 
 
-planet::sdl::renderer::~renderer() {
-    if (pr) { SDL_DestroyRenderer(pr); }
-}
-
-
 /**
  * ## `planet::sdl::drawframe`
  */

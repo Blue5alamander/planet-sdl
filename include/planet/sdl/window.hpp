@@ -1,6 +1,7 @@
 #pragma once
 
 
+#include <planet/sdl/handle.hpp>
 #include <SDL.h>
 
 
@@ -11,7 +12,7 @@ namespace planet::sdl {
 
 
     class window final {
-        SDL_Window *pw = nullptr;
+        handle<SDL_Window, SDL_DestroyWindow> pw;
         std::size_t w, h;
 
       public:
@@ -19,7 +20,6 @@ namespace planet::sdl {
                const char *name,
                std::size_t width,
                std::size_t height);
-        ~window();
 
         operator SDL_Window *() const noexcept { return pw; }
 

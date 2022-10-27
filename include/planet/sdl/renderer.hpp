@@ -2,6 +2,7 @@
 
 
 #include <planet/affine2d.hpp>
+#include <planet/sdl/handle.hpp>
 
 #include <SDL.h>
 
@@ -43,11 +44,10 @@ namespace planet::sdl {
     class renderer final {
         friend drawframe;
         window &win;
-        SDL_Renderer *pr = nullptr;
+        handle<SDL_Renderer, SDL_DestroyRenderer> pr;
 
       public:
         renderer(window &);
-        ~renderer();
 
         operator SDL_Renderer *() const noexcept { return pr; }
 
