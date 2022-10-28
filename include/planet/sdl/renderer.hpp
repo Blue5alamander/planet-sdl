@@ -38,6 +38,13 @@ namespace planet::sdl {
                      std::size_t x2,
                      std::size_t y2) const;
         void lines(std::span<SDL_Point>) const;
+
+        /// Draw a line between two points in world co-ordinate space
+        void line(planet::point2d const cp1, planet::point2d const cp2) const {
+            auto p1 = viewport.into(cp1);
+            auto p2 = viewport.into(cp2);
+            line(p1.x(), p1.y(), p2.x(), p2.y());
+        }
     };
 
 
