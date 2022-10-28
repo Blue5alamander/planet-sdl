@@ -5,6 +5,8 @@
 
 #include <SDL.h>
 
+#include <cstdint>
+
 
 namespace planet::sdl {
 
@@ -21,6 +23,7 @@ namespace planet::sdl {
                const char *name,
                std::size_t width,
                std::size_t height);
+        window(init const &, const char *name, std::uint32_t flags);
 
         SDL_Window *get() const noexcept { return pw.get(); }
 
