@@ -26,7 +26,7 @@ namespace planet::sdl {
         drawframe(renderer &, std::uint8_t r, std::uint8_t g, std::uint8_t b);
         ~drawframe();
 
-        transform viewport = {};
+        affine::transform viewport = {};
 
         std::size_t width() const noexcept { return w; }
         std::size_t height() const noexcept { return h; }
@@ -40,7 +40,7 @@ namespace planet::sdl {
         void lines(std::span<SDL_Point>) const;
 
         /// Draw a line between two points in world co-ordinate space
-        void line(planet::point2d const cp1, planet::point2d const cp2) const {
+        void line(affine::point2d const cp1, affine::point2d const cp2) const {
             auto p1 = viewport.into(cp1);
             auto p2 = viewport.into(cp2);
             line(p1.x(), p1.y(), p2.x(), p2.y());
