@@ -49,7 +49,7 @@ namespace planet::sdl {
       public:
         renderer(window &);
 
-        operator SDL_Renderer *() const noexcept { return pr; }
+        SDL_Renderer *get() const noexcept { return pr.get(); }
 
         drawframe operator()(std::uint8_t r, std::uint8_t g, std::uint8_t b) {
             return {*this, r, g, b};

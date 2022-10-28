@@ -4,11 +4,11 @@
 
 
 planet::sdl::texture::texture(renderer &r, surface const &s)
-: pt{SDL_CreateTextureFromSurface(r, s)} {}
+: pt{SDL_CreateTextureFromSurface(r.get(), s.get())} {}
 
 
 SDL_Rect planet::sdl::texture::extents() const {
     int w{}, h{};
-    SDL_QueryTexture(pt, nullptr, nullptr, &w, &h);
+    SDL_QueryTexture(pt.get(), nullptr, nullptr, &w, &h);
     return {0, 0, w, h};
 }

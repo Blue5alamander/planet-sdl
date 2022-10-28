@@ -27,7 +27,7 @@ namespace planet::sdl {
       public:
         font(char const *filename, std::size_t pixels);
 
-        operator TTF_Font *() const noexcept { return pf; }
+        TTF_Font *get() const noexcept { return pf.get(); }
 
         surface render(char const *text, SDL_Color const &color) const;
     };

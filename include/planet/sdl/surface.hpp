@@ -15,7 +15,7 @@ namespace planet::sdl {
 
         surface(handle_type h) : ps{std::move(h)} {}
 
-        operator SDL_Surface *() const noexcept { return ps; }
+        SDL_Surface *get() const noexcept { return ps.get(); }
 
       private:
         handle_type ps;

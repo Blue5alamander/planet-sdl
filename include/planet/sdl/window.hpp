@@ -22,7 +22,7 @@ namespace planet::sdl {
                std::size_t width,
                std::size_t height);
 
-        operator SDL_Window *() const noexcept { return pw; }
+        SDL_Window *get() const noexcept { return pw.get(); }
 
         std::size_t width() const noexcept { return w; }
         std::size_t height() const noexcept { return h; }

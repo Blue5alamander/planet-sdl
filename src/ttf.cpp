@@ -23,5 +23,5 @@ planet::sdl::font::font(char const *filename, std::size_t pixels)
 
 planet::sdl::surface planet::sdl::font::render(
         char const *text, SDL_Color const &color) const {
-    return {TTF_RenderText_Solid(pf, text, color)};
+    return {TTF_RenderText_Solid(pf.get(), text, color)};
 }
