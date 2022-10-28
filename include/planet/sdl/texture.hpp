@@ -20,6 +20,10 @@ namespace planet::sdl {
         texture(renderer &, surface const &);
 
         operator SDL_Texture *() const noexcept { return pt; }
+
+        /// Return the texture extents. The top left co-ordinates will always be
+        /// 0, 0
+        SDL_Rect extents() const;
     };
 
 
