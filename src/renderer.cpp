@@ -1,4 +1,5 @@
 #include <planet/sdl/renderer.hpp>
+#include <planet/sdl/texture.hpp>
 #include <planet/sdl/window.hpp>
 
 
@@ -47,4 +48,13 @@ void planet::sdl::drawframe::line(
 
 void planet::sdl::drawframe::lines(std::span<SDL_Point> pts) const {
     SDL_RenderDrawLines(rend.get(), pts.data(), pts.size());
+}
+
+
+void planet::sdl::drawframe::copy(
+        texture const &t, std::size_t const x, std::size_t const y) {
+    auto location = t.extents();
+    location.x = x;
+    location.y = y;
+    SDL_RenderCopy(rend.get(), t.get(), nullptr, &location);
 }

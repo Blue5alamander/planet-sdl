@@ -14,6 +14,7 @@ namespace planet::sdl {
 
 
     class renderer;
+    class texture;
     class window;
 
 
@@ -38,6 +39,7 @@ namespace planet::sdl {
                      std::size_t x2,
                      std::size_t y2) const;
         void lines(std::span<SDL_Point>) const;
+        void copy(texture const &, std::size_t x, std::size_t y);
 
         /// Draw a line between two points in world co-ordinate space
         void line(affine::point2d const cp1, affine::point2d const cp2) const {
