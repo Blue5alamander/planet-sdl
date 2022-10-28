@@ -19,3 +19,9 @@ planet::sdl::ttf::~ttf() { TTF_Quit(); }
 
 planet::sdl::font::font(char const *filename, std::size_t pixels)
 : pf{TTF_OpenFont(filename, pixels)} {}
+
+
+planet::sdl::surface planet::sdl::font::render(
+        char const *text, SDL_Color const &color) const {
+    return {TTF_RenderText_Solid(pf, text, color)};
+}

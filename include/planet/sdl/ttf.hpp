@@ -2,6 +2,7 @@
 
 
 #include <planet/sdl/handle.hpp>
+#include <planet/sdl/surface.hpp>
 
 #include <SDL_ttf.h>
 
@@ -27,6 +28,8 @@ namespace planet::sdl {
         font(char const *filename, std::size_t pixels);
 
         operator TTF_Font *() const noexcept { return pf; }
+
+        surface render(char const *text, SDL_Color const &color) const;
     };
 
 

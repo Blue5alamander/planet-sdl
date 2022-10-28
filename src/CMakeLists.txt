@@ -3,6 +3,7 @@ find_package(SDL2 REQUIRED)
 add_library(planet-sdl
         init.cpp
         renderer.cpp
+        texture.cpp
         ttf.cpp
         window.cpp
     )
