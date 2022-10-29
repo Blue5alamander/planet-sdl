@@ -12,6 +12,9 @@ planet::sdl::renderer::renderer(window &w)
 : win{w}, pr{SDL_CreateRenderer(win.get(), -1, 0)} {}
 
 
+void planet::sdl::renderer::present() { SDL_RenderPresent(pr.get()); }
+
+
 /**
  * ## `planet::sdl::drawframe`
  */
@@ -26,9 +29,6 @@ planet::sdl::drawframe::drawframe(
     colour(r, g, b);
     SDL_RenderClear(rend.get());
 }
-
-
-planet::sdl::drawframe::~drawframe() { SDL_RenderPresent(rend.get()); }
 
 
 void planet::sdl::drawframe::colour(

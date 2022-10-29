@@ -25,7 +25,6 @@ namespace planet::sdl {
 
       public:
         drawframe(renderer &, std::uint8_t r, std::uint8_t g, std::uint8_t b);
-        ~drawframe();
 
         affine::transform viewport = {};
 
@@ -63,6 +62,9 @@ namespace planet::sdl {
         drawframe operator()(std::uint8_t r, std::uint8_t g, std::uint8_t b) {
             return {*this, r, g, b};
         }
+
+        /// Send the current draw commands to the screen
+        void present();
     };
 
 
