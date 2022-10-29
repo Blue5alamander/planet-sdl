@@ -27,21 +27,8 @@ namespace planet::sdl {
 
         affine::transform viewport = {};
 
-        void colour(std::uint8_t r, std::uint8_t g, std::uint8_t b) const;
-        void
-                line(std::size_t x1,
-                     std::size_t y1,
-                     std::size_t x2,
-                     std::size_t y2) const;
-        void lines(std::span<SDL_Point>) const;
-        void copy(texture const &, std::size_t x, std::size_t y);
-
         /// Draw a line between two points in world co-ordinate space
-        void line(affine::point2d const cp1, affine::point2d const cp2) const {
-            auto p1 = viewport.into(cp1);
-            auto p2 = viewport.into(cp2);
-            line(p1.x(), p1.y(), p2.x(), p2.y());
-        }
+        void line(affine::point2d, affine::point2d) const;
     };
 
 
@@ -58,6 +45,16 @@ namespace planet::sdl {
         drawframe operator()(std::uint8_t r, std::uint8_t g, std::uint8_t b) {
             return {*this, r, g, b};
         }
+
+        /// Graphics APIs in pixel coordinate space
+        void colour(std::uint8_t r, std::uint8_t g, std::uint8_t b) const;
+        void
+                line(std::size_t x1,
+                     std::size_t y1,
+                     std::size_t x2,
+                     std::size_t y2) const;
+        void lines(std::span<SDL_Point>) const;
+        void copy(texture const &, std::size_t x, std::size_t y);
 
         /// Send the current draw commands to the screen
         void present();
