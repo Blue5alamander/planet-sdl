@@ -25,6 +25,7 @@ namespace planet::sdl {
       public:
         drawframe(renderer &);
 
+        /// Transformation into and out of the coordinate space
         affine::transform viewport = {};
 
         /// Draw a line between two points in world co-ordinate space
@@ -33,7 +34,6 @@ namespace planet::sdl {
 
 
     class renderer final {
-        friend drawframe;
         window &win;
         handle<SDL_Renderer, SDL_DestroyRenderer> pr;
 
