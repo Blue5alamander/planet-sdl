@@ -21,15 +21,11 @@ namespace planet::sdl {
     /// Drawing onto a renderer for a frame
     class drawframe final {
         renderer &rend;
-        std::size_t w, h;
 
       public:
         drawframe(renderer &, std::uint8_t r, std::uint8_t g, std::uint8_t b);
 
         affine::transform viewport = {};
-
-        std::size_t width() const noexcept { return w; }
-        std::size_t height() const noexcept { return h; }
 
         void colour(std::uint8_t r, std::uint8_t g, std::uint8_t b) const;
         void
