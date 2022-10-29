@@ -3,7 +3,7 @@
 
 #include <planet/sdl/ttf.hpp>
 
-#include <felspar/coro/task.hpp>
+#include <felspar/io.hpp>
 
 
 namespace planet::sdl {
@@ -11,16 +11,26 @@ namespace planet::sdl {
 
     class init final {
       public:
-        init();
+        init(felspar::io::warden &w);
         ~init();
+
+        felspar::io::warden &io;
+
+        template<typename F, typename... Args>
+        felspar::coro::task<int> run(felspar::io::warden &, F f, Args... args) {
+            co_return co_await f(*this, std::forward<Args>(args)...);
+        }
     };
 
 
     template<typename F, typename... Args>
-    felspar::coro::task<int> co_main(F f, Args... args) {
-        init sdl{};
+    inline int co_main(F f, Args... args) {
+        felspar::io::poll_warden w;
+        init sdl{w};
         ttf text{sdl};
-        co_return co_await f(sdl, std::forward<Args>(args)...);
+        return w.run<int, init, F, Args...>(
+                sdl, &init::run, std::forward<F>(f),
+                std::forward<Args>(args)...);
     }
 
 
