@@ -18,12 +18,12 @@ namespace planet::sdl {
     class window;
 
 
-    /// Drawing onto a renderer for a frame
+    /// Co-ordinate transform hierarchy for world etc. co-ordinate systems
     class drawframe final {
         renderer &rend;
 
       public:
-        drawframe(renderer &, std::uint8_t r, std::uint8_t g, std::uint8_t b);
+        drawframe(renderer &);
 
         affine::transform viewport = {};
 
@@ -42,10 +42,6 @@ namespace planet::sdl {
 
         SDL_Renderer *get() const noexcept { return pr.get(); }
 
-        drawframe operator()(std::uint8_t r, std::uint8_t g, std::uint8_t b) {
-            return {*this, r, g, b};
-        }
-
         /// Graphics APIs in pixel coordinate space
         void colour(std::uint8_t r, std::uint8_t g, std::uint8_t b) const;
         void
@@ -56,8 +52,10 @@ namespace planet::sdl {
         void lines(std::span<SDL_Point>) const;
         void copy(texture const &, std::size_t x, std::size_t y);
 
+        /// Clear draw commands ready for next frame
+        void clear() const;
         /// Send the current draw commands to the screen
-        void present();
+        void present() const;
     };
 
 

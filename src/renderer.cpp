@@ -12,7 +12,10 @@ planet::sdl::renderer::renderer(window &w)
 : win{w}, pr{SDL_CreateRenderer(win.get(), -1, 0)} {}
 
 
-void planet::sdl::renderer::present() { SDL_RenderPresent(pr.get()); }
+void planet::sdl::renderer::clear() const { SDL_RenderClear(pr.get()); }
+
+
+void planet::sdl::renderer::present() const { SDL_RenderPresent(pr.get()); }
 
 
 void planet::sdl::renderer::colour(
@@ -49,15 +52,7 @@ void planet::sdl::renderer::copy(
  */
 
 
-planet::sdl::drawframe::drawframe(
-        renderer &re,
-        std::uint8_t const r,
-        std::uint8_t const g,
-        std::uint8_t const b)
-: rend{re} {
-    rend.colour(r, g, b);
-    SDL_RenderClear(rend.get());
-}
+planet::sdl::drawframe::drawframe(renderer &re) : rend{re} {}
 
 
 void planet::sdl::drawframe::line(
