@@ -4,6 +4,7 @@
 #include <planet/affine2d.hpp>
 #include <planet/sdl/handle.hpp>
 
+#include <felspar/coro/bus.hpp>
 #include <felspar/coro/start.hpp>
 #include <felspar/coro/stream.hpp>
 
@@ -41,7 +42,6 @@ namespace planet::sdl {
         handle<SDL_Renderer, SDL_DestroyRenderer> pr;
         /// Handle the optional render coroutine support
         felspar::coro::starter<> current_renderer;
-        std::vector<felspar::coro::coroutine_handle<>> waiting;
 
       public:
         renderer(window &);
@@ -62,17 +62,7 @@ namespace planet::sdl {
         }
         /// When using render function is connected frames can be awaited by
         /// calling `next_frame`
-        auto next_frame() {
-            struct awaitable {
-                renderer &r;
-                bool await_ready() const noexcept { return false; }
-                void await_suspend(felspar::coro::coroutine_handle<> h) {
-                    r.waiting.push_back(h);
-                }
-                void await_resume() const noexcept {}
-            };
-            return awaitable{*this};
-        }
+        auto next_frame() { return waiting_for_frame.next(); }
 
         /// Clear draw commands ready for next frame
         void clear() const;
@@ -90,19 +80,12 @@ namespace planet::sdl {
         void copy(texture const &, std::size_t x, std::size_t y);
 
       private:
+        felspar::coro::bus<frame> waiting_for_frame;
         template<typename N>
         static felspar::coro::task<void> frame_wrapper(
                 renderer *r, N &o, felspar::coro::stream<frame> (N::*f)()) {
-            std::vector<felspar::coro::coroutine_handle<>> processing;
             for (auto frames = (o.*f)(); auto frame = co_await frames.next();) {
-                std::swap(processing, r->waiting);
-                for (auto h : processing) {
-                    /// TODO Put the frame somewhere the coroutine
-                    /// can find it
-                    h.resume();
-                }
-                processing.clear();
-                /// TODO Add frame sync here depending on sync options
+                r->waiting_for_frame.push(*frame);
             }
         }
     };
