@@ -23,11 +23,11 @@ namespace planet::sdl {
 
 
     /// Co-ordinate transform hierarchy for world etc. co-ordinate systems
-    class drawframe final {
+    class panel final {
         renderer &rend;
 
       public:
-        drawframe(renderer &);
+        panel(renderer &);
 
         /// Transformation into and out of the coordinate space
         affine::transform viewport = {};

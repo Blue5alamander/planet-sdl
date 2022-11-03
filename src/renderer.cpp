@@ -48,14 +48,14 @@ void planet::sdl::renderer::copy(
 
 
 /**
- * ## `planet::sdl::drawframe`
+ * ## `planet::sdl::panel`
  */
 
 
-planet::sdl::drawframe::drawframe(renderer &re) : rend{re} {}
+planet::sdl::panel::panel(renderer &re) : rend{re} {}
 
 
-void planet::sdl::drawframe::line(
+void planet::sdl::panel::line(
         affine::point2d const cp1, affine::point2d const cp2) const {
     auto p1 = viewport.into(cp1);
     auto p2 = viewport.into(cp2);
