@@ -25,13 +25,37 @@ namespace planet::sdl {
     /// Co-ordinate transform hierarchy for world etc. co-ordinate systems
     class panel final {
         renderer *rend = nullptr;
+        panel *parent = nullptr;
+
+        struct child final {
+            affine::point2d top_left, bottom_right;
+            panel *sub;
+
+            child(panel *, affine::point2d, affine::point2d);
+        };
+        std::vector<child> children;
+
+        // Swap out the current parent with a new one
+        void reparent_children(panel *);
 
       public:
         panel() {}
         panel(renderer &);
+        ~panel();
 
         /// Transformation into and out of the coordinate space
         affine::transform viewport = {};
+
+        /// ## Panel hierarchy management
+
+        /// Add a child covering the requested portion of the parent in the
+        /// panel's coordinate space
+        void add_child(
+                panel &, affine::point2d top_left, affine::point2d bottom_right);
+        /// Remove the passed child from the panel
+        void remove_child(panel &);
+
+        /// ## Drawing in the panel coordinate space
 
         /// Draw a line between two points in world co-ordinate space
         void line(affine::point2d, affine::point2d) const;

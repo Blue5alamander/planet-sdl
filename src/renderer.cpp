@@ -55,6 +55,41 @@ void planet::sdl::renderer::copy(
 planet::sdl::panel::panel(renderer &re) : rend{&re} {}
 
 
+planet::sdl::panel::~panel() {
+    if (parent) { parent->remove_child(*this); }
+    /// Orphan the current children
+    reparent_children(parent);
+}
+
+
+void planet::sdl::panel::reparent_children(panel *const np) {
+    for (auto &p : children) { p.sub->parent = np; }
+}
+
+
+void planet::sdl::panel::add_child(
+        panel &c,
+        affine::point2d const top_left,
+        affine::point2d const bottom_right) {
+    c.rend = rend;
+    c.parent = this;
+    children.emplace_back(&c, top_left, bottom_right);
+}
+
+
+void planet::sdl::panel::remove_child(panel &c) {
+    auto pos =
+            std::find_if(children.begin(), children.end(), [&c](auto const &p) {
+                return &c == p.sub;
+            });
+    if (pos != children.end()) {
+        c.parent = nullptr;
+        c.rend = nullptr;
+        children.erase(pos);
+    }
+}
+
+
 void planet::sdl::panel::line(
         affine::point2d const cp1, affine::point2d const cp2) const {
     if (rend) [[likely]] {
@@ -63,3 +98,13 @@ void planet::sdl::panel::line(
         rend->line(p1.x(), p1.y(), p2.x(), p2.y());
     }
 }
+
+
+/**
+ * ## `planet::sdl::panel::child`
+ */
+
+
+planet::sdl::panel::child::child(
+        panel *const c, affine::point2d const tl, affine::point2d const br)
+: sub{c}, top_left{tl}, bottom_right{br} {}
