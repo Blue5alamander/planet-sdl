@@ -62,6 +62,11 @@ namespace planet::sdl {
         /// Remove the passed child from the panel
         void remove_child(panel &);
 
+        /// ## Message delivery and focus
+
+        /// Left button release position
+        felspar::coro::bus<affine::point2d> mouse_click;
+
         /// ## Drawing in the panel coordinate space
 
         /// Draw a line between two points in world co-ordinate space
