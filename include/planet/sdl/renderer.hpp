@@ -24,9 +24,10 @@ namespace planet::sdl {
 
     /// Co-ordinate transform hierarchy for world etc. co-ordinate systems
     class panel final {
-        renderer &rend;
+        renderer *rend = nullptr;
 
       public:
+        panel() {}
         panel(renderer &);
 
         /// Transformation into and out of the coordinate space

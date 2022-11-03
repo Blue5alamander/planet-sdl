@@ -52,12 +52,14 @@ void planet::sdl::renderer::copy(
  */
 
 
-planet::sdl::panel::panel(renderer &re) : rend{re} {}
+planet::sdl::panel::panel(renderer &re) : rend{&re} {}
 
 
 void planet::sdl::panel::line(
         affine::point2d const cp1, affine::point2d const cp2) const {
-    auto p1 = viewport.into(cp1);
-    auto p2 = viewport.into(cp2);
-    rend.line(p1.x(), p1.y(), p2.x(), p2.y());
+    if (rend) [[likely]] {
+        auto p1 = viewport.into(cp1);
+        auto p2 = viewport.into(cp2);
+        rend->line(p1.x(), p1.y(), p2.x(), p2.y());
+    }
 }
