@@ -43,6 +43,13 @@ namespace planet::sdl {
         panel(renderer &);
         ~panel();
 
+        /// Given the way we want to be able to use panels, we have to be able
+        /// to ensure stable addresses, so: not movable and not copyable
+        panel(panel const &) = delete;
+        panel(panel &&) = delete;
+        panel &operator=(panel const &) = delete;
+        panel &operator=(panel &&) = delete;
+
         /// Transformation into and out of the coordinate space
         affine::transform viewport = {};
 
