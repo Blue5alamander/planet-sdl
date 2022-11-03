@@ -23,13 +23,14 @@ namespace planet::sdl {
 
     class font {
         handle<TTF_Font, TTF_CloseFont> pf;
+        SDL_Color colour;
 
       public:
-        font(char const *filename, std::size_t pixels);
+        font(char const *filename, std::size_t pixel_height, SDL_Color);
 
         TTF_Font *get() const noexcept { return pf.get(); }
 
-        surface render(char const *text, SDL_Color const &color) const;
+        surface render(char const *text) const;
     };
 
 
