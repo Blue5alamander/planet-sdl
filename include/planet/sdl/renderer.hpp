@@ -62,17 +62,21 @@ namespace planet::sdl {
         /// Remove all transformations into and out of the coordinate space
         void reset_coordinate_space() { viewport = {}; }
 
-        /// Forward to the viewport
+        /// Forward to the viewport taking the hierarchy into account. When
+        /// going into the screen co-ordinate space we must apply our local
+        /// transformations before we apply the parent ones. When coming out of
+        /// the screen coordinates we have to undo the parent transformation
+        /// first
         affine::point2d into(affine::point2d const p) {
             if (parent) {
-                return viewport.into(parent->into(p));
+                return parent->into(viewport.into(p));
             } else {
                 return viewport.into(p);
             }
         }
         affine::point2d outof(affine::point2d const p) {
             if (parent) {
-                return parent->outof(viewport.outof(p));
+                return viewport.outof(parent->outof(p));
             } else {
                 return viewport.outof(p);
             }
