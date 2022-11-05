@@ -6,7 +6,6 @@
 
 #include <felspar/coro/bus.hpp>
 #include <felspar/coro/eager.hpp>
-#include <felspar/coro/start.hpp>
 #include <felspar/coro/stream.hpp>
 
 #include <SDL.h>
@@ -120,7 +119,7 @@ namespace planet::sdl {
         window &win;
         handle<SDL_Renderer, SDL_DestroyRenderer> pr;
         /// Handle the optional render coroutine support
-        felspar::coro::starter<> current_renderer;
+        felspar::coro::eager<> current_renderer;
 
       public:
         renderer(window &);
