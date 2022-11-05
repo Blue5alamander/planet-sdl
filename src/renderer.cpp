@@ -72,7 +72,7 @@ felspar::coro::task<void> planet::sdl::panel::feed_children() {
             if (click.x() >= c.top_left.x() and click.x() <= c.bottom_right.x()
                 and click.y() >= c.top_left.y()
                 and click.y() <= c.bottom_right.y()) {
-                c.sub->mouse_click.push(click);
+                c.sub->mouse_click.push(c.sub->viewport.outof(click));
             }
         }
     }
@@ -80,7 +80,10 @@ felspar::coro::task<void> planet::sdl::panel::feed_children() {
 
 
 void planet::sdl::panel::reparent_children(panel *const np) {
-    for (auto &p : children) { p.sub->parent = np; }
+    for (auto &p : children) {
+        p.sub->parent = np;
+        if (np) { np->add_child(*p.sub, p.top_left, p.bottom_right); }
+    }
 }
 
 
@@ -90,6 +93,7 @@ void planet::sdl::panel::add_child(
         affine::point2d const bottom_right) {
     c.rend = rend;
     c.parent = this;
+    c.translate(top_left);
     children.emplace_back(&c, top_left, bottom_right);
 }
 

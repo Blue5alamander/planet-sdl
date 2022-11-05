@@ -28,6 +28,9 @@ namespace planet::sdl {
         renderer *rend = nullptr;
         panel *parent = nullptr;
 
+        /// Transformation into and out of the coordinate space
+        affine::transform viewport = {};
+
         struct child final {
             affine::point2d top_left, bottom_right;
             panel *sub;
@@ -57,8 +60,37 @@ namespace planet::sdl {
 
         /// ## Co-ordinate space for this panel
 
-        /// Transformation into and out of the coordinate space
-        affine::transform viewport = {};
+        /// Remove all transformations into and out of the coordinate space
+        void reset_coordinate_space() { viewport = {}; }
+
+        /// Forward to the viewport
+        affine::point2d into(affine::point2d const p) {
+            if (parent) {
+                return viewport.into(parent->into(p));
+            } else {
+                return viewport.into(p);
+            }
+        }
+        affine::point2d outof(affine::point2d const p) {
+            if (parent) {
+                return parent->outof(viewport.outof(p));
+            } else {
+                return viewport.outof(p);
+            }
+        }
+
+        panel &reflect_y() {
+            viewport.reflect_y();
+            return *this;
+        }
+        panel &translate(affine::point2d const p) {
+            viewport.translate(p);
+            return *this;
+        }
+        panel &scale(float const s) {
+            viewport.scale(s);
+            return *this;
+        }
 
 
         /// ## Panel hierarchy management
