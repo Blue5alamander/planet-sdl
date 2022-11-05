@@ -91,7 +91,7 @@ void planet::sdl::panel::add_child(
         panel &c,
         affine::point2d const top_left,
         affine::point2d const bottom_right) {
-    c.rend = rend;
+    if (rend) { c.rend = rend; }
     c.parent = this;
     c.translate(top_left);
     children.emplace_back(&c, top_left, bottom_right);
