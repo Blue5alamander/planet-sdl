@@ -5,6 +5,7 @@
 #include <planet/sdl/handle.hpp>
 
 #include <felspar/coro/bus.hpp>
+#include <felspar/coro/eager.hpp>
 #include <felspar/coro/start.hpp>
 #include <felspar/coro/stream.hpp>
 
@@ -37,9 +38,12 @@ namespace planet::sdl {
 
         // Swap out the current parent with a new one
         void reparent_children(panel *);
+        // Feed children events
+        felspar::coro::eager<> feeder;
+        felspar::coro::task<void> feed_children();
 
       public:
-        panel() {}
+        panel();
         panel(renderer &);
         ~panel();
 
@@ -50,8 +54,12 @@ namespace planet::sdl {
         panel &operator=(panel const &) = delete;
         panel &operator=(panel &&) = delete;
 
+
+        /// ## Co-ordinate space for this panel
+
         /// Transformation into and out of the coordinate space
         affine::transform viewport = {};
+
 
         /// ## Panel hierarchy management
 
@@ -62,10 +70,12 @@ namespace planet::sdl {
         /// Remove the passed child from the panel
         void remove_child(panel &);
 
+
         /// ## Message delivery and focus
 
         /// Left button release position
         felspar::coro::bus<affine::point2d> mouse_click;
+
 
         /// ## Drawing in the panel coordinate space
 

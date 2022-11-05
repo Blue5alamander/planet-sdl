@@ -52,13 +52,30 @@ void planet::sdl::renderer::copy(
  */
 
 
-planet::sdl::panel::panel(renderer &re) : rend{&re} {}
+planet::sdl::panel::panel() { feeder.post(*this, &panel::feed_children); }
+
+
+planet::sdl::panel::panel(renderer &re) : panel{} { rend = &re; }
 
 
 planet::sdl::panel::~panel() {
     if (parent) { parent->remove_child(*this); }
     /// Orphan the current children
     reparent_children(parent);
+}
+
+
+felspar::coro::task<void> planet::sdl::panel::feed_children() {
+    while (true) {
+        auto click = co_await mouse_click.next();
+        for (auto &c : children) {
+            if (click.x() >= c.top_left.x() and click.x() <= c.bottom_right.x()
+                and click.y() >= c.top_left.y()
+                and click.y() <= c.bottom_right.y()) {
+                c.sub->mouse_click.push(click);
+            }
+        }
+    }
 }
 
 
