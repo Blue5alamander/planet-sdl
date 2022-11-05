@@ -112,6 +112,9 @@ namespace planet::sdl {
 
         /// Draw a line between two points in world co-ordinate space
         void line(affine::point2d, affine::point2d) const;
+        /// Draw the texture at native size with its top left corder at the
+        /// location specified
+        void copy(texture const &, affine::point2d) const;
     };
 
 
@@ -138,8 +141,8 @@ namespace planet::sdl {
             current_renderer.post(
                     renderer::frame_wrapper<N>, this, std::ref(o), f);
         }
-        /// When using render function is connected frames can be awaited by
-        /// calling `next_frame`
+        /// When a render function has been connected (see `connect`) the
+        /// awaitable returned here can be used to wait for the next frame
         auto next_frame() { return waiting_for_frame.next(); }
 
         /// Clear draw commands ready for next frame

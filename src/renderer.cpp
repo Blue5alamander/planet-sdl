@@ -121,6 +121,14 @@ void planet::sdl::panel::line(
 }
 
 
+void planet::sdl::panel::copy(texture const &tex, affine::point2d const l) const {
+    if (rend) [[likely]] {
+        auto p = viewport.into(l);
+        rend->copy(tex, p.x(), p.y());
+    }
+}
+
+
 /**
  * ## `planet::sdl::panel::child`
  */
