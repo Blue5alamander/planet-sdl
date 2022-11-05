@@ -133,6 +133,11 @@ namespace planet::sdl {
 
         SDL_Renderer *get() const noexcept { return pr.get(); }
 
+        /// A representation of the screen the renderer is drawing to. Using
+        /// this allows for global management of the coordinate system the
+        /// application uses
+        panel screen = {*this};
+
 
         /// ## Render function
 
