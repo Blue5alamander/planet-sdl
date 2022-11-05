@@ -133,6 +133,9 @@ namespace planet::sdl {
 
         SDL_Renderer *get() const noexcept { return pr.get(); }
 
+
+        /// ## Render function
+
         /// Describe the last frame that has been rendered
         struct frame {
             std::size_t number;
@@ -149,10 +152,20 @@ namespace planet::sdl {
         /// awaitable returned here can be used to wait for the next frame
         auto next_frame() { return waiting_for_frame.next(); }
 
+
+        /// ## Frame presentation
+
         /// Clear draw commands ready for next frame
         void clear() const;
         /// Send the current draw commands to the screen
         void present() const;
+
+
+        /// ## Graphics APIs
+        /**
+         * All of these APIs use the SDL coordinate space, with no adjustment
+         * form `screen` member coordinate space.
+         */
 
         /// Graphics APIs in pixel coordinate space
         void colour(std::uint8_t r, std::uint8_t g, std::uint8_t b) const;
