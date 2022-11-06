@@ -1,6 +1,7 @@
 #pragma once
 
 
+#include <planet/asset_manager.hpp>
 #include <planet/sdl/handle.hpp>
 #include <planet/sdl/surface.hpp>
 
@@ -26,7 +27,12 @@ namespace planet::sdl {
         SDL_Color colour;
 
       public:
-        font(char const *filename, std::size_t pixel_height, SDL_Color);
+        font(asset_manager const &,
+             char const *filename,
+             std::size_t pixel_height,
+             SDL_Color,
+             felspar::source_location const & =
+                     felspar::source_location::current());
 
         TTF_Font *get() const noexcept { return pf.get(); }
 
