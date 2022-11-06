@@ -24,7 +24,7 @@ planet::sdl::window::window(
   w{640},
   h{480} {
     int ww{}, wh{};
-    SDL_GetWindowSize(pw.get(), &ww, &wh);
+    SDL_GL_GetDrawableSize(pw.get(), &ww, &wh);
     w = ww;
     h = wh;
 }
