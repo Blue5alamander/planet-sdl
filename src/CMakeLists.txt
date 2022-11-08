@@ -1,4 +1,6 @@
-find_package(SDL2 REQUIRED)
+if (NOT TARGET SDL2-static)
+    find_package(SDL2 REQUIRED)
+endif()
 
 add_library(planet-sdl
         init.cpp
@@ -18,3 +20,8 @@ target_link_libraries(planet-sdl PUBLIC
         planet
         felspar-io
     )
+if(TARGET SDL2-static)
+    target_link_libraries(planet-sdl PUBLIC
+            SDL2-static
+        )
+endif()
