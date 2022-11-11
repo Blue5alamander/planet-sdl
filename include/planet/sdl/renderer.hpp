@@ -94,6 +94,10 @@ namespace planet::sdl {
             viewport.scale(s);
             return *this;
         }
+        panel &rotate(float const t) {
+            viewport.rotate(t);
+            return *this;
+        }
 
 
         /// ## Panel hierarchy management
