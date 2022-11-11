@@ -2,15 +2,14 @@
 
 #include <felspar/exceptions.hpp>
 
+#include <mutex>
+
 
 using namespace std::literals;
 using namespace planet::audio::literals;
 
 
-planet::sdl::audio_output::audio_output(stereo_generator background)
-: master{-6_dB} {
-    desk.add_track(std::move(background));
-
+planet::sdl::audio_output::audio_output() : master{-6_dB} {
     int iscapture = {};
     device_name = SDL_GetAudioDeviceName(0, iscapture);
 
@@ -36,12 +35,19 @@ planet::sdl::audio_output::~audio_output() {
 }
 
 
+void planet::sdl::audio_output::trigger(stereo_generator sound) {
+    std::scoped_lock lock{mtx};
+    desk.add_track(std::move(sound));
+}
+
+
 void planet::sdl::audio_output::audio_callback(
         void *userdata, Uint8 *stream, int len) {
     audio_output *const self = reinterpret_cast<audio_output *>(userdata);
     float *const output = reinterpret_cast<float *>(stream);
     std::size_t const wanted = len / sizeof(float) / stereo::channels;
 
+    std::scoped_lock lock{self->mtx};
     for (std::size_t sample{}; sample < wanted; ++sample) {
         if (not self->playing
             or self->playing_marker >= self->playing->samples()) {

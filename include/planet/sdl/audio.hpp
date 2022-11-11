@@ -4,6 +4,8 @@
 #include <planet/audio.hpp>
 #include <planet/sdl/handle.hpp>
 
+#include <thread>
+
 #include <SDL.h>
 
 
@@ -21,6 +23,7 @@ namespace planet::sdl {
         SDL_AudioSpec configuration = {};
 
         /// All of these items are accessed from the SDL audio thread
+        std::mutex mtx;
         static void audio_callback(void *, Uint8 *, int);
         audio::mixer<stereo> desk;
         stereo_generator desk_output = desk.output();
@@ -28,11 +31,14 @@ namespace planet::sdl {
         std::size_t playing_marker = {};
 
       public:
-        audio_output(stereo_generator background);
+        audio_output();
         ~audio_output();
 
         char const *device_name = nullptr;
         audio::linear_gain master;
+
+        /// Play this audio starting as soon as possible
+        void trigger(stereo_generator);
     };
 
 
