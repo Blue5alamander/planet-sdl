@@ -3,6 +3,7 @@ if (NOT TARGET SDL2-static)
 endif()
 
 add_library(planet-sdl
+        audio.cpp
         init.cpp
         renderer.cpp
         texture.cpp
@@ -18,6 +19,7 @@ target_link_libraries(planet-sdl PUBLIC
         ${SDL2_LIBRARIES}
         SDL2_ttf
         planet
+        planet-audio
         felspar-io
     )
 if(TARGET SDL2-static)
