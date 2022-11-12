@@ -4,6 +4,7 @@ endif()
 
 add_library(planet-sdl
         audio.cpp
+        draw.cpp
         init.cpp
         renderer.cpp
         texture.cpp
