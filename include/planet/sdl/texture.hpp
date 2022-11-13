@@ -15,6 +15,7 @@ namespace planet::sdl {
 
     class texture {
         handle<SDL_Texture, SDL_DestroyTexture> pt;
+        SDL_Rect size;
 
       public:
         texture(renderer &, surface const &);
@@ -23,7 +24,7 @@ namespace planet::sdl {
 
         /// Return the texture extents. The top left co-ordinates will always be
         /// 0, 0
-        SDL_Rect extents() const;
+        SDL_Rect const &extents() const noexcept { return size; }
     };
 
 
