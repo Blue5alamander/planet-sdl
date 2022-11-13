@@ -37,6 +37,7 @@ namespace planet::sdl {
         TTF_Font *get() const noexcept { return pf.get(); }
 
         surface render(char const *text) const;
+        surface render(char const *text, SDL_Color) const;
     };
 
 
