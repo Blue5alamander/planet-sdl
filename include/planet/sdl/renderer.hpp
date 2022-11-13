@@ -178,6 +178,7 @@ namespace planet::sdl {
 
         /// Graphics APIs in pixel coordinate space
         void colour(std::uint8_t r, std::uint8_t g, std::uint8_t b) const;
+        void colour(SDL_Color const &) const;
         void
                 line(std::size_t x1,
                      std::size_t y1,

@@ -22,6 +22,9 @@ void planet::sdl::renderer::colour(
         std::uint8_t const r, std::uint8_t const g, std::uint8_t const b) const {
     SDL_SetRenderDrawColor(pr.get(), r, g, b, SDL_ALPHA_OPAQUE);
 }
+void planet::sdl::renderer::colour(SDL_Color const &c) const {
+    SDL_SetRenderDrawColor(pr.get(), c.r, c.g, c.b, SDL_ALPHA_OPAQUE);
+}
 
 
 void planet::sdl::renderer::line(
