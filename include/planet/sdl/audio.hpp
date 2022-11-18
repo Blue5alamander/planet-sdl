@@ -4,6 +4,7 @@
 #include <planet/audio.hpp>
 #include <planet/sdl/handle.hpp>
 
+#include <mutex>
 #include <thread>
 
 #include <SDL.h>
