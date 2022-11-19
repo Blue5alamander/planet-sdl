@@ -3,6 +3,7 @@ if (NOT TARGET SDL2-static)
 endif()
 
 add_library(planet-sdl
+        asset_manager.cpp
         audio.cpp
         draw.cpp
         init.cpp
@@ -12,6 +13,11 @@ add_library(planet-sdl
         ttf.cpp
         window.cpp
     )
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Android")
+    target_sources(planet-sdl PRIVATE asset_manager.android.cpp)
+else()
+    target_sources(planet-sdl PRIVATE asset_manager.filesystem.cpp)
+endif()
 target_include_directories(planet-sdl PUBLIC
         ${SDL2_INCLUDE_DIRS}
         ../include
