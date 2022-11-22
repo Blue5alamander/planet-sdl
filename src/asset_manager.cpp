@@ -16,6 +16,11 @@ felspar::coro::generator<std::filesystem::path>
     co_yield current;
     auto const exe_based = (cwd / exe_directory / "share/").lexically_normal();
     if (exe_based != current) { co_yield exe_based; }
+    auto const exe_parent =
+            ((cwd / exe_directory).parent_path() / "share/").lexically_normal();
+    if (exe_parent != exe_based and exe_parent != current) {
+        co_yield exe_parent;
+    }
 }
 
 

@@ -29,6 +29,7 @@ namespace {
         auto gen = am.search_paths();
         check(gen.next().value()) == cwd / "share/";
         check(gen.next().value()) == std::filesystem::path{"/path/share/"};
+        check(gen.next().value()) == std::filesystem::path{"/share/"};
         check(gen.next().has_value()) == false;
     });
 
