@@ -2,6 +2,10 @@
 #include <planet/sdl/texture.hpp>
 #include <planet/sdl/window.hpp>
 
+#include <felspar/exceptions.hpp>
+
+#include <iostream>
+
 
 /**
  * ## `planet::sdl::renderer`
@@ -9,7 +13,13 @@
 
 
 planet::sdl::renderer::renderer(window &w)
-: win{w}, pr{SDL_CreateRenderer(win.get(), -1, 0)} {}
+: win{w}, pr{SDL_CreateRenderer(win.get(), -1, 0)} {
+    if (not pr.get()) {
+        throw felspar::stdexcept::runtime_error{
+                std::string{"SDL_CreateRenderer failed: "} + SDL_GetError()};
+    }
+    std::cout << "Renderer created\n";
+}
 
 
 void planet::sdl::renderer::clear() const { SDL_RenderClear(pr.get()); }
