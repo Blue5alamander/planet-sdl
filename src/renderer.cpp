@@ -7,6 +7,21 @@
 #include <iostream>
 
 
+namespace {
+    int
+            worked(int const e,
+                   felspar::source_location const &loc =
+                           felspar::source_location::current()) {
+        if (e < 0) [[unlikely]] {
+            throw felspar::stdexcept::runtime_error{
+                    std::string{"Drawing API failed "} + SDL_GetError()};
+        } else {
+            return e;
+        }
+    }
+}
+
+
 /**
  * ## `planet::sdl::renderer`
  */
@@ -14,7 +29,7 @@
 
 planet::sdl::renderer::renderer(window &w)
 : win{w}, pr{SDL_CreateRenderer(win.get(), -1, 0)} {
-    if (not pr.get()) {
+    if (not pr.get()) [[unlikely]] {
         throw felspar::stdexcept::runtime_error{
                 std::string{"SDL_CreateRenderer failed: "} + SDL_GetError()};
     }
@@ -22,7 +37,7 @@ planet::sdl::renderer::renderer(window &w)
 }
 
 
-void planet::sdl::renderer::clear() const { SDL_RenderClear(pr.get()); }
+void planet::sdl::renderer::clear() const { worked(SDL_RenderClear(pr.get())); }
 
 
 void planet::sdl::renderer::present() const { SDL_RenderPresent(pr.get()); }
@@ -30,10 +45,10 @@ void planet::sdl::renderer::present() const { SDL_RenderPresent(pr.get()); }
 
 void planet::sdl::renderer::colour(
         std::uint8_t const r, std::uint8_t const g, std::uint8_t const b) const {
-    SDL_SetRenderDrawColor(pr.get(), r, g, b, SDL_ALPHA_OPAQUE);
+    worked(SDL_SetRenderDrawColor(pr.get(), r, g, b, SDL_ALPHA_OPAQUE));
 }
 void planet::sdl::renderer::colour(SDL_Color const &c) const {
-    SDL_SetRenderDrawColor(pr.get(), c.r, c.g, c.b, SDL_ALPHA_OPAQUE);
+    worked(SDL_SetRenderDrawColor(pr.get(), c.r, c.g, c.b, SDL_ALPHA_OPAQUE));
 }
 
 
@@ -42,12 +57,12 @@ void planet::sdl::renderer::line(
         std::size_t const y1,
         std::size_t const x2,
         std::size_t const y2) const {
-    SDL_RenderDrawLine(pr.get(), x1, y1, x2, y2);
+    worked(SDL_RenderDrawLine(pr.get(), x1, y1, x2, y2));
 }
 
 
 void planet::sdl::renderer::lines(std::span<SDL_Point> pts) const {
-    SDL_RenderDrawLines(pr.get(), pts.data(), pts.size());
+    worked(SDL_RenderDrawLines(pr.get(), pts.data(), pts.size()));
 }
 
 
@@ -56,7 +71,7 @@ void planet::sdl::renderer::copy(
     auto location = t.extents();
     location.x = x;
     location.y = y;
-    SDL_RenderCopy(pr.get(), t.get(), nullptr, &location);
+    worked(SDL_RenderCopy(pr.get(), t.get(), nullptr, &location));
 }
 
 
