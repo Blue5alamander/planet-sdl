@@ -25,6 +25,8 @@ namespace planet::sdl {
         /// Return the texture extents. The top left co-ordinates will always be
         /// 0, 0
         SDL_Rect const &extents() const noexcept { return size; }
+        float width() const { return size.w; }
+        float height() const { return size.h; }
     };
 
 
