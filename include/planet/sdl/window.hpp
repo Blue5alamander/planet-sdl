@@ -28,8 +28,10 @@ namespace planet::sdl {
         sdl::renderer renderer;
 
         /// Current inner window size
-        std::size_t width() const noexcept { return w; }
-        std::size_t height() const noexcept { return h; }
+        std::size_t swidth() const noexcept { return w; }
+        std::size_t sheight() const noexcept { return h; }
+        float width() const noexcept { return w; }
+        float height() const noexcept { return h; }
     };
 
 
