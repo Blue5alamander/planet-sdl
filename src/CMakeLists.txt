@@ -1,5 +1,9 @@
 if (NOT TARGET SDL2-static)
-    find_package(SDL2 REQUIRED)
+    find_package(SDL2)
+    if("${SDL2_LIBRARIES}" STREQUAL "")
+        set(SDL2_LIBRARIES SDL2)
+        set(SDL2_INCLUDE_DIRS /usr/include/SDL2)
+    endif()
 endif()
 
 add_library(planet-sdl
