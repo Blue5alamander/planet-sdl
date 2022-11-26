@@ -127,14 +127,16 @@ namespace planet::sdl {
 
 
     class renderer final {
+        friend class window;
         window &win;
         handle<SDL_Renderer, SDL_DestroyRenderer> pr;
         /// Handle the optional render coroutine support
         felspar::coro::eager<> current_renderer;
 
-      public:
+        /// Only creatable by the window
         renderer(window &);
 
+      public:
         SDL_Renderer *get() const noexcept { return pr.get(); }
 
         /// A representation of the screen the renderer is drawing to. Using

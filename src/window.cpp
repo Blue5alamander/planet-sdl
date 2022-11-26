@@ -22,6 +22,7 @@ planet::sdl::window::window(
           width,
           height,
           0)},
+  renderer{*this},
   w{width},
   h{height} {}
 
@@ -30,6 +31,7 @@ planet::sdl::window::window(init &s, const char *const name, std::uint32_t flags
 : sdl{s},
   pw{SDL_CreateWindow(
           name, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, flags)},
+  renderer{*this},
   w{640},
   h{480} {
     if (not pw.get()) {

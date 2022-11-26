@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include <planet/sdl/handle.hpp>
+#include <planet/sdl/renderer.hpp>
 
 #include <SDL.h>
 
@@ -23,8 +23,9 @@ namespace planet::sdl {
         window(init &, const char *name, std::size_t width, std::size_t height);
         window(init &, const char *name, std::uint32_t flags);
 
-
         SDL_Window *get() const noexcept { return pw.get(); }
+
+        sdl::renderer renderer;
 
         /// Current inner window size
         std::size_t width() const noexcept { return w; }
