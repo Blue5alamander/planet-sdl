@@ -4,11 +4,7 @@
 
 
 planet::sdl::texture::texture(renderer &r, surface const &s)
-: pt{SDL_CreateTextureFromSurface(r.get(), s.get())}, size{[&]() {
-      int w{}, h{};
-      SDL_QueryTexture(pt.get(), nullptr, nullptr, &w, &h);
-      return affine::extent2d{{0, 0}, {float(w), float(h)}};
-  }()} {}
+: pt{SDL_CreateTextureFromSurface(r.get(), s.get())}, size{s.extents()} {}
 
 
 void planet::sdl::texture::draw_within(
