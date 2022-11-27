@@ -1,6 +1,9 @@
 #pragma once
 
 
+#include <planet/affine2d.hpp>
+
+
 namespace planet::sdl::ui {
 
 
@@ -29,14 +32,15 @@ namespace planet::sdl::ui {
             return {width, height};
         }
 
-        void draw_within(renderer &r, affine::rectangle const outer) const {
+        template<typename Target>
+        void draw_within(Target &t, affine::rectangle const outer) const {
             auto left = outer.top_left.x();
             auto const top = outer.top(), bottom = outer.bottom();
             for (auto const &item : items) {
                 auto const ex = item.extents(outer.extents);
                 auto const width = ex.width;
                 item.draw_within(
-                        r,
+                        t,
                         {{left, top}, affine::point2d{left + width, bottom}});
                 left += width + padding;
             }
@@ -55,14 +59,14 @@ namespace planet::sdl::ui {
 
         breakable_row(collection_type c, float const hp, float const vp)
         : items{std::move(c)}, hpadding{hp}, vpadding{vp} {}
+        breakable_row(collection_type c, float const p)
+        : breakable_row{std::move(c), p, p} {}
 
         affine::extents2d extents(affine::extents2d const outer) const {
-            float const fit_width = outer.width;
             float max_width = {}, row_height = {}, total_height = {}, left{};
             for (auto const &item : items) {
                 auto const item_ex = item.extents(outer);
-                auto const item_w = item_ex.width;
-                if (left + item_w > fit_width) {
+                if (left + item_ex.width > outer.width) {
                     max_width = std::max(max_width, left);
                     if (total_height) { total_height += vpadding; }
                     total_height += row_height;
@@ -70,32 +74,31 @@ namespace planet::sdl::ui {
                     row_height = {};
                 } else {
                     if (left) { left += hpadding; }
-                    left += item_w;
+                    left += item_ex.width;
                 }
             }
             max_width = std::max(max_width, left);
             total_height += row_height;
             return {max_width, total_height};
         }
-        void draw_within(renderer &r, affine::rectangle const outer) const {
-            float const fit_width = outer.extents.width;
+
+        template<typename Target>
+        void draw_within(Target &t, affine::rectangle const border) const {
             float row_height = {}, x = {}, y = {};
             for (auto const &item : items) {
-                auto const item_ex = item.extents(outer);
-                auto const item_w = item_ex.width;
-                if (x + item_w > fit_width) {
+                auto const ex = item.extents(border.extents);
+                if (x + ex.width > border.extents.width) {
                     x = {};
                     if (y) { y += vpadding; }
                     y += row_height;
                     row_height = {};
                 }
                 if (x) { x += hpadding; }
-                item.draw_within(
-                        r,
-                        {outer.top_left + affine::point2d{x, y},
-                         {outer.right(), outer.bottom()}});
-                row_height = std::max(row_height, item_ex.height());
-                x += item_w;
+                planet::affine::rectangle const location = {
+                        border.top_left + affine::point2d{x, y}, ex};
+                item.draw_within(t, location);
+                row_height = std::max(row_height, ex.height);
+                x += ex.width;
             }
         }
     };
