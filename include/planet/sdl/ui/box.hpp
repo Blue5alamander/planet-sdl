@@ -41,24 +41,33 @@ namespace planet::sdl::ui {
         using content_type = C;
         content_type content;
         /// The size of the box in its container's coordinate system
-        gravity inner =
-                gravity::left | gravity::right | gravity::top | gravity::bottom;
+        gravity inner;
         /// The amount of padding to be added around the content.
         float hpadding = {}, vpadding = {};
+
+        explicit box(
+                content_type c,
+                gravity const g = gravity::left | gravity::right | gravity::top
+                        | gravity::bottom,
+                float const hp = {},
+                float const vp = {})
+        : content{std::move(c)}, inner{g}, hpadding{hp}, vpadding{vp} {}
 
         /// Calculate the extents of the box
         affine::extent2d extents() const {
             auto const inner = content.extents();
-            return {{inner.top_left.x() - vpadding,
-                     inner.top_left.y() - hpadding},
-                    {inner.bottom_right.x() + vpadding,
-                     inner.bottom_right.y() + hpadding}};
+            return {{inner.top_left.x() - hpadding,
+                     inner.top_left.y() - vpadding},
+                    {inner.bottom_right.x() + hpadding,
+                     inner.bottom_right.y() + vpadding}};
         }
+        float width() const { return content.width() + 2 * hpadding; }
+        float height() const { return content.height() + 2 * vpadding; }
 
         /// Draw the content within the area outlined by the top left and bottom
         /// right corners passed in. All calculations are done in the screen
         /// space co-ordinate system
-        void draw_within(renderer &r, affine::extent2d const outer) {
+        void draw_within(renderer &r, affine::extent2d const outer) const {
             auto const area = within(inner, outer, extents());
             content.draw_within(r, area);
         }
