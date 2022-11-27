@@ -24,8 +24,8 @@ namespace {
 }
 
 
-planet::sdl::ui::extent2d planet::sdl::ui::within(
-        gravity const g, extent2d const &o, extent2d const &i) {
+planet::affine::extent2d planet::sdl::ui::within(
+        gravity const g, affine::extent2d const &o, affine::extent2d const &i) {
     auto [left, right] =
             spacing(o.top_left.x(), o.bottom_right.x(),
                     i.bottom_right.x() - i.top_left.x(), g bitand gravity::left,

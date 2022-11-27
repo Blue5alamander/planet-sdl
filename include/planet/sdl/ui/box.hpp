@@ -27,12 +27,12 @@ namespace planet::sdl::ui {
                 bitor static_cast<unsigned char>(r));
     }
 
-    struct extent2d {
-        affine::point2d top_left = {0, 0}, bottom_right = {1, 1};
-    };
     /// Calculate the extent within the outer extent that the inner will have
     /// based on the gravity passed in
-    extent2d within(gravity, extent2d const &outer, extent2d const &inner);
+    affine::extent2d
+            within(gravity,
+                   affine::extent2d const &outer,
+                   affine::extent2d const &inner);
 
     /// A container for another element
     template<typename C>
