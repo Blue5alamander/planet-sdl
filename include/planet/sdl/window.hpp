@@ -17,7 +17,7 @@ namespace planet::sdl {
     class window final {
         init &sdl;
         handle<SDL_Window, SDL_DestroyWindow> pw;
-        std::size_t w, h;
+        affine::extent2d size;
 
       public:
         window(init &, const char *name, std::size_t width, std::size_t height);
@@ -28,10 +28,11 @@ namespace planet::sdl {
         sdl::renderer renderer;
 
         /// Current inner window size
-        std::size_t swidth() const noexcept { return w; }
-        std::size_t sheight() const noexcept { return h; }
-        float width() const noexcept { return w; }
-        float height() const noexcept { return h; }
+        affine::extent2d const &extents() const { return size; }
+        std::size_t zwidth() const noexcept { return size.zwidth(); }
+        std::size_t zheight() const noexcept { return size.zheight(); }
+        float width() const noexcept { return size.width(); }
+        float height() const noexcept { return size.height(); }
     };
 
 
