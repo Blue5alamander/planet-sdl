@@ -24,15 +24,15 @@ namespace {
 }
 
 
-planet::affine::extent2d planet::sdl::ui::within(
-        gravity const g, affine::extent2d const &o, affine::extent2d const &i) {
+planet::affine::rectangle planet::sdl::ui::within(
+        gravity const g,
+        affine::rectangle const &o,
+        affine::extents2d const &i) {
     auto [left, right] =
-            spacing(o.top_left.x(), o.bottom_right.x(),
-                    i.bottom_right.x() - i.top_left.x(), g bitand gravity::left,
-                    g bitand gravity::right);
+            spacing(o.top_left.x(), o.top_left.x() + o.extents.width, i.width,
+                    g bitand gravity::left, g bitand gravity::right);
     auto [top, bottom] =
-            spacing(o.top_left.y(), o.bottom_right.y(),
-                    i.bottom_right.y() - i.top_left.y(), g bitand gravity::top,
-                    g bitand gravity::bottom);
-    return {{left, top}, {right, bottom}};
+            spacing(o.top_left.y(), o.top_left.y() + o.extents.height, i.height,
+                    g bitand gravity::top, g bitand gravity::bottom);
+    return {{left, top}, affine::point2d{right, bottom}};
 }

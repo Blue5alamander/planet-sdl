@@ -17,26 +17,27 @@ namespace planet::sdl::ui {
         row(collection_type c, float const p)
         : items{std::move(c)}, padding{p} {}
 
-        affine::extent2d extents(affine::extent2d const outer) const {
+        affine::extents2d extents(affine::extents2d const outer) const {
             auto const first_ex = items[0].extents(outer);
-            float width = first_ex.width();
-            float height = first_ex.height();
+            float width = first_ex.width;
+            float height = first_ex.height;
             for (std::size_t index{1}; index < items.size(); ++index) {
                 auto const ex = items[index].extents(outer);
-                width += padding + ex.width();
-                height = std::max(height, ex.height());
+                width += padding + ex.width;
+                height = std::max(height, ex.height);
             }
-            return {{0, 0}, {width, height}};
+            return {width, height};
         }
 
-        void draw_within(renderer &r, affine::extent2d const outer) const {
+        void draw_within(renderer &r, affine::rectangle const outer) const {
             auto left = outer.top_left.x();
-            auto const top = outer.top_left.y(),
-                       bottom = outer.bottom_right.y();
+            auto const top = outer.top(), bottom = outer.bottom();
             for (auto const &item : items) {
-                auto const ex = item.extents(outer);
-                auto const width = ex.width();
-                item.draw_within(r, {{left, top}, {left + width, bottom}});
+                auto const ex = item.extents(outer.extents);
+                auto const width = ex.width;
+                item.draw_within(
+                        r,
+                        {{left, top}, affine::point2d{left + width, bottom}});
                 left += width + padding;
             }
         }
@@ -55,12 +56,12 @@ namespace planet::sdl::ui {
         breakable_row(collection_type c, float const hp, float const vp)
         : items{std::move(c)}, hpadding{hp}, vpadding{vp} {}
 
-        affine::extent2d extents(affine::extent2d const outer) const {
-            float const fit_width = outer.width();
+        affine::extents2d extents(affine::extents2d const outer) const {
+            float const fit_width = outer.width;
             float max_width = {}, row_height = {}, total_height = {}, left{};
             for (auto const &item : items) {
                 auto const item_ex = item.extents(outer);
-                auto const item_w = item_ex.width();
+                auto const item_w = item_ex.width;
                 if (left + item_w > fit_width) {
                     max_width = std::max(max_width, left);
                     if (total_height) { total_height += vpadding; }
@@ -74,14 +75,14 @@ namespace planet::sdl::ui {
             }
             max_width = std::max(max_width, left);
             total_height += row_height;
-            return {{0, 0}, {max_width, total_height}};
+            return {max_width, total_height};
         }
-        void draw_within(renderer &r, affine::extent2d const outer) const {
-            float const fit_width = outer.width();
+        void draw_within(renderer &r, affine::rectangle const outer) const {
+            float const fit_width = outer.extents.width;
             float row_height = {}, x = {}, y = {};
             for (auto const &item : items) {
                 auto const item_ex = item.extents(outer);
-                auto const item_w = item_ex.width();
+                auto const item_w = item_ex.width;
                 if (x + item_w > fit_width) {
                     x = {};
                     if (y) { y += vpadding; }
@@ -92,7 +93,7 @@ namespace planet::sdl::ui {
                 item.draw_within(
                         r,
                         {outer.top_left + affine::point2d{x, y},
-                         outer.bottom_right});
+                         {outer.right(), outer.bottom()}});
                 row_height = std::max(row_height, item_ex.height());
                 x += item_w;
             }

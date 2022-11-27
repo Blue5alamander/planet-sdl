@@ -16,7 +16,7 @@ namespace planet::sdl {
 
     class texture {
         handle<SDL_Texture, SDL_DestroyTexture> pt;
-        affine::extent2d size;
+        affine::extents2d size;
 
       public:
         texture(renderer &, surface const &);
@@ -25,18 +25,18 @@ namespace planet::sdl {
 
         /// Return the texture extents. The top left co-ordinates will always be
         /// 0, 0
-        affine::extent2d const &extents() const noexcept { return size; }
-        affine::extent2d const &
-                extents(affine::extent2d const &) const noexcept {
+        affine::extents2d const &extents() const noexcept { return size; }
+        affine::extents2d const &
+                extents(affine::extents2d const &) const noexcept {
             return size;
         }
-        float width() const { return size.width(); }
+        float width() const { return size.width; }
         std::size_t zwidth() const { return size.zwidth(); }
-        float height() const { return size.height(); }
-        std::size_t zheight() const { return size.height(); }
+        float height() const { return size.height; }
+        std::size_t zheight() const { return size.zheight(); }
 
         /// Draw the texture at the given screen co-ordinates
-        void draw_within(renderer &, affine::extent2d const &) const;
+        void draw_within(renderer &, affine::rectangle const &) const;
     };
 
 

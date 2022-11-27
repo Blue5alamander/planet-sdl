@@ -23,7 +23,7 @@ planet::sdl::window::window(
           height,
           0)},
   renderer{*this},
-  size{{0, 0}, {float(width), float(height)}} {}
+  size{float(width), float(height)} {}
 
 
 planet::sdl::window::window(init &s, const char *const name, std::uint32_t flags)
@@ -31,12 +31,12 @@ planet::sdl::window::window(init &s, const char *const name, std::uint32_t flags
   pw{SDL_CreateWindow(
           name, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, flags)},
   renderer{*this},
-  size{{0, 0}, {640, 480}} {
+  size{640, 480} {
     if (not pw.get()) {
         throw felspar::stdexcept::runtime_error{"SDL_CreateWindow failed"};
     }
     std::cout << "Window created\n";
     int ww{}, wh{};
     SDL_GL_GetDrawableSize(pw.get(), &ww, &wh);
-    size = {{0, 0}, {float(ww), float(wh)}};
+    size = {float(ww), float(wh)};
 }

@@ -29,10 +29,10 @@ namespace planet::sdl::ui {
 
     /// Calculate the extent within the outer extent that the inner will have
     /// based on the gravity passed in
-    affine::extent2d
+    affine::rectangle
             within(gravity,
-                   affine::extent2d const &outer,
-                   affine::extent2d const &inner);
+                   affine::rectangle const &outer,
+                   affine::extents2d const &inner);
 
     /// A container for another element
     template<typename C>
@@ -54,22 +54,17 @@ namespace planet::sdl::ui {
         : content{std::move(c)}, inner{g}, hpadding{hp}, vpadding{vp} {}
 
         /// Calculate the extents of the box
-        affine::extent2d extents(affine::extent2d const &ex) const {
+        affine::extents2d extents(affine::extents2d const &ex) const {
             auto const inner = content.extents(
-                    {{ex.top_left.x() + hpadding, ex.top_left.y() + vpadding},
-                     {ex.bottom_right.x() - hpadding,
-                      ex.bottom_right.y() - vpadding}});
-            return {{inner.top_left.x() - hpadding,
-                     inner.top_left.y() - vpadding},
-                    {inner.bottom_right.x() + hpadding,
-                     inner.bottom_right.y() + vpadding}};
+                    {ex.width - 2 * hpadding, ex.height - 2 * vpadding});
+            return {inner.width + 2 * hpadding, inner.height + 2 * vpadding};
         }
 
         /// Draw the content within the area outlined by the top left and bottom
         /// right corners passed in. All calculations are done in the screen
         /// space co-ordinate system
-        void draw_within(renderer &r, affine::extent2d const outer) const {
-            auto const area = within(inner, outer, extents(outer));
+        void draw_within(renderer &r, affine::rectangle const outer) const {
+            auto const area = within(inner, outer, extents(outer.extents));
             content.draw_within(r, area);
         }
     };

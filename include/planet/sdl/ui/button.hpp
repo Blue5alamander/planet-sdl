@@ -27,8 +27,7 @@ namespace planet::sdl::ui {
                 add_to(planet::sdl::panel &parent,
                        planet::affine::point2d const centre) {
             auto const sz = graphic.extents();
-            affine::point2d const half = {
-                    sz.width() / 2.0f, sz.height() / 2.0f};
+            affine::point2d const half = {sz.width / 2.0f, sz.height / 2.0f};
             parent.add_child(panel, centre - half, centre + half);
             response.post(*this, &button::button_response);
             visible = true;
