@@ -54,21 +54,22 @@ namespace planet::sdl::ui {
         : content{std::move(c)}, inner{g}, hpadding{hp}, vpadding{vp} {}
 
         /// Calculate the extents of the box
-        affine::extent2d extents() const {
-            auto const inner = content.extents();
+        affine::extent2d extents(affine::extent2d const &ex) const {
+            auto const inner = content.extents(
+                    {{ex.top_left.x() + hpadding, ex.top_left.y() + vpadding},
+                     {ex.bottom_right.x() - hpadding,
+                      ex.bottom_right.y() - vpadding}});
             return {{inner.top_left.x() - hpadding,
                      inner.top_left.y() - vpadding},
                     {inner.bottom_right.x() + hpadding,
                      inner.bottom_right.y() + vpadding}};
         }
-        float width() const { return content.width() + 2 * hpadding; }
-        float height() const { return content.height() + 2 * vpadding; }
 
         /// Draw the content within the area outlined by the top left and bottom
         /// right corners passed in. All calculations are done in the screen
         /// space co-ordinate system
         void draw_within(renderer &r, affine::extent2d const outer) const {
-            auto const area = within(inner, outer, extents());
+            auto const area = within(inner, outer, extents(outer));
             content.draw_within(r, area);
         }
     };

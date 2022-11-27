@@ -26,6 +26,10 @@ namespace planet::sdl {
         /// Return the texture extents. The top left co-ordinates will always be
         /// 0, 0
         affine::extent2d const &extents() const noexcept { return size; }
+        affine::extent2d const &
+                extents(affine::extent2d const &) const noexcept {
+            return size;
+        }
         float width() const { return size.width(); }
         std::size_t zwidth() const { return size.zwidth(); }
         float height() const { return size.height(); }
