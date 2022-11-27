@@ -2,24 +2,7 @@
 #include <planet/sdl/texture.hpp>
 #include <planet/sdl/window.hpp>
 
-#include <felspar/exceptions.hpp>
-
 #include <iostream>
-
-
-namespace {
-    int
-            worked(int const e,
-                   felspar::source_location const &loc =
-                           felspar::source_location::current()) {
-        if (e < 0) [[unlikely]] {
-            throw felspar::stdexcept::runtime_error{
-                    std::string{"Drawing API failed "} + SDL_GetError()};
-        } else {
-            return e;
-        }
-    }
-}
 
 
 /**
@@ -37,7 +20,9 @@ planet::sdl::renderer::renderer(window &w)
 }
 
 
-void planet::sdl::renderer::clear() const { worked(SDL_RenderClear(pr.get())); }
+void planet::sdl::renderer::clear() const {
+    drawing_worked(SDL_RenderClear(pr.get()));
+}
 
 
 void planet::sdl::renderer::present() const { SDL_RenderPresent(pr.get()); }
@@ -45,10 +30,11 @@ void planet::sdl::renderer::present() const { SDL_RenderPresent(pr.get()); }
 
 void planet::sdl::renderer::colour(
         std::uint8_t const r, std::uint8_t const g, std::uint8_t const b) const {
-    worked(SDL_SetRenderDrawColor(pr.get(), r, g, b, SDL_ALPHA_OPAQUE));
+    drawing_worked(SDL_SetRenderDrawColor(pr.get(), r, g, b, SDL_ALPHA_OPAQUE));
 }
 void planet::sdl::renderer::colour(SDL_Color const &c) const {
-    worked(SDL_SetRenderDrawColor(pr.get(), c.r, c.g, c.b, SDL_ALPHA_OPAQUE));
+    drawing_worked(
+            SDL_SetRenderDrawColor(pr.get(), c.r, c.g, c.b, SDL_ALPHA_OPAQUE));
 }
 
 
@@ -57,21 +43,19 @@ void planet::sdl::renderer::line(
         std::size_t const y1,
         std::size_t const x2,
         std::size_t const y2) const {
-    worked(SDL_RenderDrawLine(pr.get(), x1, y1, x2, y2));
+    drawing_worked(SDL_RenderDrawLine(pr.get(), x1, y1, x2, y2));
 }
 
 
 void planet::sdl::renderer::lines(std::span<SDL_Point> pts) const {
-    worked(SDL_RenderDrawLines(pr.get(), pts.data(), pts.size()));
+    drawing_worked(SDL_RenderDrawLines(pr.get(), pts.data(), pts.size()));
 }
 
 
 void planet::sdl::renderer::copy(
         texture const &t, std::size_t const x, std::size_t const y) {
-    auto location = t.extents();
-    location.x = x;
-    location.y = y;
-    worked(SDL_RenderCopy(pr.get(), t.get(), nullptr, &location));
+    SDL_Rect location = {int(x), int(y), int(t.zwidth()), int(t.zheight())};
+    drawing_worked(SDL_RenderCopy(pr.get(), t.get(), nullptr, &location));
 }
 
 

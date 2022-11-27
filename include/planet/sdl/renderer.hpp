@@ -7,6 +7,8 @@
 #include <felspar/coro/bus.hpp>
 #include <felspar/coro/eager.hpp>
 #include <felspar/coro/stream.hpp>
+#include <felspar/exceptions.hpp>
+
 
 #include <SDL.h>
 
@@ -20,6 +22,20 @@ namespace planet::sdl {
     class renderer;
     class texture;
     class window;
+
+
+    /// If a drawing API fails then throw an exception
+    inline int drawing_worked(
+            int const e,
+            felspar::source_location const &loc =
+                    felspar::source_location::current()) {
+        if (e < 0) [[unlikely]] {
+            throw felspar::stdexcept::runtime_error{
+                    std::string{"Drawing API failed "} + SDL_GetError()};
+        } else {
+            return e;
+        }
+    }
 
 
     /// Co-ordinate transform hierarchy for world etc. co-ordinate systems
