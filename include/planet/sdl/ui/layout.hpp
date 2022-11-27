@@ -43,11 +43,59 @@ namespace planet::sdl::ui {
     };
 
 
-    /// Performs basic line breaks
+    /// Draws the items across multiple lines when needed
     template<typename C>
-    struct breakable_row : public row<C> {
+    struct breakable_row {
+        using collection_type = C;
+        using box_type = typename collection_type::value_type;
+        collection_type items;
+        /// Padding between items in the row
+        float hpadding = {}, vpadding = {};
+
+        breakable_row(collection_type c, float const hp, float const vp)
+        : items{std::move(c)}, hpadding{hp}, vpadding{vp} {}
+
+        affine::extent2d extents(affine::extent2d const outer) const {
+            float const fit_width = outer.width();
+            float max_width = {}, row_height = {}, total_height = {}, left{};
+            for (auto const &item : items) {
+                auto const item_ex = item.extents(outer);
+                auto const item_w = item_ex.width();
+                if (left + item_w > fit_width) {
+                    max_width = std::max(max_width, left);
+                    if (total_height) { total_height += vpadding; }
+                    total_height += row_height;
+                    left = {};
+                    row_height = {};
+                } else {
+                    if (left) { left += hpadding; }
+                    left += item_w;
+                }
+            }
+            max_width = std::max(max_width, left);
+            total_height += row_height;
+            return {{0, 0}, {max_width, total_height}};
+        }
         void draw_within(renderer &r, affine::extent2d const outer) const {
-            row<C>::draw_within(r, outer);
+            float const fit_width = outer.width();
+            float row_height = {}, x = {}, y = {};
+            for (auto const &item : items) {
+                auto const item_ex = item.extents(outer);
+                auto const item_w = item_ex.width();
+                if (x + item_w > fit_width) {
+                    x = {};
+                    if (y) { y += vpadding; }
+                    y += row_height;
+                    row_height = {};
+                }
+                if (x) { x += hpadding; }
+                item.draw_within(
+                        r,
+                        {outer.top_left + affine::point2d{x, y},
+                         outer.bottom_right});
+                row_height = std::max(row_height, item_ex.height());
+                x += item_w;
+            }
         }
     };
 
