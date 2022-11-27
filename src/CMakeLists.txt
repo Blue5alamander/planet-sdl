@@ -4,7 +4,10 @@ if (NOT TARGET SDL2-static)
         set(SDL2_LIBRARIES SDL2)
         set(SDL2_INCLUDE_DIRS /usr/include/SDL2)
     endif()
+else()
+    set(SDL2_LIBRARIES SDL2-static)
 endif()
+
 
 add_library(planet-sdl
         asset_manager.cpp
@@ -34,8 +37,3 @@ target_link_libraries(planet-sdl PUBLIC
         planet-audio
         felspar-io
     )
-if(TARGET SDL2-static)
-    target_link_libraries(planet-sdl PUBLIC
-            SDL2-static
-        )
-endif()
