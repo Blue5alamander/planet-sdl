@@ -43,12 +43,12 @@ namespace planet::sdl::ui {
 
         void draw_within(renderer &r, affine::extent2d const outer) const {
             auto left = outer.top_left.x();
-            auto const top = outer.top_left.y(), bottom = outer.bottom_right.y();
+            auto const top = outer.top_left.y(),
+                       bottom = outer.bottom_right.y();
             for (auto const &item : items) {
                 auto const ex = item.extents();
                 auto const width = ex.width();
-                item.draw_within(
-                        r, {{left, top}, {left + width, bottom}});
+                item.draw_within(r, {{left, top}, {left + width, bottom}});
                 left += width + padding;
             }
         }
