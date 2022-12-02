@@ -57,6 +57,15 @@ void planet::sdl::renderer::copy(
     SDL_Rect location = {int(x), int(y), int(t.zwidth()), int(t.zheight())};
     drawing_worked(SDL_RenderCopy(pr.get(), t.get(), nullptr, &location));
 }
+void planet::sdl::renderer::copy(
+        texture const &t,
+        std::size_t const x,
+        std::size_t const y,
+        std::size_t const w,
+        std::size_t const h) {
+    SDL_Rect location = {int(x), int(y), int(w), int(h)};
+    drawing_worked(SDL_RenderCopy(pr.get(), t.get(), nullptr, &location));
+}
 
 
 /**
@@ -137,6 +146,14 @@ void planet::sdl::panel::copy(texture const &tex, affine::point2d const l) const
     if (rend) [[likely]] {
         auto p = viewport.into(l);
         rend->copy(tex, p.x(), p.y());
+    }
+}
+void planet::sdl::panel::copy(
+        texture const &tex, affine::rectangle const r) const {
+    if (rend) [[likely]] {
+        auto tl = viewport.into(r.top_left);
+        auto br = viewport.into(r.bottom_right());
+        rend->copy(tex, tl.x(), tl.y(), br.x() - tl.x(), br.y() - tl.y());
     }
 }
 

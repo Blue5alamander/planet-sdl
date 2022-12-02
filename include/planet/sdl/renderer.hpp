@@ -139,6 +139,8 @@ namespace planet::sdl {
         /// Draw the texture at native size with its top left corder at the
         /// location specified
         void copy(texture const &, affine::point2d) const;
+        /// Scale the texture, drawing it to fill the rectangle
+        void copy(texture const &, affine::rectangle) const;
     };
 
 
@@ -204,6 +206,12 @@ namespace planet::sdl {
                      std::size_t y2) const;
         void lines(std::span<SDL_Point>) const;
         void copy(texture const &, std::size_t x, std::size_t y);
+        void
+                copy(texture const &,
+                     std::size_t x,
+                     std::size_t y,
+                     std::size_t w,
+                     std::size_t h);
 
       private:
         felspar::coro::bus<frame> waiting_for_frame;
