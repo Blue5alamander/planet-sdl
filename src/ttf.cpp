@@ -33,10 +33,13 @@ planet::sdl::font::font(
 }
 
 
-planet::sdl::surface planet::sdl::font::render(char const *text) const {
-    return {TTF_RenderText_Solid(pf.get(), text, colour)};
-}
 planet::sdl::surface
         planet::sdl::font::render(char const *text, SDL_Color c) const {
-    return {TTF_RenderText_Solid(pf.get(), text, c)};
+    return {TTF_RenderUTF8_Blended(pf.get(), text, c)};
+}
+
+
+planet::sdl::surface planet::sdl::font::render(
+        char const *text, SDL_Color const c, std::uint32_t const width) const {
+    return {TTF_RenderUTF8_Blended_Wrapped(pf.get(), text, c, width)};
 }

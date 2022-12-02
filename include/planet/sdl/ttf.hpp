@@ -38,8 +38,15 @@ namespace planet::sdl {
 
         TTF_Font *get() const noexcept { return pf.get(); }
 
-        surface render(char const *text) const;
+        /// Render text to a single line
+        surface render(char const *text) const { return render(text, colour); }
         surface render(char const *text, SDL_Color) const;
+
+        /// Wrap text if  it is too wide
+        surface render(char const *text, std::uint32_t const width) const {
+            return render(text, colour, width);
+        }
+        surface render(char const *text, SDL_Color, std::uint32_t width) const;
     };
 
 
