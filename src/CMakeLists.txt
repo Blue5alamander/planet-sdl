@@ -15,6 +15,7 @@ add_library(planet-sdl
         draw.cpp
         gravity.ui.cpp
         init.cpp
+        panel.cpp
         renderer.cpp
         surface.cpp
         texture.cpp
