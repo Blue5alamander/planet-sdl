@@ -20,12 +20,16 @@ planet::sdl::renderer::renderer(window &w)
 }
 
 
-void planet::sdl::renderer::clear() const {
+void planet::sdl::renderer::clear() {
+    ++current_frame.number;
     drawing_worked(SDL_RenderClear(pr.get()));
 }
 
 
-void planet::sdl::renderer::present() const { SDL_RenderPresent(pr.get()); }
+planet::sdl::renderer::frame planet::sdl::renderer::present() {
+    SDL_RenderPresent(pr.get());
+    return current_frame;
+}
 
 
 void planet::sdl::renderer::colour(

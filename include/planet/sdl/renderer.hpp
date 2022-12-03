@@ -167,7 +167,7 @@ namespace planet::sdl {
 
         /// Describe the last frame that has been rendered
         struct frame {
-            std::size_t number;
+            std::size_t number = {};
         };
 
         /// Set a function that controls rendering and yields a frame structure
@@ -177,17 +177,23 @@ namespace planet::sdl {
             current_renderer.post(
                     renderer::frame_wrapper<N>, this, std::ref(o), f);
         }
-        /// When a render function has been connected (see `connect`) the
-        /// awaitable returned here can be used to wait for the next frame
+        /**
+         * When a render function has been connected (see `connect`) the
+         * awaitable returned here can be used to wait for the next frame.
+         * Typically this is done using something like:
+         * ```cpp
+         * co_yield renderer.present();
+         * ```
+         */
         auto next_frame() { return waiting_for_frame.next(); }
 
 
         /// ## Frame presentation
 
         /// Clear draw commands ready for next frame
-        void clear() const;
+        void clear();
         /// Send the current draw commands to the screen
-        void present() const;
+        [[nodiscard]] frame present();
 
 
         /// ## Graphics APIs
@@ -214,6 +220,7 @@ namespace planet::sdl {
                      std::size_t h);
 
       private:
+        frame current_frame = {};
         felspar::coro::bus<frame> waiting_for_frame;
         template<typename N>
         static felspar::coro::task<void> frame_wrapper(
