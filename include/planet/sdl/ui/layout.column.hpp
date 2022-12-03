@@ -53,7 +53,7 @@ namespace planet::sdl::ui {
         auto item_sizes(
                 affine::extents2d const outer,
                 std::index_sequence<I...>) const {
-            std::array<affine::extents2d, sizeof...(Pack)>{
+            return std::array<affine::extents2d, sizeof...(Pack)>{
                     std::get<I>(items).extents(outer)...,
             };
         }
