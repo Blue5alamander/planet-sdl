@@ -38,8 +38,6 @@ namespace planet::sdl {
         friend class window;
         window &win;
         handle<SDL_Renderer, SDL_DestroyRenderer> pr;
-        /// Handle the optional render coroutine support
-        felspar::coro::eager<> current_renderer;
 
         /// Only creatable by the window
         renderer(window &);
@@ -55,27 +53,16 @@ namespace planet::sdl {
 
         /// ## Render function
 
-        /// Describe the last frame that has been rendered
-        struct frame {
-            std::size_t number = {};
-        };
-
-        /// Set a function that controls rendering and yields a frame structure
-        /// after drawing the frame
-        template<typename N>
-        void connect(N &o, felspar::coro::stream<frame> (N::*f)()) {
-            current_renderer.post(
-                    renderer::frame_wrapper<N>, this, std::ref(o), f);
-        }
         /**
-         * When a render function has been connected (see `connect`) the
-         * awaitable returned here can be used to wait for the next frame.
-         * Typically this is done using something like:
+         * Describe the last frame that has been rendered. Typically this is
+         * done with an instance of the `render_loop` using something like:
          * ```cpp
          * co_yield renderer.present();
          * ```
          */
-        auto next_frame() { return waiting_for_frame.next(); }
+        struct frame {
+            std::size_t number = {};
+        };
 
 
         /// ## Frame presentation
@@ -111,14 +98,6 @@ namespace planet::sdl {
 
       private:
         frame current_frame = {};
-        felspar::coro::bus<frame> waiting_for_frame;
-        template<typename N>
-        static felspar::coro::task<void> frame_wrapper(
-                renderer *r, N &o, felspar::coro::stream<frame> (N::*f)()) {
-            for (auto frames = (o.*f)(); auto frame = co_await frames.next();) {
-                r->waiting_for_frame.push(*frame);
-            }
-        }
     };
 
 
