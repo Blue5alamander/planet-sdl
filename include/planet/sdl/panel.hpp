@@ -42,9 +42,12 @@ namespace planet::sdl {
         ~panel();
 
         /// Given the way we want to be able to use panels, we have to be able
-        /// to ensure stable addresses, so: not movable and not copyable
+        /// to ensure stable addresses, so: not copyable for sure, and never
+        /// movable once there are children
         panel(panel const &) = delete;
-        panel(panel &&) = delete;
+        panel(panel &&,
+              felspar::source_location const & =
+                      felspar::source_location::current());
         panel &operator=(panel const &) = delete;
         panel &operator=(panel &&) = delete;
 

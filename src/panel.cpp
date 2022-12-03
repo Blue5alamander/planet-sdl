@@ -9,6 +9,17 @@
 planet::sdl::panel::panel() { feeder.post(*this, &panel::feed_children); }
 
 
+planet::sdl::panel::panel(panel &&p, felspar::source_location const &loc)
+: panel{} {
+    if (p.parent or not p.children.empty()) {
+        throw felspar::stdexcept::logic_error{
+                "A panel cannot be moved once it is in the hierarchy", loc};
+    }
+    rend = p.rend;
+    viewport = p.viewport;
+}
+
+
 planet::sdl::panel::panel(renderer &re) : panel{} { rend = &re; }
 
 
