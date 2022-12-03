@@ -36,8 +36,8 @@ namespace planet::sdl::ui {
         affine::extents2d extents(affine::extents2d const &ex) const {
             return graphic.extents(ex);
         }
-        auto draw_within(renderer &r, affine::rectangle const outer) const {
-            return graphic.draw_within(r, outer);
+        void draw_within(renderer &r, affine::rectangle const outer) const {
+            if (visible) { graphic.draw_within(r, outer); }
         }
 
       private:
