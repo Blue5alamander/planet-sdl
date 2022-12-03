@@ -34,7 +34,7 @@ namespace planet::sdl::ui {
 
         template<typename Target>
         void draw_within(Target &t, affine::rectangle const outer) const {
-            auto left = outer.top_left.x();
+            auto left = outer.left();
             auto const top = outer.top(), bottom = outer.bottom();
             for (auto const &item : items) {
                 auto const ex = item.extents(outer.extents);
