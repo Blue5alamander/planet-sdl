@@ -23,12 +23,14 @@ namespace planet::sdl {
         affine::transform viewport = {};
 
         struct child final {
-            affine::point2d top_left, bottom_right;
+            std::optional<affine::rectangle> area;
             panel *sub;
 
-            child(panel *, affine::point2d, affine::point2d);
+            child(panel *);
+            child(panel *, affine::rectangle);
         };
         std::vector<child> children;
+        child &add(panel *p);
 
         // Swap out the current parent with a new one
         void reparent_children(panel *);
@@ -97,12 +99,27 @@ namespace planet::sdl {
 
         /// ## Panel hierarchy management
 
+        /// Tell if this parent currently has a parent or not
+        bool has_parent() const noexcept { return parent; }
+        /// Add to a parent, but don't position it
+        void add_child(panel &);
         /// Add a child covering the requested portion of the parent in the
         /// panel's coordinate space
+        void add_child(panel &, affine::rectangle);
         void add_child(
-                panel &, affine::point2d top_left, affine::point2d bottom_right);
+                panel &p,
+                affine::point2d const top_left,
+                affine::point2d const bottom_right) {
+            add_child(p, {top_left, bottom_right});
+        }
         /// Remove the passed child from the panel
         void remove_child(panel &);
+
+
+        /// ## Panel positioning
+
+        /// Move the location of this panel in the parent's space
+        void move_to(affine::rectangle);
 
 
         /// ## Message delivery and focus

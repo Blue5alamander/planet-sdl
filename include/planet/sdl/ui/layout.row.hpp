@@ -33,7 +33,7 @@ namespace planet::sdl::ui {
         }
 
         template<typename Target>
-        void draw_within(Target &t, affine::rectangle const outer) const {
+        void draw_within(Target &t, affine::rectangle const outer) {
             auto left = outer.left();
             auto const top = outer.top(), bottom = outer.bottom();
             for (auto const &item : items) {
@@ -83,9 +83,9 @@ namespace planet::sdl::ui {
         }
 
         template<typename Target>
-        void draw_within(Target &t, affine::rectangle const border) const {
+        void draw_within(Target &t, affine::rectangle const border) {
             float row_height = {}, x = {}, y = {};
-            for (auto const &item : items) {
+            for (auto &item : items) {
                 auto const ex = item.extents(border.extents);
                 if (x + ex.width > border.extents.width) {
                     x = {};

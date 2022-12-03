@@ -20,24 +20,21 @@ namespace planet::sdl::ui {
           press_value{std::move(v)},
           output_to{o} {}
 
-        void
-                add_to(planet::sdl::panel &parent,
-                       planet::affine::point2d const centre) {
+        void add_to(planet::sdl::panel &parent) {
             auto const sz = graphic.extents();
-            affine::point2d const half = {sz.width / 2.0f, sz.height / 2.0f};
-            parent.add_child(panel, centre - half, centre + half);
+            parent.add_child(panel);
             response.post(*this, &button::button_response);
             visible = true;
-        }
-        void draw() const {
-            if (visible) { panel.copy(graphic, {0, 0}); }
         }
 
         affine::extents2d extents(affine::extents2d const &ex) const {
             return graphic.extents(ex);
         }
-        void draw_within(renderer &r, affine::rectangle const outer) const {
-            if (visible) { graphic.draw_within(r, outer); }
+        void draw_within(renderer &r, affine::rectangle const outer) {
+            if (visible) {
+                graphic.draw_within(r, outer);
+                panel.move_to({outer.top_left, graphic.extents()});
+            }
         }
 
       private:

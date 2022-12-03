@@ -34,10 +34,13 @@ felspar::coro::task<void> planet::sdl::panel::feed_children() {
     while (true) {
         auto click = co_await mouse_click.next();
         for (auto &c : children) {
-            if (click.x() >= c.top_left.x() and click.x() <= c.bottom_right.x()
-                and click.y() >= c.top_left.y()
-                and click.y() <= c.bottom_right.y()) {
-                c.sub->mouse_click.push(c.sub->viewport.outof(click));
+            if (c.area) {
+                if (click.x() >= c.area->top_left.x()
+                    and click.x() <= c.area->bottom_right().x()
+                    and click.y() >= c.area->top_left.y()
+                    and click.y() <= c.area->bottom_right().y()) {
+                    c.sub->mouse_click.push(c.sub->viewport.outof(click));
+                }
             }
         }
     }
@@ -47,19 +50,27 @@ felspar::coro::task<void> planet::sdl::panel::feed_children() {
 void planet::sdl::panel::reparent_children(panel *const np) {
     for (auto &p : children) {
         p.sub->parent = np;
-        if (np) { np->add_child(*p.sub, p.top_left, p.bottom_right); }
+        if (np) {
+            if (p.area) {
+                np->add_child(*p.sub, *p.area);
+            } else {
+                np->add_child(*p.sub);
+            }
+        }
     }
 }
 
 
-void planet::sdl::panel::add_child(
-        panel &c,
-        affine::point2d const top_left,
-        affine::point2d const bottom_right) {
-    if (rend) { c.rend = rend; }
-    c.parent = this;
-    c.translate(top_left);
-    children.emplace_back(&c, top_left, bottom_right);
+planet::sdl::panel::child &planet::sdl::panel::add(panel *c) {
+    if (rend) { c->rend = rend; }
+    c->parent = this;
+    children.emplace_back(c);
+    return children.back();
+}
+void planet::sdl::panel::add_child(panel &c) { add(&c); }
+void planet::sdl::panel::add_child(panel &c, affine::rectangle const area) {
+    add(&c).area = area;
+    c.translate(area.top_left);
 }
 
 
@@ -72,6 +83,20 @@ void planet::sdl::panel::remove_child(panel &c) {
         c.parent = nullptr;
         c.rend = nullptr;
         children.erase(pos);
+    }
+}
+
+
+void planet::sdl::panel::move_to(affine::rectangle const area) {
+    if (parent) {
+        auto pos = std::find_if(
+                parent->children.begin(), parent->children.end(),
+                [this](auto const &p) { return p.sub == this; });
+        if (pos != parent->children.end()) {
+            if (pos->area) { translate(-pos->area->top_left); }
+            translate(area.top_left);
+            pos->area = area;
+        }
     }
 }
 
@@ -107,6 +132,6 @@ void planet::sdl::panel::copy(
  */
 
 
-planet::sdl::panel::child::child(
-        panel *const c, affine::point2d const tl, affine::point2d const br)
-: sub{c}, top_left{tl}, bottom_right{br} {}
+planet::sdl::panel::child::child(panel *const c) : area{}, sub{c} {}
+planet::sdl::panel::child::child(panel *const c, affine::rectangle const a)
+: area{a}, sub{c} {}

@@ -63,7 +63,7 @@ namespace planet::sdl::ui {
         /// Draw the content within the area outlined by the top left and bottom
         /// right corners passed in. All calculations are done in the screen
         /// space co-ordinate system
-        void draw_within(renderer &r, affine::rectangle const outer) const {
+        void draw_within(renderer &r, affine::rectangle const outer) {
             auto const area = within(inner, outer, extents(outer.extents));
             content.draw_within(r, area);
         }

@@ -43,7 +43,7 @@ namespace planet::sdl::ui {
         }
 
         template<typename Target>
-        auto draw_within(Target &t, affine::rectangle const outer) const {
+        auto draw_within(Target &t, affine::rectangle const outer) {
             return draw_within(
                     t, outer, std::make_index_sequence<sizeof...(Pack)>{});
         }
@@ -62,7 +62,7 @@ namespace planet::sdl::ui {
         void draw_within(
                 Target &t,
                 affine::rectangle const outer,
-                std::index_sequence<I...>) const {
+                std::index_sequence<I...>) {
             float top = outer.top();
             ((top += draw_item(t, std::get<I>(items), outer, top) + padding),
              ...);
@@ -70,9 +70,9 @@ namespace planet::sdl::ui {
         template<typename Target, typename Item>
         float draw_item(
                 Target &t,
-                Item const &item,
+                Item &item,
                 affine::rectangle const within,
-                float const top) const {
+                float const top) {
             auto const ex = item.extents(within.extents);
             auto const height = ex.height;
             auto const left = within.left(), right = within.right();
