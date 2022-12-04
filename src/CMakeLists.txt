@@ -13,7 +13,6 @@ add_library(planet-sdl
         asset_manager.cpp
         audio.cpp
         draw.cpp
-        gravity.ui.cpp
         init.cpp
         panel.cpp
         renderer.cpp
