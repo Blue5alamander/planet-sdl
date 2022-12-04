@@ -11,9 +11,10 @@ planet::sdl::texture::texture(renderer &r, surface const &s)
 
 void planet::sdl::texture::draw_within(
         planet::sdl::renderer &r, planet::affine::rectangle const &e) const {
+    auto const ex = extents(e.extents);
     SDL_Rect location = {
-            int(e.top_left.x()), int(e.top_left.y()), int(e.extents.width),
-            int(e.extents.height)};
+            int(e.top_left.x()), int(e.top_left.y()), int(ex.width),
+            int(ex.height)};
     drawing_worked(SDL_RenderCopy(r.get(), pt.get(), nullptr, &location));
 }
 
