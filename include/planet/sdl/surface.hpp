@@ -4,6 +4,7 @@
 #include <planet/asset_manager.hpp>
 #include <planet/affine2d.hpp>
 #include <planet/sdl/handle.hpp>
+#include <planet/ui/scale.hpp>
 
 #include <SDL.h>
 
@@ -18,8 +19,11 @@ namespace planet::sdl {
       public:
         using handle_type = decltype(ps);
 
-        surface(handle_type h)
-        : ps{std::move(h)}, size{float(ps->w), float(ps->h)} {}
+        surface(handle_type h, ui::scale const f = ui::scale::lock_aspect)
+        : ps{std::move(h)}, size{float(ps->w), float(ps->h)}, fit{f} {}
+
+        /// Control how the surface is draw
+        ui::scale fit;
 
         /// Create a surface by loading a BMP asset
         static surface load_bmp(

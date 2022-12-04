@@ -4,7 +4,9 @@
 
 
 planet::sdl::texture::texture(renderer &r, surface const &s)
-: pt{SDL_CreateTextureFromSurface(r.get(), s.get())}, size{s.extents()} {}
+: pt{SDL_CreateTextureFromSurface(r.get(), s.get())},
+  size{s.extents()},
+  fit{s.fit} {}
 
 
 void planet::sdl::texture::draw_within(
@@ -13,4 +15,10 @@ void planet::sdl::texture::draw_within(
             int(e.top_left.x()), int(e.top_left.y()), int(e.extents.width),
             int(e.extents.height)};
     drawing_worked(SDL_RenderCopy(r.get(), pt.get(), nullptr, &location));
+}
+
+
+planet::affine::extents2d planet::sdl::texture::extents(
+        affine::extents2d const bounds) const noexcept {
+    return ui::scaling(size, bounds, fit);
 }

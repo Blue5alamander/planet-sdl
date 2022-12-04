@@ -1,4 +1,5 @@
 #include <planet/sdl/ttf.hpp>
+#include <planet/ui/scale.hpp>
 
 
 /**
@@ -35,11 +36,12 @@ planet::sdl::font::font(
 
 planet::sdl::surface
         planet::sdl::font::render(char const *text, SDL_Color c) const {
-    return {TTF_RenderUTF8_Blended(pf.get(), text, c)};
+    return {TTF_RenderUTF8_Blended(pf.get(), text, c), ui::scale::never};
 }
 
 
 planet::sdl::surface planet::sdl::font::render(
         char const *text, SDL_Color const c, std::uint32_t const width) const {
-    return {TTF_RenderUTF8_Blended_Wrapped(pf.get(), text, c, width)};
+    return {TTF_RenderUTF8_Blended_Wrapped(pf.get(), text, c, width),
+            ui::scale::never};
 }
