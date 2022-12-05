@@ -29,6 +29,7 @@ namespace planet::sdl {
         handle &operator=(handle &&h) {
             reset();
             object = std::exchange(h.object, nullptr);
+            return *this;
         }
         handle &operator=(handle const &) = delete;
 
