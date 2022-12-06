@@ -43,10 +43,7 @@ void planet::sdl::renderer::colour(SDL_Color const &c) const {
 
 
 void planet::sdl::renderer::line(
-        std::size_t const x1,
-        std::size_t const y1,
-        std::size_t const x2,
-        std::size_t const y2) const {
+        int const x1, int const y1, int const x2, int const y2) const {
     drawing_worked(SDL_RenderDrawLine(pr.get(), x1, y1, x2, y2));
 }
 
@@ -56,17 +53,12 @@ void planet::sdl::renderer::lines(std::span<SDL_Point> pts) const {
 }
 
 
-void planet::sdl::renderer::copy(
-        texture const &t, std::size_t const x, std::size_t const y) {
+void planet::sdl::renderer::copy(texture const &t, int const x, int const y) {
     SDL_Rect location = {int(x), int(y), int(t.zwidth()), int(t.zheight())};
     drawing_worked(SDL_RenderCopy(pr.get(), t.get(), nullptr, &location));
 }
 void planet::sdl::renderer::copy(
-        texture const &t,
-        std::size_t const x,
-        std::size_t const y,
-        std::size_t const w,
-        std::size_t const h) {
+        texture const &t, int const x, int const y, int const w, int const h) {
     SDL_Rect location = {int(x), int(y), int(w), int(h)};
     drawing_worked(SDL_RenderCopy(pr.get(), t.get(), nullptr, &location));
 }

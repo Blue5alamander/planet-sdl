@@ -82,19 +82,10 @@ namespace planet::sdl {
         /// Graphics APIs in pixel coordinate space
         void colour(std::uint8_t r, std::uint8_t g, std::uint8_t b) const;
         void colour(SDL_Color const &) const;
-        void
-                line(std::size_t x1,
-                     std::size_t y1,
-                     std::size_t x2,
-                     std::size_t y2) const;
+        void line(int x1, int y1, int x2, int y2) const;
         void lines(std::span<SDL_Point>) const;
-        void copy(texture const &, std::size_t x, std::size_t y);
-        void
-                copy(texture const &,
-                     std::size_t x,
-                     std::size_t y,
-                     std::size_t w,
-                     std::size_t h);
+        void copy(texture const &, int x, int y);
+        void copy(texture const &, int x, int y, int w, int h);
 
       private:
         frame current_frame = {};
