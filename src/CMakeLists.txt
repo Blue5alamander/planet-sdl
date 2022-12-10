@@ -35,6 +35,5 @@ target_link_libraries(planet-sdl PUBLIC
         ${SDL2_LIBRARIES}
         SDL2_ttf
         planet
-        planet-audio
         felspar-io
     )
