@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include <planet/hexmap.hpp>
+#include <planet/map/hex.hpp>
 #include <planet/sdl/renderer.hpp>
 
 
