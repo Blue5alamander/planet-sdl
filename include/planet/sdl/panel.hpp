@@ -2,6 +2,7 @@
 
 
 #include <planet/affine2d.hpp>
+#include <planet/events/mouse.hpp>
 
 #include <felspar/coro/bus.hpp>
 #include <felspar/coro/eager.hpp>
@@ -125,7 +126,7 @@ namespace planet::sdl {
         /// ## Message delivery and focus
 
         /// Left button release position
-        felspar::coro::bus<affine::point2d> mouse_click;
+        felspar::coro::bus<planet::events::click> clicks;
 
 
         /// ## Drawing in the panel coordinate space

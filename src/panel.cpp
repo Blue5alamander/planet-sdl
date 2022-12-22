@@ -32,14 +32,17 @@ planet::sdl::panel::~panel() {
 
 felspar::coro::task<void> planet::sdl::panel::feed_children() {
     while (true) {
-        auto click = co_await mouse_click.next();
+        auto click = co_await clicks.next();
         for (auto &c : children) {
             if (c.area) {
-                if (click.x() >= c.area->top_left.x()
-                    and click.x() <= c.area->bottom_right().x()
-                    and click.y() >= c.area->top_left.y()
-                    and click.y() <= c.area->bottom_right().y()) {
-                    c.sub->mouse_click.push(c.sub->viewport.outof(click));
+                if (click.location.x() >= c.area->top_left.x()
+                    and click.location.x() <= c.area->bottom_right().x()
+                    and click.location.y() >= c.area->top_left.y()
+                    and click.location.y() <= c.area->bottom_right().y()) {
+                    auto transformed{click};
+                    transformed.location =
+                            c.sub->viewport.outof(click.location);
+                    c.sub->clicks.push(transformed);
                 }
             }
         }

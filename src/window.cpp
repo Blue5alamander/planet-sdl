@@ -9,11 +9,27 @@
 using namespace std::literals;
 
 
+namespace {
+    felspar::coro::stream<planet::events::mouse>
+            inputs(felspar::coro::bus<planet::events::mouse> &inputs) {
+        while (true) { co_yield co_await inputs.next(); }
+    }
+    felspar::coro::task<void> mouse_clicks(
+            felspar::coro::stream<planet::events::click> inputs,
+            felspar::coro::bus<planet::events::click> &outputs) {
+        while (auto m = co_await inputs.next()) { outputs.push(*m); }
+    }
+}
+
+
 planet::sdl::window::window(
         init &s,
         const char *const name,
-        std::size_t const width,
-        std::size_t const height)
+        int const posx,
+        int const posy,
+        int const width,
+        int const height,
+        std::uint32_t const flags)
 : sdl{s},
   pw{SDL_CreateWindow(
           name,
@@ -21,17 +37,9 @@ planet::sdl::window::window(
           SDL_WINDOWPOS_UNDEFINED,
           width,
           height,
-          0)},
+          flags)},
   renderer{*this},
-  size{float(width), float(height)} {}
-
-
-planet::sdl::window::window(init &s, const char *const name, std::uint32_t flags)
-: sdl{s},
-  pw{SDL_CreateWindow(
-          name, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, flags)},
-  renderer{*this},
-  size{640, 480} {
+  size{float(width), float(height)} {
     if (not pw.get()) {
         throw felspar::stdexcept::runtime_error{"SDL_CreateWindow failed"};
     }
@@ -39,4 +47,30 @@ planet::sdl::window::window(init &s, const char *const name, std::uint32_t flags
     int ww{}, wh{};
     SDL_GL_GetDrawableSize(pw.get(), &ww, &wh);
     size = {float(ww), float(wh)};
+
+    processes.post(
+            mouse_clicks,
+            planet::events::identify_clicks(mouse_settings, inputs(raw_mouse)),
+            std::ref(renderer.screen.clicks));
 }
+
+
+planet::sdl::window::window(
+        init &s,
+        const char *const name,
+        std::size_t const width,
+        std::size_t const height,
+        std::uint32_t const flags)
+: window{s,
+         name,
+         SDL_WINDOWPOS_UNDEFINED,
+         SDL_WINDOWPOS_UNDEFINED,
+         int(width),
+         int(height),
+         flags} {}
+
+
+planet::sdl::window::window(
+        init &s, const char *const name, std::uint32_t const flags)
+: window{s,   name, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640,
+         480, flags} {}

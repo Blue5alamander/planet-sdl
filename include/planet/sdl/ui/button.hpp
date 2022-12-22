@@ -41,7 +41,7 @@ namespace planet::sdl::ui {
         felspar::coro::eager<> response;
         felspar::coro::task<void> button_response() {
             while (true) {
-                co_await panel.mouse_click.next();
+                co_await panel.clicks.next();
                 output_to.push(press_value);
             }
         }
