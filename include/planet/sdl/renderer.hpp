@@ -27,7 +27,7 @@ namespace planet::sdl {
                     felspar::source_location::current()) {
         if (e < 0) [[unlikely]] {
             throw felspar::stdexcept::runtime_error{
-                    std::string{"Drawing API failed "} + SDL_GetError()};
+                    std::string{"Drawing API failed "} + SDL_GetError(), loc};
         } else {
             return e;
         }
