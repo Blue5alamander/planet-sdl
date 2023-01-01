@@ -23,14 +23,13 @@ namespace {
 
 
 planet::sdl::window::window(
-        init &s,
+        init &,
         const char *const name,
         int const posx,
         int const posy,
         int const width,
         int const height,
         std::uint32_t const flags)
-: sdl{s},
   pw{SDL_CreateWindow(
           name,
           SDL_WINDOWPOS_UNDEFINED,

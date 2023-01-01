@@ -18,7 +18,6 @@ namespace planet::sdl {
 
 
     class window final {
-        init &sdl;
         handle<SDL_Window, SDL_DestroyWindow> pw;
         affine::extents2d size;
         felspar::coro::starter<> processes;
