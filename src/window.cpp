@@ -30,15 +30,9 @@ planet::sdl::window::window(
         int const width,
         int const height,
         std::uint32_t const flags)
-  pw{SDL_CreateWindow(
-          name,
-          SDL_WINDOWPOS_UNDEFINED,
-          SDL_WINDOWPOS_UNDEFINED,
-          width,
-          height,
-          flags)},
-  renderer{*this},
-  size{float(width), float(height)} {
+: pw{SDL_CreateWindow(name, posx, posy, width, height, flags)},
+  size{float(width), float(height)},
+  renderer{*this} {
     if (not pw.get()) {
         throw felspar::stdexcept::runtime_error{"SDL_CreateWindow failed"};
     }
