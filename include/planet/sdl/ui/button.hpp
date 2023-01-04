@@ -21,7 +21,6 @@ namespace planet::sdl::ui {
           output_to{o} {}
 
         void add_to(planet::sdl::panel &parent) {
-            auto const sz = graphic.extents();
             parent.add_child(panel);
             response.post(*this, &button::button_response);
             visible = true;
