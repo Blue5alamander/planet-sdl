@@ -1,9 +1,7 @@
 #include <planet/sdl/renderer.hpp>
 
 
-/**
- * ## `planet::sdl::panel`
- */
+/// ## `planet::sdl::panel`
 
 
 planet::sdl::panel::panel() { feeder.post(*this, &panel::feed_children); }
@@ -25,7 +23,6 @@ planet::sdl::panel::panel(renderer &re) : panel{} { rend = &re; }
 
 planet::sdl::panel::~panel() {
     if (parent) { parent->remove_child(*this); }
-    /// Orphan the current children
     reparent_children(parent);
 }
 
@@ -130,9 +127,7 @@ void planet::sdl::panel::copy(
 }
 
 
-/**
- * ## `planet::sdl::panel::child`
- */
+/// ## `planet::sdl::panel::child`
 
 
 planet::sdl::panel::child::child(panel *const c) : area{}, sub{c} {}

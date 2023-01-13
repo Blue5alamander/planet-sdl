@@ -2,9 +2,7 @@
 #include <planet/ui/scale.hpp>
 
 
-/**
- * `planet::sdl::ttf`
- */
+/// ## `planet::sdl::ttf`
 
 
 planet::sdl::ttf::ttf(init &) { TTF_Init(); }
@@ -13,9 +11,7 @@ planet::sdl::ttf::ttf(init &) { TTF_Init(); }
 planet::sdl::ttf::~ttf() { TTF_Quit(); }
 
 
-/**
- * `planet::sdl::font`
- */
+/// ## `planet::sdl::font`
 
 
 planet::sdl::font::font(

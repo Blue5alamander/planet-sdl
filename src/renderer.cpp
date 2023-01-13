@@ -5,9 +5,7 @@
 #include <iostream>
 
 
-/**
- * ## `planet::sdl::renderer`
- */
+/// ## `planet::sdl::renderer`
 
 
 planet::sdl::renderer::renderer(window &w)
