@@ -30,18 +30,26 @@ planet::sdl::panel::~panel() {
 felspar::coro::task<void> planet::sdl::panel::feed_children() {
     while (true) {
         auto click = co_await clicks.next();
+        /**
+         * We really only want to send the click to a single child of this
+         * panel. Because we don't have Z heights or any other hierarchy at this
+         * level we look for the smallest child that the mouse click is within
+         * and send to that.
+         */
+        child *send_to = nullptr;
         for (auto &c : children) {
             if (c.area) {
-                if (click.location.x() >= c.area->top_left.x()
-                    and click.location.x() <= c.area->bottom_right().x()
-                    and click.location.y() >= c.area->top_left.y()
-                    and click.location.y() <= c.area->bottom_right().y()) {
-                    auto transformed{click};
-                    transformed.location =
-                            c.sub->viewport.outof(click.location);
-                    c.sub->clicks.push(transformed);
+                if (c.area->contains(click.location)) {
+                    if (not send_to or send_to->area->contains(*c.area)) {
+                        send_to = &c;
+                    }
                 }
             }
+        }
+        if (send_to) {
+            auto transformed{click};
+            transformed.location = send_to->sub->viewport.outof(click.location);
+            send_to->sub->clicks.push(transformed);
         }
     }
 }
