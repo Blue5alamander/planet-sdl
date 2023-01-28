@@ -37,7 +37,7 @@ namespace planet::sdl {
         std::size_t zheight() const { return size.zheight(); }
 
         /// Draw the texture at the given screen co-ordinates
-        void draw_within(renderer &, affine::rectangle const &) const;
+        void draw_within(renderer &, affine::rectangle2d const &) const;
     };
 
 

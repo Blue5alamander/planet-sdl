@@ -24,11 +24,11 @@ namespace planet::sdl {
         affine::transform viewport = {};
 
         struct child final {
-            std::optional<affine::rectangle> area;
+            std::optional<affine::rectangle2d> area;
             panel *sub;
 
             child(panel *);
-            child(panel *, affine::rectangle);
+            child(panel *, affine::rectangle2d);
         };
         std::vector<child> children;
         child &add(panel *p);
@@ -106,7 +106,7 @@ namespace planet::sdl {
         void add_child(panel &);
         /// Add a child covering the requested portion of the parent in the
         /// panel's coordinate space
-        void add_child(panel &, affine::rectangle);
+        void add_child(panel &, affine::rectangle2d);
         void add_child(
                 panel &p,
                 affine::point2d const top_left,
@@ -120,7 +120,7 @@ namespace planet::sdl {
         /// ## Panel positioning
 
         /// Move the location of this panel in the parent's space
-        void move_to(affine::rectangle);
+        void move_to(affine::rectangle2d);
 
 
         /// ## Message delivery and focus
@@ -137,7 +137,7 @@ namespace planet::sdl {
         /// location specified
         void copy(texture const &, affine::point2d) const;
         /// Scale the texture, drawing it to fill the rectangle
-        void copy(texture const &, affine::rectangle) const;
+        void copy(texture const &, affine::rectangle2d) const;
     };
 
 

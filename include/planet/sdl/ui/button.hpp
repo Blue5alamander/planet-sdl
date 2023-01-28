@@ -29,7 +29,7 @@ namespace planet::sdl::ui {
         affine::extents2d extents(affine::extents2d const &ex) const {
             return graphic.extents(ex);
         }
-        void draw_within(renderer &r, affine::rectangle const outer) {
+        void draw_within(renderer &r, affine::rectangle2d const outer) {
             if (visible) {
                 graphic.draw_within(r, outer);
                 panel.move_to({outer.top_left, graphic.extents()});

@@ -10,7 +10,7 @@ planet::sdl::texture::texture(renderer &r, surface const &s)
 
 
 void planet::sdl::texture::draw_within(
-        planet::sdl::renderer &r, planet::affine::rectangle const &e) const {
+        planet::sdl::renderer &r, planet::affine::rectangle2d const &e) const {
     auto const ex = extents(e.extents);
     SDL_Rect location = {
             int(e.top_left.x()), int(e.top_left.y()), int(ex.width),

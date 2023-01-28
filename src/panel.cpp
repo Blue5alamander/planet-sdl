@@ -68,7 +68,7 @@ planet::sdl::panel::child &planet::sdl::panel::add(panel *c) {
     return children.back();
 }
 void planet::sdl::panel::add_child(panel &c) { add(&c); }
-void planet::sdl::panel::add_child(panel &c, affine::rectangle const area) {
+void planet::sdl::panel::add_child(panel &c, affine::rectangle2d const area) {
     add(&c).area = area;
     c.translate(area.top_left);
 }
@@ -87,7 +87,7 @@ void planet::sdl::panel::remove_child(panel &c) {
 }
 
 
-void planet::sdl::panel::move_to(affine::rectangle const area) {
+void planet::sdl::panel::move_to(affine::rectangle2d const area) {
     if (parent) {
         auto pos = std::find_if(
                 parent->children.begin(), parent->children.end(),
@@ -118,7 +118,7 @@ void planet::sdl::panel::copy(texture const &tex, affine::point2d const l) const
     }
 }
 void planet::sdl::panel::copy(
-        texture const &tex, affine::rectangle const r) const {
+        texture const &tex, affine::rectangle2d const r) const {
     if (rend) [[likely]] {
         auto tl = viewport.into(r.top_left);
         auto br = viewport.into(r.bottom_right());
@@ -131,5 +131,5 @@ void planet::sdl::panel::copy(
 
 
 planet::sdl::panel::child::child(panel *const c) : area{}, sub{c} {}
-planet::sdl::panel::child::child(panel *const c, affine::rectangle const a)
+planet::sdl::panel::child::child(panel *const c, affine::rectangle2d const a)
 : area{a}, sub{c} {}
