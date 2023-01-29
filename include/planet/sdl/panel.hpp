@@ -21,7 +21,7 @@ namespace planet::sdl {
         panel *parent = nullptr;
 
         /// Transformation into and out of the coordinate space
-        affine::transform viewport = {};
+        affine::transform2d viewport = {};
 
         struct child final {
             std::optional<affine::rectangle2d> area;
