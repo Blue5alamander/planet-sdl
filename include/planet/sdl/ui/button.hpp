@@ -7,7 +7,7 @@ namespace planet::sdl::ui {
     template<typename R>
     class button {
       public:
-        sdl::panel panel;
+        planet::panel panel;
         texture graphic;
         bool visible = false;
 
@@ -15,12 +15,9 @@ namespace planet::sdl::ui {
         felspar::coro::bus<R> &output_to;
 
         button(sdl::renderer &r, surface text, felspar::coro::bus<R> &o, R v)
-        : panel{r},
-          graphic{r, std::move(text)},
-          press_value{std::move(v)},
-          output_to{o} {}
+        : graphic{r, std::move(text)}, press_value{std::move(v)}, output_to{o} {}
 
-        void add_to(planet::sdl::panel &parent) {
+        void add_to(planet::panel &parent) {
             parent.add_child(panel);
             response.post(*this, &button::button_response);
             visible = true;

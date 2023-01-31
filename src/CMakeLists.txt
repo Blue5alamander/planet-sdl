@@ -13,7 +13,6 @@ add_library(planet-sdl
         audio.cpp
         draw.cpp
         init.cpp
-        panel.cpp
         renderer.cpp
         surface.cpp
         texture.cpp
