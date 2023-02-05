@@ -1,5 +1,7 @@
 #include <planet/sdl.hpp>
 
+#include <felspar/coro/start.hpp>
+
 
 using namespace std::literals;
 
@@ -32,6 +34,11 @@ struct ui {
             co_await sdl.io.sleep(50ms);
         }
     }
+
+    felspar::coro::starter<> coros;
+    std::vector<std::string> raw_mouse_events, mouse_clicks;
+    felspar::coro::task<void> save_raw_mouse_events();
+    felspar::coro::task<void> save_mouse_clicks();
 };
 
 
