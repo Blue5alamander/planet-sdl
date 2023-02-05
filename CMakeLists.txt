@@ -15,5 +15,6 @@ if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
         )
 endif()
 
+add_subdirectory(examples)
 add_subdirectory(src)
 add_subdirectory(test)
