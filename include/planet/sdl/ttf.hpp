@@ -32,7 +32,7 @@ namespace planet::sdl {
         font(asset_manager const &,
              char const *filename,
              std::size_t pixel_height,
-             SDL_Color,
+             SDL_Color = {255, 255, 200, 255},
              felspar::source_location const & =
                      felspar::source_location::current());
 
