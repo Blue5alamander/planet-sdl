@@ -51,5 +51,5 @@ int main(int argc, char const *argv[]) {
                char const *argv[]) -> felspar::coro::task<int> {
                 co_return co_await ui{sdl, {argv[0]}}.loop.run();
             },
-            argc, argv);
+            "planet/mouse-example-planet-sdl", argc, argv);
 }
