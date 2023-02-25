@@ -22,8 +22,11 @@ struct ui {
     planet::sdl::window window{
             sdl, "Planet SDL mouse example", SDL_WINDOW_FULLSCREEN_DESKTOP};
 
-    felspar::coro::task<void> run() { co_await sdl.io.sleep(3s); }
-    planet::sdl::event_loop loop{sdl, window, *this, &ui::run};
+    felspar::coro::task<int> run() {
+        co_await sdl.io.sleep(3s);
+        co_return 0;
+    }
+    planet::sdl::event_loop loop{sdl, window};
 
     felspar::coro::stream<planet::sdl::renderer::frame> renderer() {
         while (true) {
@@ -49,7 +52,7 @@ int main(int argc, char const *argv[]) {
     return planet::sdl::co_main(
             [](planet::sdl::init &sdl, int,
                char const *argv[]) -> felspar::coro::task<int> {
-                co_return co_await ui{sdl, {argv[0]}}.loop.run();
+                co_return co_await ui{sdl, {argv[0]}}.run();
             },
             "planet/mouse-example-planet-sdl", argc, argv);
 }

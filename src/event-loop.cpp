@@ -11,12 +11,12 @@ using namespace std::literals;
 /// ## `planet::sdl::event_loop`
 
 
-felspar::coro::task<int> planet::sdl::event_loop::run() {
+felspar::coro::task<void> planet::sdl::event_loop::run() {
     while (true) {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
-            case SDL_QUIT: co_return 0;
+            case SDL_QUIT: co_return;
             case SDL_MOUSEBUTTONDOWN:
                 switch (event.button.button) {
                 case SDL_BUTTON_LEFT:
@@ -51,7 +51,6 @@ felspar::coro::task<int> planet::sdl::event_loop::run() {
             default: break;
             }
         }
-        if (ui.done()) { co_return 0; }
         co_await sdl.io.sleep(50ms);
     }
 }
