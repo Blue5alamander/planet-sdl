@@ -16,11 +16,10 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
-            case SDL_QUIT: co_return;
             case SDL_MOUSEBUTTONDOWN:
                 switch (event.button.button) {
                 case SDL_BUTTON_LEFT:
-                    window.raw_mouse.push(
+                    raw_mouse.push(
                             {planet::events::mouse::press::left,
                              planet::events::mouse::state::down,
                              planet::affine::point2d{
@@ -32,7 +31,7 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
             case SDL_MOUSEBUTTONUP:
                 switch (event.button.button) {
                 case SDL_BUTTON_LEFT:
-                    window.raw_mouse.push(
+                    raw_mouse.push(
                             {planet::events::mouse::press::left,
                              planet::events::mouse::state::up,
                              planet::affine::point2d{
@@ -42,11 +41,18 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
                 }
                 break;
             case SDL_MOUSEMOTION:
-                window.raw_mouse.push(
+                raw_mouse.push(
                         {planet::events::mouse::press::none,
                          planet::events::mouse::state::released,
                          planet::affine::point2d{
                                  float(event.motion.x), float(event.motion.y)}});
+                break;
+            case SDL_QUIT: quit.push({}); break;
+            case SDL_WINDOWEVENT:
+                if (event.window.event == SDL_WINDOWEVENT_CLOSE
+                    and event.window.windowID == window_id) {
+                    quit.push({});
+                }
                 break;
             default: break;
             }
