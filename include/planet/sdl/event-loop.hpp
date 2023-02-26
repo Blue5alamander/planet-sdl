@@ -22,8 +22,10 @@ namespace planet::sdl {
      * window's panel from which UI elements which need them can get them.
      */
     struct event_loop final {
-        event_loop(planet::sdl::init &s, std::uint32_t const wid)
-        : sdl{s}, window_id{wid} {}
+        event_loop(init &s, std::uint32_t const wid) : sdl{s}, window_id{wid} {}
+        template<typename W>
+        event_loop(init &s, W const &w)
+        : event_loop{s, SDL_GetWindowID(w.get())} {}
 
         felspar::coro::task<void> run();
 
