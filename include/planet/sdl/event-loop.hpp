@@ -1,8 +1,7 @@
 #pragma once
 
 
-#include <planet/events/mouse.hpp>
-#include <planet/events/quit.hpp>
+#include <planet/events.hpp>
 
 #include <felspar/coro/bus.hpp>
 #include <felspar/coro/eager.hpp>
@@ -30,8 +29,9 @@ namespace planet::sdl {
         felspar::coro::task<void> run();
 
         /// ## Event busses
-        felspar::coro::bus<planet::events::quit> quit;
+        felspar::coro::bus<events::key> raw_keys;
         felspar::coro::bus<events::mouse> raw_mouse;
+        felspar::coro::bus<events::quit> quit;
 
       private:
         planet::sdl::init &sdl;

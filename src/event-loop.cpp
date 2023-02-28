@@ -16,13 +16,18 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
+            case SDL_KEYDOWN:
+                raw_keys.push(
+                        {static_cast<events::scancode>(
+                                 event.key.keysym.scancode),
+                         events::action::down});
+                break;
             case SDL_MOUSEBUTTONDOWN:
                 switch (event.button.button) {
                 case SDL_BUTTON_LEFT:
                     raw_mouse.push(
-                            {planet::events::mouse::press::left,
-                             planet::events::mouse::state::down,
-                             planet::affine::point2d{
+                            {events::button::left, events::action::down,
+                             affine::point2d{
                                      float(event.motion.x),
                                      float(event.motion.y)}});
                     break;
@@ -32,9 +37,8 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
                 switch (event.button.button) {
                 case SDL_BUTTON_LEFT:
                     raw_mouse.push(
-                            {planet::events::mouse::press::left,
-                             planet::events::mouse::state::up,
-                             planet::affine::point2d{
+                            {events::button::left, events::action::up,
+                             affine::point2d{
                                      float(event.motion.x),
                                      float(event.motion.y)}});
                     break;
@@ -42,9 +46,8 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
                 break;
             case SDL_MOUSEMOTION:
                 raw_mouse.push(
-                        {planet::events::mouse::press::none,
-                         planet::events::mouse::state::released,
-                         planet::affine::point2d{
+                        {events::button::none, events::action::released,
+                         affine::point2d{
                                  float(event.motion.x), float(event.motion.y)}});
                 break;
             case SDL_QUIT: quit.push({}); break;
