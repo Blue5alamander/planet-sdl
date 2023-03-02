@@ -7,7 +7,14 @@ if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
     add_custom_target(planet-examples)
     set_property(TARGET planet-examples PROPERTY EXCLUDE_FROM_ALL TRUE)
     include(requirements.cmake)
+
+    add_compile_options(
+            -Werror
+            -fdiagnostics-show-option
+            -Wall -Wextra -Wpedantic
+        )
 endif()
 
+add_subdirectory(examples)
 add_subdirectory(src)
 add_subdirectory(test)

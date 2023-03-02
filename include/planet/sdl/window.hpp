@@ -53,7 +53,6 @@ namespace planet::sdl {
         float width() const noexcept { return size.width; }
         float height() const noexcept { return size.height; }
 
-        /// Feed various raw events in here to have them delivered
         events::mouse_settings mouse_settings;
         felspar::coro::bus<events::mouse> raw_mouse;
     };

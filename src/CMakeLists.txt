@@ -12,6 +12,7 @@ endif()
 add_library(planet-sdl
         audio.cpp
         draw.cpp
+        event-loop.cpp
         init.cpp
         renderer.cpp
         surface.cpp
