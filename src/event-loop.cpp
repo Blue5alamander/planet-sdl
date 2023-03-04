@@ -12,51 +12,63 @@ using namespace std::literals;
 
 
 felspar::coro::task<void> planet::sdl::event_loop::run() {
+    affine::point2d last_mouse_pos{{}, {}};
     while (true) {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
+
             case SDL_KEYDOWN:
-                raw_keys.push(
+                key.push(
                         {static_cast<events::scancode>(
                                  event.key.keysym.scancode),
                          events::action::down});
                 break;
+
             case SDL_MOUSEBUTTONDOWN:
+                last_mouse_pos = {float(event.motion.x), float(event.motion.y)};
                 switch (event.button.button) {
                 case SDL_BUTTON_LEFT:
-                    raw_mouse.push(
+                    mouse.push(
                             {events::button::left, events::action::down,
-                             affine::point2d{
-                                     float(event.motion.x),
-                                     float(event.motion.y)}});
+                             last_mouse_pos});
                     break;
                 }
                 break;
+
             case SDL_MOUSEBUTTONUP:
+                last_mouse_pos = {float(event.motion.x), float(event.motion.y)};
                 switch (event.button.button) {
                 case SDL_BUTTON_LEFT:
-                    raw_mouse.push(
+                    mouse.push(
                             {events::button::left, events::action::up,
-                             affine::point2d{
-                                     float(event.motion.x),
-                                     float(event.motion.y)}});
+                             last_mouse_pos});
                     break;
                 }
                 break;
+
             case SDL_MOUSEMOTION:
-                raw_mouse.push(
+                last_mouse_pos = {float(event.motion.x), float(event.motion.y)};
+                mouse.push(
                         {events::button::none, events::action::released,
-                         affine::point2d{
-                                 float(event.motion.x), float(event.motion.y)}});
+                         last_mouse_pos});
                 break;
+
+            case SDL_MOUSEWHEEL:
+                scroll.push(
+                        {event.wheel.preciseX, event.wheel.preciseY,
+                         last_mouse_pos});
+                break;
+
             case SDL_QUIT: quit.push({}); break;
+
             case SDL_WINDOWEVENT:
                 if (event.window.event == SDL_WINDOWEVENT_CLOSE
                     and event.window.windowID == window_id) {
                     quit.push({});
                 }
                 break;
+
             default: break;
             }
         }

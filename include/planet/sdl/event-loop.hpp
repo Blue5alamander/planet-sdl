@@ -29,9 +29,10 @@ namespace planet::sdl {
         felspar::coro::task<void> run();
 
         /// ## Event busses
-        felspar::coro::bus<events::key> raw_keys;
-        felspar::coro::bus<events::mouse> raw_mouse;
+        felspar::coro::bus<events::key> key;
+        felspar::coro::bus<events::mouse> mouse;
         felspar::coro::bus<events::quit> quit;
+        felspar::coro::bus<events::scroll> scroll;
 
       private:
         planet::sdl::init &sdl;
