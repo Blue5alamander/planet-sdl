@@ -1,6 +1,11 @@
 #pragma once
 
 
+#include <planet/sdl/surface.hpp>
+#include <planet/sdl/texture.hpp>
+#include <planet/ui/panel.hpp>
+
+
 namespace planet::sdl::ui {
 
 
