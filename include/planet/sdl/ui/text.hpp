@@ -13,16 +13,24 @@ namespace planet::sdl::ui {
     /// ## A block of text
     class text {
         std::string string;
-        [[maybe_unused]] sdl::font &font;
+        sdl::font &font;
+        affine::extents2d space;
 
-        std::vector<std::string_view> words;
-        planet::ui::layout<float> elements;
-        planet::ui::column<std::vector<texture>> lines;
+        struct word {
+            std::string_view word;
+            std::optional<sdl::texture> texture;
+        };
+
+        using layout_type =
+                planet::ui::layout<std::vector<planet::ui::element<word>>>;
+        using constrained_type = typename layout_type::constrained_type;
+        layout_type elements;
 
       public:
         text(sdl::font &, std::string);
 
-        affine::extents2d extents(affine::extents2d const &) const;
+        void layout(constrained_type within);
+        affine::extents2d extents(affine::extents2d const &);
         void draw_within(renderer &r, affine::rectangle2d);
 
         /// ### Identify words within a string
