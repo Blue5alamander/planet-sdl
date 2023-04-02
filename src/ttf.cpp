@@ -1,3 +1,4 @@
+#include <planet/sdl/renderer.hpp>
 #include <planet/sdl/ttf.hpp>
 #include <planet/ui/scale.hpp>
 
@@ -27,6 +28,13 @@ planet::sdl::font::font(
         throw felspar::stdexcept::runtime_error{
                 "TTF_OpenFontRW returned nullptr"};
     }
+}
+
+
+planet::affine::extents2d planet::sdl::font::measure(char const *const t) {
+    int w{}, h{};
+    drawing_worked(TTF_SizeUTF8(pf.get(), t, &w, &h));
+    return {static_cast<float>(w), static_cast<float>(h)};
 }
 
 

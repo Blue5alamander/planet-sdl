@@ -1,6 +1,7 @@
 #pragma once
 
 
+#include <planet/affine/extents2d.hpp>
 #include <planet/asset_manager.hpp>
 #include <planet/sdl/handle.hpp>
 #include <planet/sdl/rw_ops.hpp>
@@ -37,6 +38,9 @@ namespace planet::sdl {
                      felspar::source_location::current());
 
         TTF_Font *get() const noexcept { return pf.get(); }
+
+        /// Return what the text dimensions will be when rendered
+        affine::extents2d measure(char const *text);
 
         /// Render text to a single line
         surface render(char const *text) const { return render(text, colour); }
