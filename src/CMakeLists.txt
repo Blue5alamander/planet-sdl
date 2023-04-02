@@ -16,6 +16,7 @@ add_library(planet-sdl
         init.cpp
         renderer.cpp
         surface.cpp
+        text.cpp
         texture.cpp
         ttf.cpp
         window.cpp

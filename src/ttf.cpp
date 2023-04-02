@@ -25,7 +25,7 @@ planet::sdl::font::font(
   colour{c} {
     if (not pf.get()) {
         throw felspar::stdexcept::runtime_error{
-                "TTF_OpenFontRW return nullptr"};
+                "TTF_OpenFontRW returned nullptr"};
     }
 }
 
