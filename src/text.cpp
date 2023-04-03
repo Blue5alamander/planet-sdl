@@ -23,6 +23,7 @@ void planet::sdl::ui::text::layout(constrained_type const within) {
             auto const ex = element.size.extents();
             if (left and left + ex.width > fit_into.width) {
                 width = std::max(width, left);
+                left = {};
                 top += space.height;
             }
             element.position = {{left, top}, ex};
