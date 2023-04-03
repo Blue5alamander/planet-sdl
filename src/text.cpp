@@ -15,7 +15,8 @@ planet::sdl::ui::text::text(sdl::font &f, std::string s)
 
 
 void planet::sdl::ui::text::layout(constrained_type const within) {
-    if (elements.laid_out_in != within) {
+    if (not elements.laid_out_in
+        or not elements.laid_out_in->is_at_least_as_constrained_as(within)) {
         elements.laid_out_in = within;
         auto const fit_into = within.extents();
         float top{}, left{}, width{};
