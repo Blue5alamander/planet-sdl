@@ -21,16 +21,12 @@ void planet::sdl::ui::text::layout(constrained_type const within) {
         float top{}, left{}, width{};
         for (auto &element : elements) {
             auto const ex = element.size.extents();
-            if (left and left + space.width + ex.width > fit_into.width) {
+            if (left and left + ex.width > fit_into.width) {
                 width = std::max(width, left);
                 top += space.height;
             }
-            element.position = {{top, left}, ex};
-            if (left) {
-                left += space.width + ex.width;
-            } else {
-                left = ex.width;
-            }
+            element.position = {{left, top}, ex};
+            left += space.width + ex.width;
         }
         width = std::max(width, left);
         elements.size = {width, width ? top + space.height : 0};
@@ -47,15 +43,14 @@ auto planet::sdl::ui::text::extents(affine::extents2d const &outer)
 
 void planet::sdl::ui::text::draw_within(
         renderer &r, affine::rectangle2d const within) {
-    extents(within.extents);
     for (auto &element : elements) {
         if (not element.value.texture) {
             element.value.texture = {r, font.render(element.value.word.data())};
         }
         if (element.position) {
-            r.copy(*element.value.texture,
-                   static_cast<int>(element.position->left()),
-                   static_cast<int>(element.position->top()));
+            auto const p = element.position->top_left + within.top_left;
+            r.copy(*element.value.texture, static_cast<int>(p.x()),
+                   static_cast<int>(p.y()));
         }
     }
 }
