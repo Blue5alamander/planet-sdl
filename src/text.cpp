@@ -1,12 +1,10 @@
 #include <planet/sdl/ui/text.hpp>
 #include <planet/sdl/renderer.hpp>
 
-#include <iostream>
 
-
-planet::sdl::ui::text::text(sdl::font &f, std::string s)
-: string{std::move(s)}, font{f}, space{font.measure(" ")} {
-    auto const words = identify_words(string);
+planet::sdl::ui::text::text(sdl::font &f, std::string_view const s)
+: font{f}, space{font.measure(" ")} {
+    auto const words = identify_words(s);
     for (auto const &w : words) {
         elements.push_back(constrained_type{font.measure(w.data())});
         elements.back().value.word = w;
@@ -47,7 +45,8 @@ void planet::sdl::ui::text::draw_within(
         renderer &r, affine::rectangle2d const within) {
     for (auto &element : elements) {
         if (not element.value.texture) {
-            element.value.texture = {r, font.render(element.value.word.data())};
+            element.value.texture = {
+                    r, font.render(element.value.word.c_str())};
         }
         if (element.position) {
             auto const p = element.position->top_left + within.top_left;
@@ -59,8 +58,7 @@ void planet::sdl::ui::text::draw_within(
 
 
 std::vector<std::string_view>
-        planet::sdl::ui::text::identify_words(std::string &st) {
-    std::string_view t{st};
+        planet::sdl::ui::text::identify_words(std::string_view const t) {
     constexpr std::string_view whitespace{" \n\t"};
     if (t.empty()) { return {}; }
     std::vector<std::string_view> words;
@@ -72,7 +70,6 @@ std::vector<std::string_view>
             words.push_back(t.substr(start));
             return words;
         } else {
-            st[end] = 0;
             words.push_back(t.substr(start, end - start));
             start = end + 1;
         }

@@ -12,12 +12,11 @@ namespace planet::sdl::ui {
 
     /// ## A block of text
     class text {
-        std::string string;
         sdl::font &font;
         affine::extents2d space;
 
         struct word {
-            std::string_view word;
+            std::string word;
             std::optional<sdl::texture> texture;
         };
 
@@ -27,14 +26,14 @@ namespace planet::sdl::ui {
         layout_type elements;
 
       public:
-        text(sdl::font &, std::string);
+        text(sdl::font &, std::string_view);
 
         void reflow(constrained_type within);
         affine::extents2d extents(affine::extents2d const &);
         void draw_within(renderer &r, affine::rectangle2d);
 
         /// ### Identify words within a string
-        static std::vector<std::string_view> identify_words(std::string &);
+        static std::vector<std::string_view> identify_words(std::string_view);
     };
 
 
