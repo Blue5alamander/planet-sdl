@@ -14,7 +14,7 @@ planet::sdl::ui::text::text(sdl::font &f, std::string s)
 }
 
 
-void planet::sdl::ui::text::layout(constrained_type const within) {
+void planet::sdl::ui::text::reflow(constrained_type const within) {
     if (not elements.laid_out_in
         or not elements.laid_out_in->is_at_least_as_constrained_as(within)) {
         elements.laid_out_in = within;
@@ -38,7 +38,7 @@ void planet::sdl::ui::text::layout(constrained_type const within) {
 
 auto planet::sdl::ui::text::extents(affine::extents2d const &outer)
         -> affine::extents2d {
-    layout(constrained_type{outer});
+    reflow(constrained_type{outer});
     return elements.size.value();
 }
 

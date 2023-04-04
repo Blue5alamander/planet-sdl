@@ -29,7 +29,7 @@ namespace planet::sdl::ui {
       public:
         text(sdl::font &, std::string);
 
-        void layout(constrained_type within);
+        void reflow(constrained_type within);
         affine::extents2d extents(affine::extents2d const &);
         void draw_within(renderer &r, affine::rectangle2d);
 
