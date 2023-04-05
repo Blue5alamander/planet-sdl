@@ -38,14 +38,16 @@ planet::affine::extents2d planet::sdl::font::measure(char const *const t) {
 }
 
 
-planet::sdl::surface
-        planet::sdl::font::render(char const *text, SDL_Color c) const {
-    return {TTF_RenderUTF8_Blended(pf.get(), text, c), ui::scale::never};
+planet::sdl::surface planet::sdl::font::render(
+        char const *text, SDL_Color c, ui::scale const fit) const {
+    return {TTF_RenderUTF8_Blended(pf.get(), text, c), fit};
 }
 
 
 planet::sdl::surface planet::sdl::font::render(
-        char const *text, SDL_Color const c, std::uint32_t const width) const {
-    return {TTF_RenderUTF8_Blended_Wrapped(pf.get(), text, c, width),
-            ui::scale::never};
+        char const *text,
+        SDL_Color const c,
+        std::uint32_t const width,
+        ui::scale const fit) const {
+    return {TTF_RenderUTF8_Blended_Wrapped(pf.get(), text, c, width), fit};
 }
