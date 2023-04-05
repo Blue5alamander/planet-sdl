@@ -14,6 +14,7 @@ add_library(planet-sdl
         draw.cpp
         event-loop.cpp
         init.cpp
+        range.ui.cpp
         renderer.cpp
         surface.cpp
         text.ui.cpp
