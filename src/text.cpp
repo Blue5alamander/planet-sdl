@@ -6,8 +6,9 @@ planet::sdl::ui::text::text(sdl::font &f, std::string_view const s)
 : font{f}, space{font.measure(" ")} {
     auto const words = identify_words(s);
     for (auto const &w : words) {
-        elements.push_back(constrained_type{font.measure(w.data())});
-        elements.back().value.word = w;
+        std::string word{w};
+        elements.push_back(constrained_type{font.measure(word.c_str())});
+        elements.back().value.word = std::move(word);
     }
 }
 
