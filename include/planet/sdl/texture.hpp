@@ -3,6 +3,7 @@
 
 #include <planet/affine2d.hpp>
 #include <planet/sdl/handle.hpp>
+#include <planet/ui/constrained.hpp>
 #include <planet/ui/scale.hpp>
 
 #include <SDL.h>
@@ -15,6 +16,7 @@ namespace planet::sdl {
     class surface;
 
 
+    /// ## Graphics textures
     class texture {
         handle<SDL_Texture, SDL_DestroyTexture> pt;
         affine::extents2d size;
@@ -26,11 +28,13 @@ namespace planet::sdl {
 
         /// Control how the texture is draw
         ui::scale fit;
+        using constrained_type = planet::ui::constrained2d<float>;
+        constrained_type reflow(constrained_type const &);
 
-        /// Return the texture extents. The top left co-ordinates will always be
-        /// 0, 0
+        /// ### Return the texture extents
         affine::extents2d const &extents() const noexcept { return size; }
         affine::extents2d extents(affine::extents2d) const noexcept;
+
         float width() const { return size.width; }
         std::size_t zwidth() const { return size.zwidth(); }
         float height() const { return size.height; }

@@ -19,6 +19,12 @@ void planet::sdl::texture::draw_within(
 }
 
 
+auto planet::sdl::texture::reflow(constrained_type const &constraint)
+        -> constrained_type {
+    return ui::scaling(size, constraint, fit);
+}
+
+
 planet::affine::extents2d planet::sdl::texture::extents(
         affine::extents2d const bounds) const noexcept {
     return ui::scaling(size, bounds, fit);

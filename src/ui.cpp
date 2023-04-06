@@ -10,18 +10,18 @@ planet::sdl::ui::range::range(renderer &r, surface bg, surface ctrl)
 : background{r, std::move(bg)}, slider{r, std::move(ctrl)} {}
 
 
-auto planet::sdl::ui::range::extents(affine::extents2d const &ex) const
-        -> affine::extents2d {
-    return {ex.width, slider.height()};
-}
-
-
 void planet::sdl::ui::range::do_draw_within(
         renderer &r, affine::rectangle2d const ex) {
     if (visible) {
         background.draw_within(r, ex);
         slider.draw_within(r, ex);
     }
+}
+
+
+auto planet::sdl::ui::range::reflow(constrained_type const &constraint)
+        -> constrained_type {
+    return background.reflow(constraint);
 }
 
 
