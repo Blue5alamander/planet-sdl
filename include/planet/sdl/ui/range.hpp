@@ -3,7 +3,6 @@
 
 #include <planet/sdl/surface.hpp>
 #include <planet/sdl/texture.hpp>
-#include <planet/ui/helpers.hpp>
 #include <planet/ui/widget.hpp>
 
 
@@ -23,8 +22,6 @@ namespace planet::sdl::ui {
         void do_draw_within(renderer &r, affine::rectangle2d) override;
         felspar::coro::task<void> behaviour() override;
     };
-
-    static_assert(planet::ui::reflowable<range>);
 
 
 }

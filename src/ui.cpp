@@ -6,6 +6,9 @@
 /// ## `planet::sdl::ui::range`
 
 
+static_assert(planet::ui::reflowable<planet::sdl::ui::range>);
+
+
 planet::sdl::ui::range::range(renderer &r, surface bg, surface ctrl)
 : background{r, std::move(bg)}, slider{r, std::move(ctrl)} {}
 
