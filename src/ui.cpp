@@ -1,5 +1,34 @@
-#include <planet/sdl/ui/text.hpp>
 #include <planet/sdl/renderer.hpp>
+#include <planet/sdl/ui/range.hpp>
+#include <planet/sdl/ui/text.hpp>
+
+
+/// ## `planet::sdl::ui::range`
+
+
+planet::sdl::ui::range::range(renderer &r, surface bg, surface ctrl)
+: background{r, std::move(bg)}, slider{r, std::move(ctrl)} {}
+
+
+auto planet::sdl::ui::range::extents(affine::extents2d const &ex) const
+        -> affine::extents2d {
+    return {ex.width, slider.height()};
+}
+
+
+void planet::sdl::ui::range::do_draw_within(
+        renderer &r, affine::rectangle2d const ex) {
+    if (visible) {
+        background.draw_within(r, ex);
+        slider.draw_within(r, ex);
+    }
+}
+
+
+felspar::coro::task<void> planet::sdl::ui::range::behaviour() { co_return; }
+
+
+/// ## `planet::sdl::ui::text`
 
 
 planet::sdl::ui::text::text(sdl::font &f, std::string_view const s)

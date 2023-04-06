@@ -3,28 +3,23 @@
 
 #include <planet/sdl/surface.hpp>
 #include <planet/sdl/texture.hpp>
-#include <planet/ui/panel.hpp>
+#include <planet/ui/widget.hpp>
 
 
 namespace planet::sdl::ui {
 
 
-    class range {
-        planet::panel panel;
+    class range final : public planet::ui::widget<renderer> {
         texture background, slider;
-        bool visible = false;
 
       public:
         range(renderer &, surface bg, surface ctrl);
 
-        void add_to(planet::panel &);
-
         affine::extents2d extents(affine::extents2d const &) const;
-        void draw_within(renderer &r, affine::rectangle2d);
 
       private:
-        felspar::coro::eager<> response;
-        felspar::coro::task<void> drag();
+        void do_draw_within(renderer &r, affine::rectangle2d) override;
+        felspar::coro::task<void> behaviour() override;
     };
 
 

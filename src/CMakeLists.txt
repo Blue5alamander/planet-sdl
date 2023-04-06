@@ -14,12 +14,11 @@ add_library(planet-sdl
         draw.cpp
         event-loop.cpp
         init.cpp
-        range.ui.cpp
         renderer.cpp
         surface.cpp
-        text.ui.cpp
         texture.cpp
         ttf.cpp
+        ui.cpp
         window.cpp
     )
 target_include_directories(planet-sdl PUBLIC
