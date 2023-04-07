@@ -19,7 +19,7 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
             switch (event.type) {
 
             case SDL_KEYDOWN:
-                key.push(
+                bus.key.push(
                         {static_cast<events::scancode>(
                                  event.key.keysym.scancode),
                          events::action::down});
@@ -29,7 +29,7 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
                 last_mouse_pos = {float(event.motion.x), float(event.motion.y)};
                 switch (event.button.button) {
                 case SDL_BUTTON_LEFT:
-                    mouse.push(
+                    bus.mouse.push(
                             {events::button::left, events::action::down,
                              last_mouse_pos});
                     break;
@@ -40,7 +40,7 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
                 last_mouse_pos = {float(event.motion.x), float(event.motion.y)};
                 switch (event.button.button) {
                 case SDL_BUTTON_LEFT:
-                    mouse.push(
+                    bus.mouse.push(
                             {events::button::left, events::action::up,
                              last_mouse_pos});
                     break;
@@ -49,29 +49,29 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
 
             case SDL_MOUSEMOTION:
                 last_mouse_pos = {float(event.motion.x), float(event.motion.y)};
-                mouse.push(
+                bus.mouse.push(
                         {events::button::none, events::action::released,
                          last_mouse_pos});
                 break;
 
             case SDL_MOUSEWHEEL:
-                scroll.push(
+                bus.scroll.push(
                         {event.wheel.preciseX, event.wheel.preciseY,
                          last_mouse_pos});
                 break;
 
-            case SDL_QUIT: quit.push({}); break;
+            case SDL_QUIT: bus.quit.push({}); break;
 
             case SDL_WINDOWEVENT:
                 if (event.window.event == SDL_WINDOWEVENT_CLOSE
                     and event.window.windowID == window_id) {
-                    quit.push({});
+                    bus.quit.push({});
                 }
                 break;
 
             default: break;
             }
         }
-        co_await sdl.io.sleep(50ms);
+        co_await sdl.io.sleep(30ms);
     }
 }

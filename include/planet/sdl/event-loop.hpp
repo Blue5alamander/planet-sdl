@@ -1,10 +1,8 @@
 #pragma once
 
 
-#include <planet/events.hpp>
+#include <planet/events/bus.hpp>
 
-#include <felspar/coro/bus.hpp>
-#include <felspar/coro/eager.hpp>
 #include <felspar/coro/task.hpp>
 
 
@@ -26,13 +24,11 @@ namespace planet::sdl {
         event_loop(init &s, W const &w)
         : event_loop{s, SDL_GetWindowID(w.get())} {}
 
+        /// Run the event loop until the UX is done
         felspar::coro::task<void> run();
 
         /// ## Event busses
-        felspar::coro::bus<events::key> key;
-        felspar::coro::bus<events::mouse> mouse;
-        felspar::coro::bus<events::quit> quit;
-        felspar::coro::bus<events::scroll> scroll;
+        events::bus bus;
 
       private:
         planet::sdl::init &sdl;
