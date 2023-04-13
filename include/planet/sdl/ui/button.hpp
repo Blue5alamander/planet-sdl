@@ -11,17 +11,18 @@ namespace planet::sdl::ui {
 
     template<typename R>
     class button : public planet::ui::widget<renderer> {
-        texture graphic;
         R press_value;
         felspar::coro::bus<R> &output_to;
 
       public:
         button(sdl::renderer &r, surface text, felspar::coro::bus<R> &o, R v)
-        : graphic{r, std::move(text)}, press_value{std::move(v)}, output_to{o} {}
+        : press_value{std::move(v)}, output_to{o}, graphic{r, std::move(text)} {}
 
         affine::extents2d extents(affine::extents2d const &ex) const {
             return graphic.extents(ex);
         }
+
+        texture graphic;
 
       private:
         void do_draw_within(
