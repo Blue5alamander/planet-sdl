@@ -39,7 +39,7 @@ planet::sdl::ui::text::text(sdl::font &f, std::string_view const s)
     auto const words = identify_words(s);
     for (auto const &w : words) {
         std::string word{w};
-        elements.push_back(constrained_type{font.measure(word.c_str())});
+        elements.emplace_back(constrained_type{font.measure(word.c_str())});
         elements.back().value.word = std::move(word);
     }
 }
@@ -62,7 +62,7 @@ void planet::sdl::ui::text::reflow(constrained_type const within) {
             left += space.width + ex.width;
         }
         width = std::max(width, left);
-        elements.size = {width, width ? top + space.height : 0};
+        elements.extents = {width, width ? top + space.height : 0};
     }
 }
 
@@ -70,7 +70,7 @@ void planet::sdl::ui::text::reflow(constrained_type const within) {
 auto planet::sdl::ui::text::extents(affine::extents2d const &outer)
         -> affine::extents2d {
     reflow(constrained_type{outer});
-    return elements.size.value();
+    return elements.extents.value();
 }
 
 
