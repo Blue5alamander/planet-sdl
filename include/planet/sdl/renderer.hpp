@@ -49,7 +49,7 @@ namespace planet::sdl {
         /// A representation of the screen the renderer is drawing to. Using
         /// this allows for global management of the coordinate system the
         /// application uses
-        panel screen;
+        ui::panel screen;
 
 
         /// ## Render function

@@ -3,7 +3,7 @@
 
 void planet::sdl::draw_hex(
         renderer &renderer,
-        panel &space,
+        ui::panel &space,
         hexmap::coordinates const loc,
         float const radius) {
     auto const vertices = loc.vertices(1.0f, radius);
