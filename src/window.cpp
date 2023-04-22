@@ -9,19 +9,6 @@
 using namespace std::literals;
 
 
-namespace {
-    felspar::coro::stream<planet::events::mouse>
-            inputs(felspar::coro::bus<planet::events::mouse> &inputs) {
-        while (true) { co_yield co_await inputs.next(); }
-    }
-    felspar::coro::task<void> mouse_clicks(
-            felspar::coro::stream<planet::events::click> inputs,
-            felspar::coro::bus<planet::events::click> &outputs) {
-        while (auto m = co_await inputs.next()) { outputs.push(*m); }
-    }
-}
-
-
 planet::sdl::window::window(
         init &,
         const char *const name,
@@ -40,11 +27,6 @@ planet::sdl::window::window(
     int ww{}, wh{};
     SDL_GL_GetDrawableSize(pw.get(), &ww, &wh);
     size = {float(ww), float(wh)};
-
-    processes.post(
-            mouse_clicks,
-            planet::events::identify_clicks(mouse_settings, inputs(raw_mouse)),
-            std::ref(renderer.screen.clicks));
 }
 
 
