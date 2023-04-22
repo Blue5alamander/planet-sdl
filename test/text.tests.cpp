@@ -1,4 +1,5 @@
 #include <planet/sdl/ui/text.hpp>
+#include <planet/ui/baseplate.hpp>
 #include <felspar/test.hpp>
 #include <felspar/memory/hexdump.hpp>
 

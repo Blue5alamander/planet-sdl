@@ -3,6 +3,7 @@
 
 #include <planet/sdl/renderer.hpp>
 #include <planet/events/mouse.hpp>
+#include <planet/ui/baseplate.hpp>
 
 #include <felspar/coro/start.hpp>
 
@@ -42,6 +43,7 @@ namespace planet::sdl {
         SDL_Window *get() const noexcept { return pw.get(); }
 
         sdl::renderer renderer;
+        ui::baseplate<sdl::renderer> baseplate;
 
         /// Current inner window size
         affine::extents2d const &extents() const noexcept { return size; }

@@ -27,13 +27,15 @@ namespace planet::sdl::ui {
       private:
         void do_draw_within(
                 renderer &r, affine::rectangle2d const outer) override {
-            graphic.draw_within(r, outer);
             panel.move_to({outer.top_left, graphic.extents()});
+            graphic.draw_within(r, outer);
         }
 
         felspar::coro::task<void> behaviour() override {
-            while (true) {
-                co_await panel.clicks.next();
+            for (auto clicks = events::identify_clicks(
+                         baseplate->mouse_settings,
+                         baseplate->events.mouse.stream());
+                 auto click = co_await clicks.next();) {
                 output_to.push(press_value);
             }
         }

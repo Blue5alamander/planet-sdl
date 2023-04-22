@@ -1,6 +1,7 @@
 #include <planet/sdl/renderer.hpp>
 #include <planet/sdl/ui/range.hpp>
 #include <planet/sdl/ui/text.hpp>
+#include <planet/ui/baseplate.hpp>
 
 
 /// ## `planet::sdl::ui::range`
