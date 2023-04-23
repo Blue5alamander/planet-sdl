@@ -14,12 +14,12 @@ namespace planet::sdl::ui {
         texture hotspot;
 
       public:
-        draggable(renderer &, surface, affine::point2d const &);
-
-        affine::point2d offset;
+        draggable(renderer &, surface);
 
         using constrained_type = planet::ui::constrained2d<float>;
         constrained_type reflow(constrained_type const &);
+
+        constrained_type offset;
 
       private:
         void do_draw_within(renderer &r, affine::rectangle2d) override;

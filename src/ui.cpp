@@ -3,9 +3,6 @@
 #include <planet/sdl/ui/text.hpp>
 #include <planet/ui/baseplate.hpp>
 
-#include <planet/ostream.hpp>
-#include <iostream>
-
 
 /// ## `planet::sdl::ui::draggable`
 
@@ -13,9 +10,8 @@
 static_assert(planet::ui::reflowable<planet::sdl::ui::draggable>);
 
 
-planet::sdl::ui::draggable::draggable(
-        renderer &r, surface ctrl, affine::point2d const &o)
-: hotspot{r, std::move(ctrl)}, offset{o} {}
+planet::sdl::ui::draggable::draggable(renderer &r, surface ctrl)
+: hotspot{r, std::move(ctrl)} {}
 
 
 auto planet::sdl::ui::draggable::reflow(constrained_type const &constraint)
@@ -26,24 +22,23 @@ auto planet::sdl::ui::draggable::reflow(constrained_type const &constraint)
 
 void planet::sdl::ui::draggable::do_draw_within(
         renderer &r, affine::rectangle2d const ex) {
-    hotspot.draw_within(r, {ex.top_left + offset, ex.extents});
+    hotspot.draw_within(r, {ex.top_left + offset.position(), ex.extents});
     panel.move_to({ex.top_left, hotspot.extents(ex.extents)});
 }
 
 
 felspar::coro::task<void> planet::sdl::ui::draggable::behaviour() {
-    std::cout << "Starting draggable behaviour\n";
     std::optional<affine::point2d> base, start;
     while (true) {
         auto event = co_await events.mouse.next();
         if (event.button == events::button::left) {
             if (event.action == events::action::down) {
-                start = offset;
+                start = offset.position();
                 base = panel.outof(event.location);
                 baseplate->hard_focus_on(this);
             } else if (base and start and event.action == events::action::held) {
                 auto const locnow = panel.outof(event.location);
-                offset = *start + locnow - *base;
+                offset.desire(*start + locnow - *base);
             } else if (event.action == events::action::up) {
                 base = {};
                 start = {};
@@ -61,7 +56,11 @@ static_assert(planet::ui::reflowable<planet::sdl::ui::range>);
 
 
 planet::sdl::ui::range::range(renderer &r, surface bg, surface ctrl)
-: background{r, std::move(bg)}, slider{r, std::move(ctrl), {{}, {}}} {}
+: background{r, std::move(bg)}, slider{r, std::move(ctrl)} {
+    slider.offset = {
+            constrained_type::axis_contrained_type{0, 0, 0},
+            constrained_type::axis_contrained_type{0, 0, 0}};
+}
 
 
 void planet::sdl::ui::range::add_to(
@@ -70,7 +69,6 @@ void planet::sdl::ui::range::add_to(
         float const z_layer) {
     planet::ui::widget<renderer>::add_to(bp, parent, z_layer);
     slider.add_to(bp, parent, z_layer + 1);
-    std::cout << "Added range to baseplate\n";
 }
 
 
@@ -78,6 +76,9 @@ void planet::sdl::ui::range::do_draw_within(
         renderer &r, affine::rectangle2d const ex) {
     background.draw_within(r, ex);
     panel.move_to({ex.top_left, background.extents(ex.extents)});
+    auto const slider_size = planet::ui::reflow(slider, ex.extents);
+    slider.offset.width.max(
+            background.extents(ex.extents).width - slider_size.width);
     slider.draw_within(r, ex);
 }
 
