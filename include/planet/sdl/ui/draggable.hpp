@@ -30,14 +30,14 @@ namespace planet::sdl::ui {
     /// ## A draggable UI element
     class draggable final : public planet::ui::widget<renderer> {
         texture hotspot;
-        [[maybe_unused]] droppable &target;
 
       public:
-        draggable(renderer &, surface, droppable &);
+        draggable(renderer &, surface);
 
         using constrained_type = droppable::constrained_type;
         constrained_type reflow(constrained_type const &);
 
+        droppable *target = nullptr;
         constrained_type offset;
 
       private:

@@ -10,8 +10,8 @@
 static_assert(planet::ui::reflowable<planet::sdl::ui::draggable>);
 
 
-planet::sdl::ui::draggable::draggable(renderer &r, surface ctrl, droppable &d)
-: hotspot{r, std::move(ctrl)}, target{d} {}
+planet::sdl::ui::draggable::draggable(renderer &r, surface ctrl)
+: hotspot{r, std::move(ctrl)} {}
 
 
 auto planet::sdl::ui::draggable::reflow(constrained_type const &constraint)
@@ -31,7 +31,7 @@ felspar::coro::task<void> planet::sdl::ui::draggable::behaviour() {
     std::optional<affine::point2d> base, start;
     while (true) {
         auto event = co_await events.mouse.next();
-        if (event.button == events::button::left) {
+        if (target and event.button == events::button::left) {
             if (event.action == events::action::down) {
                 start = offset.position();
                 base = panel.outof(event.location);
@@ -40,7 +40,7 @@ felspar::coro::task<void> planet::sdl::ui::draggable::behaviour() {
                 auto const locnow = panel.outof(event.location);
                 offset.desire(*start + locnow - *base);
             } else if (event.action == events::action::up) {
-                offset = target.drop(offset);
+                offset = target->drop(offset);
                 base = {};
                 start = {};
                 baseplate->hard_focus_off(this);
@@ -66,7 +66,7 @@ static_assert(planet::ui::reflowable<planet::sdl::ui::range>);
 
 
 planet::sdl::ui::range::range(renderer &r, surface bg, surface ctrl)
-: background{r, std::move(bg)}, slider{r, std::move(ctrl), *this} {
+: background{r, std::move(bg)}, slider{r, std::move(ctrl)} {
     slider.offset = fully_constrained;
 }
 
@@ -76,6 +76,7 @@ void planet::sdl::ui::range::add_to(
         planet::ui::panel &parent,
         float const z_layer) {
     planet::ui::widget<renderer>::add_to(bp, parent, z_layer);
+    slider.target = this;
     slider.add_to(bp, parent, z_layer + 1);
 }
 
