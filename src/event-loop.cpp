@@ -49,9 +49,18 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
 
             case SDL_MOUSEMOTION:
                 last_mouse_pos = {float(event.motion.x), float(event.motion.y)};
-                events.mouse.push(
-                        {events::button::none, events::action::released,
-                         last_mouse_pos});
+                {
+                    events::action a = events::action::released;
+                    events::button b = events::button::none;
+                    if (event.motion.state bitand SDL_BUTTON_LMASK) {
+                        a = events::action::held;
+                        b = events::button::left;
+                    } else if (event.motion.state bitand SDL_BUTTON_RMASK) {
+                        a = events::action::held;
+                        b = events::button::right;
+                    }
+                    events.mouse.push({b, a, last_mouse_pos});
+                }
                 break;
 
             case SDL_MOUSEWHEEL:
