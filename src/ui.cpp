@@ -40,7 +40,7 @@ felspar::coro::task<void> planet::sdl::ui::draggable::behaviour() {
                 auto const locnow = panel.outof(event.location);
                 offset.desire(*start + locnow - *base);
             } else if (event.action == events::action::up) {
-                /*offset = */target.drop(offset);
+                offset = target.drop(offset);
                 base = {};
                 start = {};
                 baseplate->hard_focus_off(this);
@@ -92,8 +92,9 @@ void planet::sdl::ui::range::do_draw_within(
 }
 
 
-planet::sdl::ui::range::constrained_type planet::sdl::ui::range::drop(constrained_type const &/*offset*/) {
-    // slider_position = offset.width.value();
+auto planet::sdl::ui::range::drop(constrained_type const &offset)
+        -> constrained_type {
+    slider_position = offset.width.value();
     return fully_constrained;
 }
 
