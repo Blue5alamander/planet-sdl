@@ -33,8 +33,7 @@ namespace planet::sdl::ui {
 
         felspar::coro::task<void> behaviour() override {
             for (auto clicks = events::identify_clicks(
-                         baseplate->mouse_settings,
-                         baseplate->events.mouse.stream());
+                         baseplate->mouse_settings, events.mouse.stream());
                  auto click = co_await clicks.next();) {
                 output_to.push(press_value);
             }
