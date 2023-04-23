@@ -86,8 +86,9 @@ void planet::sdl::ui::range::do_draw_within(
     background.draw_within(r, ex);
     panel.move_to({ex.top_left, background.extents(ex.extents)});
     auto const slider_size = planet::ui::reflow(slider, ex.extents);
+    slider.offset.width.min(-slider_position);
     slider.offset.width.max(
-            background.extents(ex.extents).width - slider_size.width);
+            background.extents(ex.extents).width - slider_size.width - slider_position);
     auto const slider_offset = affine::point2d{slider_position, 0};
     slider.draw_within(r, {ex.top_left + slider_offset, ex.extents});
 }
@@ -95,7 +96,7 @@ void planet::sdl::ui::range::do_draw_within(
 
 auto planet::sdl::ui::range::drop(constrained_type const &offset)
         -> constrained_type {
-    slider_position = offset.width.value();
+    slider_position += offset.width.value();
     return fully_constrained;
 }
 
