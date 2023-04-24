@@ -88,7 +88,8 @@ void planet::sdl::ui::range::do_draw_within(
     auto const slider_size = planet::ui::reflow(slider, ex.extents);
     slider.offset.width.min(-slider_position);
     slider.offset.width.max(
-            background.extents(ex.extents).width - slider_size.width - slider_position);
+            background.extents(ex.extents).width - slider_size.width
+            - slider_position);
     auto const slider_offset = affine::point2d{slider_position, 0};
     slider.draw_within(r, {ex.top_left + slider_offset, ex.extents});
 }
