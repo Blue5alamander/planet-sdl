@@ -13,11 +13,6 @@
 namespace planet::sdl {
 
 
-    /// Stereo output buffer type
-    using stereo = audio::buffer_storage<audio::sample_clock, 2>;
-    using stereo_generator = felspar::coro::generator<stereo>;
-
-
     /// Connect an audio source to this and have it play out through SDL
     class audio_output final {
         SDL_AudioDeviceID device = {};
@@ -26,9 +21,9 @@ namespace planet::sdl {
         /// All of these items are accessed from the SDL audio thread
         std::mutex mtx;
         static void audio_callback(void *, Uint8 *, int);
-        audio::mixer<stereo> desk;
-        stereo_generator desk_output = desk.output();
-        felspar::memory::holding_pen<stereo> playing;
+        audio::mixer desk;
+        audio::stereo_generator desk_output = desk.output();
+        felspar::memory::holding_pen<audio::stereo_buffer> playing;
         std::size_t playing_marker = {};
 
       public:
@@ -39,7 +34,7 @@ namespace planet::sdl {
         audio::linear_gain master;
 
         /// Play this audio starting as soon as possible
-        void trigger(stereo_generator);
+        void trigger(audio::stereo_generator);
     };
 
 

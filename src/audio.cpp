@@ -13,9 +13,9 @@ planet::sdl::audio_output::audio_output() : master{-6_dB} {
     int iscapture = {};
     device_name = SDL_GetAudioDeviceName(0, iscapture);
 
-    configuration.freq = stereo::samples_per_second;
+    configuration.freq = audio::stereo_buffer::samples_per_second;
     configuration.format = AUDIO_F32SYS;
-    configuration.channels = stereo::channels;
+    configuration.channels = audio::stereo_buffer::channels;
     configuration.callback = audio_callback;
     configuration.userdata = this;
 
@@ -35,7 +35,7 @@ planet::sdl::audio_output::~audio_output() {
 }
 
 
-void planet::sdl::audio_output::trigger(stereo_generator sound) {
+void planet::sdl::audio_output::trigger(audio::stereo_generator sound) {
     std::scoped_lock lock{mtx};
     desk.add_track(std::move(sound));
 }
@@ -45,7 +45,8 @@ void planet::sdl::audio_output::audio_callback(
         void *userdata, Uint8 *stream, int len) {
     audio_output *const self = reinterpret_cast<audio_output *>(userdata);
     float *const output = reinterpret_cast<float *>(stream);
-    std::size_t const wanted = len / sizeof(float) / stereo::channels;
+    std::size_t const wanted =
+            len / sizeof(float) / audio::stereo_buffer::channels;
 
     std::scoped_lock lock{self->mtx};
     for (std::size_t sample{}; sample < wanted; ++sample) {
@@ -54,8 +55,9 @@ void planet::sdl::audio_output::audio_callback(
             self->playing = self->desk_output.next();
             self->playing_marker = {};
         }
-        for (std::size_t channel{}; channel < stereo::channels; ++channel) {
-            output[sample * stereo::channels + channel] =
+        for (std::size_t channel{}; channel < audio::stereo_buffer::channels;
+             ++channel) {
+            output[sample * audio::stereo_buffer::channels + channel] =
                     (*self->playing)[self->playing_marker][channel];
         }
         ++self->playing_marker;
