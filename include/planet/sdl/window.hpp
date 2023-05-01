@@ -54,9 +54,6 @@ namespace planet::sdl {
         std::size_t zheight() const noexcept { return size.zheight(); }
         float width() const noexcept { return size.width; }
         float height() const noexcept { return size.height; }
-
-        events::mouse_settings mouse_settings;
-        felspar::coro::bus<events::mouse> raw_mouse;
     };
 
 
