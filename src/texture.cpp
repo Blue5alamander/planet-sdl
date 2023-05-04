@@ -19,7 +19,7 @@ void planet::sdl::texture::draw_within(
 }
 
 
-auto planet::sdl::texture::reflow(constrained_type const &constraint)
+auto planet::sdl::texture::do_reflow(constrained_type const &constraint)
         -> constrained_type {
     return ui::scaling(size, constraint, fit);
 }

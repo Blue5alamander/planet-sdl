@@ -36,12 +36,12 @@ namespace planet::sdl::ui {
         draggable(renderer &, surface);
 
         using constrained_type = droppable::constrained_type;
-        constrained_type reflow(constrained_type const &) override;
 
         droppable *target = nullptr;
         constrained_type offset;
 
       private:
+        constrained_type do_reflow(constrained_type const &) override;
         void do_draw_within(renderer &r, affine::rectangle2d) override;
         felspar::coro::task<void> behaviour() override;
     };

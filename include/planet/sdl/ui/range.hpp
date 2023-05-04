@@ -22,7 +22,6 @@ namespace planet::sdl::ui {
         planet::ui::constrained1d<float> slider_position = {};
 
         using constrained_type = droppable::constrained_type;
-        constrained_type reflow(constrained_type const &) override;
 
         void
                 add_to(planet::ui::baseplate<renderer> &,
@@ -30,6 +29,7 @@ namespace planet::sdl::ui {
                        float = {}) override;
 
       private:
+        constrained_type do_reflow(constrained_type const &) override;
         void do_draw_within(renderer &r, affine::rectangle2d) override;
         felspar::coro::task<void> behaviour() override;
         constrained_type drop(constrained_type const &) override;

@@ -29,7 +29,6 @@ namespace planet::sdl {
         /// Control how the texture is draw
         ui::scale fit;
         using constrained_type = planet::ui::constrained2d<float>;
-        constrained_type reflow(constrained_type const &);
 
         /// ### Return the texture extents
         affine::extents2d const &extents() const noexcept { return size; }
@@ -42,6 +41,9 @@ namespace planet::sdl {
 
         /// Draw the texture at the given screen co-ordinates
         void draw_within(renderer &, affine::rectangle2d const &) const;
+
+      private:
+        constrained_type do_reflow(constrained_type const &);
     };
 
 

@@ -14,7 +14,7 @@ planet::sdl::ui::draggable::draggable(renderer &r, surface ctrl)
 : hotspot{r, std::move(ctrl)} {}
 
 
-auto planet::sdl::ui::draggable::reflow(constrained_type const &constraint)
+auto planet::sdl::ui::draggable::do_reflow(constrained_type const &constraint)
         -> constrained_type {
     return hotspot.reflow(constraint);
 }
@@ -103,7 +103,7 @@ auto planet::sdl::ui::range::drop(constrained_type const &offset)
 }
 
 
-auto planet::sdl::ui::range::reflow(constrained_type const &constraint)
+auto planet::sdl::ui::range::do_reflow(constrained_type const &constraint)
         -> constrained_type {
     auto const bg = background.reflow(constraint);
     slider.reflow(bg);
