@@ -3,7 +3,7 @@
 
 #include <planet/affine2d.hpp>
 #include <planet/sdl/handle.hpp>
-#include <planet/ui/constrained.hpp>
+#include <planet/ui/reflowable.hpp>
 #include <planet/ui/scale.hpp>
 
 #include <SDL.h>
@@ -17,7 +17,7 @@ namespace planet::sdl {
 
 
     /// ## Graphics textures
-    class texture {
+    class texture final : public planet::ui::reflowableX<renderer> {
         handle<SDL_Texture, SDL_DestroyTexture> pt;
         affine::extents2d size;
 
