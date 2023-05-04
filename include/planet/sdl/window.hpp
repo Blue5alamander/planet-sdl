@@ -54,6 +54,11 @@ namespace planet::sdl {
         std::size_t zheight() const noexcept { return size.zheight(); }
         float width() const noexcept { return size.width; }
         float height() const noexcept { return size.height; }
+
+        using constrained_type = ui::constrained2d<float>;
+        constrained_type constraints() const {
+            return {{size.width, 0, size.width}, {size.height, 0, size.height}};
+        }
     };
 
 
