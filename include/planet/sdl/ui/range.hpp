@@ -7,13 +7,19 @@
 namespace planet::sdl::ui {
 
 
+    /// ## Range/slide control
     class range final : public planet::ui::widget<renderer>, public droppable {
         texture background;
         draggable slider;
-        float slider_position = {};
+        float px_offset = {};
 
       public:
-        range(renderer &, surface bg, surface ctrl);
+        range(renderer &,
+              surface bg,
+              surface ctrl,
+              planet::ui::constrained1d<float> const &position);
+
+        planet::ui::constrained1d<float> slider_position = {};
 
         using constrained_type = droppable::constrained_type;
         constrained_type reflow(constrained_type const &);

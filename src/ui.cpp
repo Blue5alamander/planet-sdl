@@ -54,20 +54,21 @@ felspar::coro::task<void> planet::sdl::ui::draggable::behaviour() {
 
 
 namespace {
-    constexpr planet::sdl::ui::range::constrained_type fully_constrained = {
-            planet::sdl::ui::range::constrained_type::axis_contrained_type{
-                    0, 0, 0},
-            planet::sdl::ui::range::constrained_type::axis_contrained_type{
-                    0, 0, 0}};
+    constexpr planet::sdl::ui::range::constrained_type::axis_contrained_type
+            fully_constrained = {0, 0, 0};
 }
 
 
 static_assert(planet::ui::reflowable<planet::sdl::ui::range>);
 
 
-planet::sdl::ui::range::range(renderer &r, surface bg, surface ctrl)
-: background{r, std::move(bg)}, slider{r, std::move(ctrl)} {
-    slider.offset = fully_constrained;
+planet::sdl::ui::range::range(
+        renderer &r,
+        surface bg,
+        surface ctrl,
+        planet::ui::constrained1d<float> const &p)
+: background{r, std::move(bg)}, slider{r, std::move(ctrl)}, slider_position{p} {
+    slider.offset = {fully_constrained, fully_constrained};
 }
 
 
@@ -86,19 +87,19 @@ void planet::sdl::ui::range::do_draw_within(
     background.draw_within(r, ex);
     panel.move_to({ex.top_left, background.extents(ex.extents)});
     auto const slider_size = planet::ui::reflow(slider, ex.extents);
-    slider.offset.width.min(-slider_position);
+    slider.offset.width.min(-px_offset);
     slider.offset.width.max(
             background.extents(ex.extents).width - slider_size.width
-            - slider_position);
-    auto const slider_offset = affine::point2d{slider_position, 0};
+            - px_offset);
+    auto const slider_offset = affine::point2d{px_offset, 0};
     slider.draw_within(r, {ex.top_left + slider_offset, ex.extents});
 }
 
 
 auto planet::sdl::ui::range::drop(constrained_type const &offset)
         -> constrained_type {
-    slider_position += offset.width.value();
-    return fully_constrained;
+    px_offset += offset.width.value();
+    return {fully_constrained, fully_constrained};
 }
 
 
