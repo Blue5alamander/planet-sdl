@@ -18,6 +18,12 @@ namespace planet::sdl::ui {
         button(sdl::renderer &r, surface text, felspar::coro::bus<R> &o, R v)
         : press_value{std::move(v)}, output_to{o}, graphic{r, std::move(text)} {}
 
+        constrained_type reflow(constrained_type const &ex) override {
+            auto const r = graphic.reflow(ex);
+            size = graphic.reflowableX<renderer>::size;
+            return r;
+        }
+
         affine::extents2d extents(affine::extents2d const &ex) const {
             return graphic.extents(ex);
         }

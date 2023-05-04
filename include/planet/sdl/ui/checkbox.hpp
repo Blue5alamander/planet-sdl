@@ -17,6 +17,22 @@ namespace planet::sdl::ui {
         checkbox(renderer &r, surface on, surface off, bool &v)
         : on{r, std::move(on)}, off{r, std::move(off)}, value{v} {}
 
+        using constrained_type = planet::ui::widget<renderer>::constrained_type;
+        constrained_type reflow(constrained_type const &ex) override {
+            auto const on_size = on.reflow(ex);
+            auto const off_size = off.reflow(ex);
+            constrained_type::axis_contrained_type const w{
+                    std::max(on_size.width.min(), off_size.width.min()),
+                    std::max(on_size.width.value(), off_size.width.value()),
+                    std::min(on_size.width.max(), off_size.width.max())};
+            constrained_type::axis_contrained_type const h{
+                    std::max(on_size.height.min(), off_size.height.min()),
+                    std::max(on_size.height.value(), off_size.height.value()),
+                    std::min(on_size.height.max(), off_size.height.max())};
+            size = affine::extents2d{w.value(), h.value()};
+            return {w, h};
+        }
+
         affine::extents2d extents(affine::extents2d const &ex) const {
             auto const on_size = on.extents(ex);
             auto const off_size = off.extents(ex);
