@@ -21,7 +21,8 @@ namespace planet::sdl::ui {
         /// Respond to the end of a drag
         /**
          * The returned constraint becomes the new offset in the draggable
-         * widget.
+         * widget. Nearly always this should be zero so that new drags start at
+         * the current position rather than random one.
          */
         virtual constrained_type drop(constrained_type const &) = 0;
     };
@@ -35,7 +36,7 @@ namespace planet::sdl::ui {
         draggable(renderer &, surface);
 
         using constrained_type = droppable::constrained_type;
-        constrained_type reflow(constrained_type const &);
+        constrained_type reflow(constrained_type const &) override;
 
         droppable *target = nullptr;
         constrained_type offset;

@@ -22,7 +22,7 @@ namespace planet::sdl::ui {
         planet::ui::constrained1d<float> slider_position = {};
 
         using constrained_type = droppable::constrained_type;
-        constrained_type reflow(constrained_type const &);
+        constrained_type reflow(constrained_type const &) override;
 
         void
                 add_to(planet::ui::baseplate<renderer> &,
