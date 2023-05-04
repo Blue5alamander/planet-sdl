@@ -7,9 +7,6 @@
 /// ## `planet::sdl::ui::draggable`
 
 
-static_assert(planet::ui::reflowable<planet::sdl::ui::draggable>);
-
-
 planet::sdl::ui::draggable::draggable(renderer &r, surface ctrl)
 : hotspot{r, std::move(ctrl)} {}
 
@@ -57,9 +54,6 @@ namespace {
     constexpr planet::sdl::ui::range::constrained_type::axis_contrained_type
             fully_constrained = {0, 0, 0};
 }
-
-
-static_assert(planet::ui::reflowable<planet::sdl::ui::range>);
 
 
 planet::sdl::ui::range::range(

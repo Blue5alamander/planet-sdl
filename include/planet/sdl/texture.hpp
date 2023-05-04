@@ -19,7 +19,7 @@ namespace planet::sdl {
 
     /// ## Graphics textures
     class texture final :
-    public planet::ui::reflowableX,
+    public planet::ui::reflowable,
             planet::ui::drawable<renderer> {
         handle<SDL_Texture, SDL_DestroyTexture> pt;
         affine::extents2d size;
