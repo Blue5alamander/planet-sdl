@@ -17,6 +17,13 @@ void planet::sdl::texture::draw_within(
             int(ex.height)};
     drawing_worked(SDL_RenderCopy(r.get(), pt.get(), nullptr, &location));
 }
+void planet::sdl::texture::draw(planet::sdl::renderer &r) {
+    auto const p = position.value();
+    SDL_Rect location = {
+            int(p.top_left.x()), int(p.top_left.y()), int(p.extents.width),
+            int(p.extents.height)};
+    drawing_worked(SDL_RenderCopy(r.get(), pt.get(), nullptr, &location));
+}
 
 
 auto planet::sdl::texture::do_reflow(constrained_type const &constraint)

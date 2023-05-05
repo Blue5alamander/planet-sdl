@@ -42,11 +42,13 @@ namespace planet::sdl {
         float height() const { return size.height; }
         std::size_t zheight() const { return size.zheight(); }
 
+        /// ### Draw the texture
+        void draw(renderer &) override;
         /// Draw the texture at the given screen co-ordinates
         void draw_within(renderer &, affine::rectangle2d const &) const;
 
       private:
-        constrained_type do_reflow(constrained_type const &);
+        constrained_type do_reflow(constrained_type const &) override;
     };
 
 
