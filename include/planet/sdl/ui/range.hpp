@@ -28,6 +28,11 @@ namespace planet::sdl::ui {
                        planet::ui::panel &,
                        float = {}) override;
 
+        void draw(renderer &r) {
+            background.draw(r);
+            slider.draw(r);
+        }
+
       private:
         constrained_type do_reflow(constrained_type const &) override;
         void do_draw_within(renderer &r, affine::rectangle2d) override;

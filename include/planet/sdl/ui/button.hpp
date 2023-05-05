@@ -24,6 +24,8 @@ namespace planet::sdl::ui {
 
         texture graphic;
 
+        void draw(renderer &r) { graphic.draw(r); }
+
       private:
         constrained_type do_reflow(constrained_type const &ex) override {
             return graphic.reflow(ex);

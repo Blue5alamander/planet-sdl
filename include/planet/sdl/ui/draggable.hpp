@@ -40,6 +40,8 @@ namespace planet::sdl::ui {
         droppable *target = nullptr;
         constrained_type offset;
 
+        void draw(renderer &r) { hotspot.draw(r); }
+
       private:
         constrained_type do_reflow(constrained_type const &) override;
         void do_draw_within(renderer &r, affine::rectangle2d) override;
