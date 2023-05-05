@@ -40,7 +40,12 @@ namespace planet::sdl::ui {
         droppable *target = nullptr;
         constrained_type offset;
 
-        void draw(renderer &r) { hotspot.draw(r); }
+        void
+                draw(renderer &r,
+                     felspar::source_location const &loc =
+                             felspar::source_location::current()) {
+            hotspot.draw(r, loc);
+        }
 
       private:
         constrained_type do_reflow(constrained_type const &) override;

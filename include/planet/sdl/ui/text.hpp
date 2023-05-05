@@ -27,6 +27,7 @@ namespace planet::sdl::ui {
         layout_type elements;
 
         constrained_type do_reflow(constrained_type const &within) override;
+        void move_sub_elements(affine::rectangle2d const &) override {}
 
       public:
         text(sdl::font &, std::string_view);

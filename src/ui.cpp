@@ -75,6 +75,13 @@ void planet::sdl::ui::range::add_to(
 }
 
 
+void planet::sdl::ui::range::move_sub_elements(affine::rectangle2d const &r) {
+    background.move_to(r);
+    auto const slider_offset = affine::point2d{px_offset, 0};
+    slider.move_to({r.top_left + slider_offset, r.extents});
+}
+
+
 void planet::sdl::ui::range::do_draw_within(
         renderer &r, affine::rectangle2d const ex) {
     background.draw_within(r, ex);

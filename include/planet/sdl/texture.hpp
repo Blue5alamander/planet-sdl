@@ -17,6 +17,11 @@ namespace planet::sdl {
 
 
     /// ## Graphics textures
+    /**
+     * TODO This should not be `reflowable`. There ought to be a separate texture
+     * type for UI use. One type owns the texture it uses (for buttons, labels,
+     * text etc.) and another references a texture loaded as part of the assets.
+     */
     class texture final : public planet::ui::reflowable {
         handle<SDL_Texture, SDL_DestroyTexture> pt;
         affine::extents2d size;
@@ -49,6 +54,7 @@ namespace planet::sdl {
 
       private:
         constrained_type do_reflow(constrained_type const &) override;
+        void move_sub_elements(affine::rectangle2d const &) override {}
     };
 
 
