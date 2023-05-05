@@ -18,7 +18,7 @@ void planet::sdl::texture::draw_within(
     drawing_worked(SDL_RenderCopy(r.get(), pt.get(), nullptr, &location));
 }
 void planet::sdl::texture::draw(planet::sdl::renderer &r) {
-    auto const p = position.value();
+    auto const &p = position();
     SDL_Rect location = {
             int(p.top_left.x()), int(p.top_left.y()), int(p.extents.width),
             int(p.extents.height)};

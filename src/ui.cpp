@@ -169,14 +169,14 @@ void planet::sdl::ui::text::draw_within(
     }
 }
 void planet::sdl::ui::text::draw(renderer &r) {
+    auto const &pos = position();
     for (auto &element : elements) {
         if (not element.value.texture) {
             element.value.texture = {
                     r, font.render(element.value.word.c_str())};
         }
         if (element.position) {
-            auto const p =
-                    element.position->top_left + position.value().top_left;
+            auto const p = element.position->top_left + pos.top_left;
             r.copy(*element.value.texture, static_cast<int>(p.x()),
                    static_cast<int>(p.y()));
         }
