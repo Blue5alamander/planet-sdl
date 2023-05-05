@@ -3,6 +3,8 @@
 
 #include <planet/sdl/renderer.hpp>
 
+#include <iostream>
+
 
 namespace planet::sdl {
 
@@ -36,8 +38,15 @@ namespace planet::sdl {
                 render_loop *r,
                 N &o,
                 felspar::coro::stream<renderer::frame> (N::*f)()) {
-            for (auto frames = (o.*f)(); auto frame = co_await frames.next();) {
-                r->waiting_for_frame.push(*frame);
+            try {
+                for (auto frames = (o.*f)();
+                     auto frame = co_await frames.next();) {
+                    r->waiting_for_frame.push(*frame);
+                }
+            } catch (std::exception const &e) {
+                std::cerr << "Render loop exception caught: " << e.what()
+                          << std::endl;
+                std::terminate();
             }
         }
     };
