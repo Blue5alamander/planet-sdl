@@ -20,7 +20,6 @@ auto planet::sdl::ui::draggable::do_reflow(constrained_type const &constraint)
 void planet::sdl::ui::draggable::do_draw_within(
         renderer &r, affine::rectangle2d const ex) {
     hotspot.draw_within(r, {ex.top_left + offset.position(), ex.extents});
-    panel.move_to({ex.top_left, hotspot.extents(ex.extents)});
 }
 
 
@@ -79,7 +78,6 @@ void planet::sdl::ui::range::add_to(
 void planet::sdl::ui::range::do_draw_within(
         renderer &r, affine::rectangle2d const ex) {
     background.draw_within(r, ex);
-    panel.move_to({ex.top_left, background.extents(ex.extents)});
     auto const slider_size = planet::ui::reflow(slider, ex.extents);
     slider.offset.width.min(-px_offset);
     slider.offset.width.max(
@@ -100,7 +98,9 @@ auto planet::sdl::ui::range::drop(constrained_type const &offset)
 auto planet::sdl::ui::range::do_reflow(constrained_type const &constraint)
         -> constrained_type {
     auto const bg = background.reflow(constraint);
-    slider.reflow(bg);
+    auto const r = slider.reflow(bg);
+    auto const slider_offset = affine::point2d{px_offset, 0};
+    slider.move_to({slider_offset, r.extents()});
     return bg;
 }
 
@@ -122,7 +122,8 @@ planet::sdl::ui::text::text(sdl::font &f, std::string_view const s)
 }
 
 
-void planet::sdl::ui::text::reflow(constrained_type const within) {
+auto planet::sdl::ui::text::do_reflow(constrained_type const &within)
+        -> constrained_type {
     if (not elements.laid_out_in
         or not elements.laid_out_in->is_at_least_as_constrained_as(within)) {
         elements.laid_out_in = within;
@@ -141,6 +142,8 @@ void planet::sdl::ui::text::reflow(constrained_type const within) {
         width = std::max(width, left);
         elements.extents = {width, width ? top + space.height : 0};
     }
+    /// TODO Return a smarter set of constraints
+    return constrained_type{elements.extents.value()};
 }
 
 

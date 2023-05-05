@@ -3,6 +3,7 @@
 
 #include <planet/ui/layout.hpp>
 #include <planet/ui/layout.column.hpp>
+#include <planet/ui/reflowable.hpp>
 #include <planet/sdl/texture.hpp>
 #include <planet/sdl/ttf.hpp>
 
@@ -11,7 +12,7 @@ namespace planet::sdl::ui {
 
 
     /// ## A block of text
-    class text {
+    class text : public planet::ui::reflowable {
         sdl::font &font;
         affine::extents2d space;
 
@@ -25,10 +26,11 @@ namespace planet::sdl::ui {
         using constrained_type = typename layout_type::constrained_type;
         layout_type elements;
 
+        constrained_type do_reflow(constrained_type const &within) override;
+
       public:
         text(sdl::font &, std::string_view);
 
-        void reflow(constrained_type within);
         affine::extents2d extents(affine::extents2d const &);
         void draw_within(renderer &r, affine::rectangle2d);
 
