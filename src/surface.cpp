@@ -7,5 +7,5 @@ planet::sdl::surface planet::sdl::surface::load_bmp(
         char const *fn,
         felspar::source_location const &loc) {
     rw_ops_const_memory data{am.file_data(fn, loc)};
-    return {SDL_LoadBMP_RW(data.get(), false)};
+    return {SDL_LoadBMP_RW(data.get(), false), ui::scale::lock_aspect};
 }

@@ -19,8 +19,7 @@ namespace planet::sdl {
       public:
         using handle_type = decltype(ps);
 
-        surface(handle_type h, ui::scale const f = ui::scale::lock_aspect)
-        : ps{std::move(h)}, fit{f} {
+        surface(handle_type h, ui::scale const f) : ps{std::move(h)}, fit{f} {
             if (ps.get()) { size = {float(ps->w), float(ps->h)}; }
         }
 

@@ -32,7 +32,7 @@ namespace planet::sdl {
         SDL_Texture *get() const noexcept { return pt.get(); }
 
         /// Control how the texture is draw
-        ui::scale fit;
+        ui::scale fit = ui::scale::lock_aspect;
         using constrained_type = planet::ui::constrained2d<float>;
 
         /// ### Return the texture extents
