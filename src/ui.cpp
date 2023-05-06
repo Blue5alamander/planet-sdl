@@ -50,7 +50,7 @@ felspar::coro::task<void> planet::sdl::ui::draggable::behaviour() {
 
 
 namespace {
-    constexpr planet::sdl::ui::range::constrained_type::axis_contrained_type
+    constexpr planet::sdl::ui::range::constrained_type::axis_constrained_type
             fully_constrained = {0, 0, 0};
 }
 

@@ -38,11 +38,11 @@ namespace planet::sdl::ui {
         constrained_type do_reflow(constrained_type const &ex) override {
             auto const on_size = on.reflow(ex);
             auto const off_size = off.reflow(ex);
-            constrained_type::axis_contrained_type const w{
+            constrained_type::axis_constrained_type const w{
                     std::max(on_size.width.min(), off_size.width.min()),
                     std::max(on_size.width.value(), off_size.width.value()),
                     std::min(on_size.width.max(), off_size.width.max())};
-            constrained_type::axis_contrained_type const h{
+            constrained_type::axis_constrained_type const h{
                     std::max(on_size.height.min(), off_size.height.min()),
                     std::max(on_size.height.value(), off_size.height.value()),
                     std::min(on_size.height.max(), off_size.height.max())};
