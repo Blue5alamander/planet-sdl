@@ -30,6 +30,9 @@ namespace planet::sdl::ui {
         constrained_type do_reflow(constrained_type const &ex) override {
             return graphic.reflow(ex);
         }
+        void do_move_sub_elements(affine::rectangle2d const &r) override {
+            graphic.move_to(r);
+        }
 
         void do_draw_within(
                 renderer &r, affine::rectangle2d const outer) override {

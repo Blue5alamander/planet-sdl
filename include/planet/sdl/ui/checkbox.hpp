@@ -48,6 +48,10 @@ namespace planet::sdl::ui {
                     std::min(on_size.height.max(), off_size.height.max())};
             return {w, h};
         }
+        void do_move_sub_elements(affine::rectangle2d const &r) override {
+            on.move_to(r);
+            off.move_to(r);
+        }
 
         void do_draw_within(
                 renderer &r, affine::rectangle2d const outer) override {

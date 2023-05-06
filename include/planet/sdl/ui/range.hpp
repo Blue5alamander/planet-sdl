@@ -38,7 +38,7 @@ namespace planet::sdl::ui {
 
       private:
         constrained_type do_reflow(constrained_type const &) override;
-        void move_sub_elements(affine::rectangle2d const &) override;
+        void do_move_sub_elements(affine::rectangle2d const &) override;
         void do_draw_within(renderer &r, affine::rectangle2d) override;
         felspar::coro::task<void> behaviour() override;
         constrained_type drop(constrained_type const &) override;
