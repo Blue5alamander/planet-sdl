@@ -26,14 +26,6 @@ namespace planet::sdl::ui {
                     std::max(on_size.height, off_size.height)};
         }
 
-        void draw(renderer &r) {
-            if (value) {
-                on.draw(r);
-            } else {
-                off.draw(r);
-            }
-        }
-
       private:
         constrained_type do_reflow(constrained_type const &ex) override {
             auto const on_size = on.reflow(ex);
@@ -61,6 +53,13 @@ namespace planet::sdl::ui {
             } else {
                 off.draw_within(r, outer);
                 panel.move_to({outer.top_left, off.extents()});
+            }
+        }
+        void do_draw(renderer &r) override {
+            if (value) {
+                on.draw(r);
+            } else {
+                off.draw(r);
             }
         }
 

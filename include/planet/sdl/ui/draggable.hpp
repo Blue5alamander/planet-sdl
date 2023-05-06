@@ -40,18 +40,13 @@ namespace planet::sdl::ui {
         droppable *target = nullptr;
         constrained_type offset;
 
-        void
-                draw(renderer &r,
-                     felspar::source_location const &loc =
-                             felspar::source_location::current()) {
-            hotspot.draw(r, loc);
-        }
 
       private:
         constrained_type do_reflow(constrained_type const &) override;
         void do_move_sub_elements(affine::rectangle2d const &r) override {
             hotspot.move_to(r);
         }
+        void do_draw(renderer &r) override { hotspot.draw(r); }
         void do_draw_within(renderer &r, affine::rectangle2d) override;
         felspar::coro::task<void> behaviour() override;
     };

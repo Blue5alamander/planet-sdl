@@ -28,17 +28,13 @@ namespace planet::sdl::ui {
                        planet::ui::panel &,
                        float = {}) override;
 
-        void
-                draw(renderer &r,
-                     felspar::source_location const &loc =
-                             felspar::source_location::current()) {
-            background.draw(r, loc);
-            slider.draw(r, loc);
-        }
-
       private:
         constrained_type do_reflow(constrained_type const &) override;
         void do_move_sub_elements(affine::rectangle2d const &) override;
+        void do_draw(renderer &r) override {
+            background.draw(r);
+            slider.draw(r);
+        }
         void do_draw_within(renderer &r, affine::rectangle2d) override;
         felspar::coro::task<void> behaviour() override;
         constrained_type drop(constrained_type const &) override;

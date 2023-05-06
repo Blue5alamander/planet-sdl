@@ -24,8 +24,6 @@ namespace planet::sdl::ui {
 
         texture graphic;
 
-        void draw(renderer &r) { graphic.draw(r); }
-
       private:
         constrained_type do_reflow(constrained_type const &ex) override {
             return graphic.reflow(ex);
@@ -39,6 +37,7 @@ namespace planet::sdl::ui {
             panel.move_to({outer.top_left, graphic.extents()});
             graphic.draw_within(r, outer);
         }
+        void do_draw(renderer &r) override { graphic.draw(r); }
 
         felspar::coro::task<void> behaviour() override {
             for (auto clicks = events::identify_clicks(
