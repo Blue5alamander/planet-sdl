@@ -8,7 +8,7 @@
 
 
 planet::sdl::ui::draggable::draggable(renderer &r, surface ctrl)
-: hotspot{r, std::move(ctrl)} {}
+: superclass{"planet::sdl::ui::draggable"}, hotspot{r, std::move(ctrl)} {}
 
 
 auto planet::sdl::ui::draggable::do_reflow(constrained_type const &constraint)
@@ -60,7 +60,22 @@ planet::sdl::ui::range::range(
         surface bg,
         surface ctrl,
         planet::ui::constrained1d<float> const &p)
-: background{r, std::move(bg)}, slider{r, std::move(ctrl)}, slider_position{p} {
+: planet::ui::widget<renderer>{"planet::sdl::ui::range"},
+  background{r, std::move(bg)},
+  slider{r, std::move(ctrl)},
+  slider_position{p} {
+    slider.offset = {fully_constrained, fully_constrained};
+}
+planet::sdl::ui::range::range(
+        std::string_view const n,
+        renderer &r,
+        surface bg,
+        surface ctrl,
+        planet::ui::constrained1d<float> const &p)
+: planet::ui::widget<renderer>{n},
+  background{r, std::move(bg)},
+  slider{r, std::move(ctrl)},
+  slider_position{p} {
     slider.offset = {fully_constrained, fully_constrained};
 }
 
@@ -119,7 +134,7 @@ felspar::coro::task<void> planet::sdl::ui::range::behaviour() { co_return; }
 
 
 planet::sdl::ui::text::text(sdl::font &f, std::string_view const s)
-: font{f}, space{font.measure(" ")} {
+: reflowable{"planet::sdl::ui::text"}, font{f}, space{font.measure(" ")} {
     auto const words = identify_words(s);
     for (auto const &w : words) {
         std::string word{w};

@@ -4,7 +4,8 @@
 
 
 planet::sdl::texture::texture(renderer &r, surface const &s)
-: pt{SDL_CreateTextureFromSurface(r.get(), s.get())},
+: reflowable{"planet::sdl::texture"},
+  pt{SDL_CreateTextureFromSurface(r.get(), s.get())},
   size{s.extents()},
   fit{s.fit} {}
 

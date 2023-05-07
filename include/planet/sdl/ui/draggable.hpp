@@ -30,6 +30,7 @@ namespace planet::sdl::ui {
 
     /// ## A draggable UI element
     class draggable final : public planet::ui::widget<renderer> {
+        using superclass = planet::ui::widget<renderer>;
         texture hotspot;
 
       public:

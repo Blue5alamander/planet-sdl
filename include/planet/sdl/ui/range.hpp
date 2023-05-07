@@ -18,6 +18,11 @@ namespace planet::sdl::ui {
               surface bg,
               surface ctrl,
               planet::ui::constrained1d<float> const &position);
+        range(std::string_view,
+              renderer &,
+              surface bg,
+              surface ctrl,
+              planet::ui::constrained1d<float> const &position);
 
         planet::ui::constrained1d<float> slider_position = {};
 

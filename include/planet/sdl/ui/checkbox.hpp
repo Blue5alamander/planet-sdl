@@ -10,12 +10,23 @@ namespace planet::sdl::ui {
 
 
     class checkbox final : public planet::ui::widget<renderer> {
+        using superclass = planet::ui::widget<renderer>;
         texture on, off;
         bool &value;
 
       public:
-        checkbox(renderer &r, surface on, surface off, bool &v)
-        : on{r, std::move(on)}, off{r, std::move(off)}, value{v} {}
+        explicit checkbox(renderer &r, surface on, surface off, bool &v)
+        : superclass{"planet::sdl::ui::checkbox"},
+          on{r, std::move(on)},
+          off{r, std::move(off)},
+          value{v} {}
+        explicit checkbox(
+                std::string_view const n,
+                renderer &r,
+                surface on,
+                surface off,
+                bool &v)
+        : superclass{n}, on{r, std::move(on)}, off{r, std::move(off)}, value{v} {}
 
         using constrained_type = planet::ui::widget<renderer>::constrained_type;
 

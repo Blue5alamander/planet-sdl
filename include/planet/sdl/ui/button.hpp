@@ -17,7 +17,10 @@ namespace planet::sdl::ui {
 
       public:
         button(sdl::renderer &r, surface text, felspar::coro::bus<R> &o, R v)
-        : press_value{std::move(v)}, output_to{o}, graphic{r, std::move(text)} {}
+        : superclass{"planet::sdl::ui::button"},
+          press_value{std::move(v)},
+          output_to{o},
+          graphic{r, std::move(text)} {}
         button(std::string_view const n,
                sdl::renderer &r,
                surface text,
