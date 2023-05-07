@@ -28,6 +28,7 @@ namespace planet::sdl {
 
       public:
         texture(renderer &, surface const &);
+        texture(std::string_view, renderer &, surface const &);
 
         SDL_Texture *get() const noexcept { return pt.get(); }
 

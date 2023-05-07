@@ -20,7 +20,7 @@ namespace planet::sdl::ui {
         : superclass{"planet::sdl::ui::button"},
           press_value{std::move(v)},
           output_to{o},
-          graphic{r, std::move(text)} {}
+          graphic{"planet::sdl::ui::button.graphic", r, std::move(text)} {}
         button(std::string_view const n,
                sdl::renderer &r,
                surface text,
@@ -29,7 +29,7 @@ namespace planet::sdl::ui {
         : superclass{n},
           press_value{std::move(v)},
           output_to{o},
-          graphic{r, std::move(text)} {}
+          graphic{std::string{n} + ".graphic", r, std::move(text)} {}
 
         affine::extents2d extents(affine::extents2d const &ex) const {
             return graphic.extents(ex);

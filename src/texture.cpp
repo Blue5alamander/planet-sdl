@@ -8,6 +8,12 @@ planet::sdl::texture::texture(renderer &r, surface const &s)
   pt{SDL_CreateTextureFromSurface(r.get(), s.get())},
   size{s.extents()},
   fit{s.fit} {}
+planet::sdl::texture::texture(
+        std::string_view const n, renderer &r, surface const &s)
+: reflowable{n},
+  pt{SDL_CreateTextureFromSurface(r.get(), s.get())},
+  size{s.extents()},
+  fit{s.fit} {}
 
 
 void planet::sdl::texture::draw_within(
