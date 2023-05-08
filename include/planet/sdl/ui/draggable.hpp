@@ -48,7 +48,6 @@ namespace planet::sdl::ui {
             hotspot.move_to(r);
         }
         void do_draw(renderer &r) override { hotspot.draw(r); }
-        void do_draw_within(renderer &r, affine::rectangle2d) override;
         felspar::coro::task<void> behaviour() override;
     };
 

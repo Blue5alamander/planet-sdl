@@ -17,12 +17,6 @@ auto planet::sdl::ui::draggable::do_reflow(constrained_type const &constraint)
 }
 
 
-void planet::sdl::ui::draggable::do_draw_within(
-        renderer &r, affine::rectangle2d const ex) {
-    hotspot.draw_within(r, {ex.top_left + offset.position(), ex.extents});
-}
-
-
 felspar::coro::task<void> planet::sdl::ui::draggable::behaviour() {
     std::optional<affine::point2d> base, start;
     while (true) {
@@ -97,19 +91,6 @@ void planet::sdl::ui::range::do_move_sub_elements(affine::rectangle2d const &r) 
 }
 
 
-void planet::sdl::ui::range::do_draw_within(
-        renderer &r, affine::rectangle2d const ex) {
-    background.draw_within(r, ex);
-    auto const slider_size = planet::ui::reflow(slider, ex.extents);
-    slider.offset.width.min(-px_offset);
-    slider.offset.width.max(
-            background.extents(ex.extents).width - slider_size.width
-            - px_offset);
-    auto const slider_offset = affine::point2d{px_offset, 0};
-    slider.draw_within(r, {ex.top_left + slider_offset, ex.extents});
-}
-
-
 auto planet::sdl::ui::range::drop(constrained_type const &offset)
         -> constrained_type {
     px_offset += offset.width.value();
@@ -169,27 +150,6 @@ auto planet::sdl::ui::text::do_reflow(constrained_type const &within)
 }
 
 
-auto planet::sdl::ui::text::extents(affine::extents2d const &outer)
-        -> affine::extents2d {
-    reflow(constrained_type{outer});
-    return elements.extents.value();
-}
-
-
-void planet::sdl::ui::text::draw_within(
-        renderer &r, affine::rectangle2d const within) {
-    for (auto &element : elements) {
-        if (not element.value.texture) {
-            element.value.texture = {
-                    r, font.render(element.value.word.c_str())};
-        }
-        if (element.position) {
-            auto const p = element.position->top_left + within.top_left;
-            r.copy(*element.value.texture, static_cast<int>(p.x()),
-                   static_cast<int>(p.y()));
-        }
-    }
-}
 void planet::sdl::ui::text::draw(renderer &r) {
     auto const &pos = position();
     for (auto &element : elements) {

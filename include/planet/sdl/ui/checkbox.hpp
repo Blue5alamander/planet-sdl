@@ -56,16 +56,6 @@ namespace planet::sdl::ui {
             off.move_to(r);
         }
 
-        void do_draw_within(
-                renderer &r, affine::rectangle2d const outer) override {
-            if (value) {
-                on.draw_within(r, outer);
-                panel.move_to({outer.top_left, on.extents()});
-            } else {
-                off.draw_within(r, outer);
-                panel.move_to({outer.top_left, off.extents()});
-            }
-        }
         void do_draw(renderer &r) override {
             if (value) {
                 on.draw(r);

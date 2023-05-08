@@ -45,11 +45,6 @@ namespace planet::sdl::ui {
             graphic.move_to(r);
         }
 
-        void do_draw_within(
-                renderer &r, affine::rectangle2d const outer) override {
-            panel.move_to({outer.top_left, graphic.extents()});
-            graphic.draw_within(r, outer);
-        }
         void do_draw(renderer &r) override { graphic.draw(r); }
 
         felspar::coro::task<void> behaviour() override {

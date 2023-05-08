@@ -40,7 +40,6 @@ namespace planet::sdl::ui {
             background.draw(r);
             slider.draw(r);
         }
-        void do_draw_within(renderer &r, affine::rectangle2d) override;
         felspar::coro::task<void> behaviour() override;
         constrained_type drop(constrained_type const &) override;
     };

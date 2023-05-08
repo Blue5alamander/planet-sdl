@@ -32,9 +32,6 @@ namespace planet::sdl::ui {
       public:
         text(sdl::font &, std::string_view);
 
-        affine::extents2d extents(affine::extents2d const &);
-        void draw_within(renderer &r, affine::rectangle2d);
-
         /// ### Draw the texture
         void draw(renderer &);
 
