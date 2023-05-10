@@ -80,7 +80,7 @@ void planet::sdl::ui::range::add_to(
         float const z_layer) {
     planet::ui::widget<renderer>::add_to(bp, parent, z_layer);
     slider.target = this;
-    slider.add_to(bp, parent, z_layer + 1);
+    slider.add_to(bp, panel, z_layer + 1);
 }
 
 
