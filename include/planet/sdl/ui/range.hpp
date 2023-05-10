@@ -28,6 +28,7 @@ namespace planet::sdl::ui {
 
         using constrained_type = droppable::constrained_type;
 
+        using planet::ui::widget<renderer>::add_to;
         void
                 add_to(planet::ui::baseplate<renderer> &,
                        planet::ui::panel &,
