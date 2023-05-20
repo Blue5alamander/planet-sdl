@@ -7,9 +7,11 @@
 namespace planet::sdl {
 
 
-    /// An SDL handle stores a pointer to the resource `T` and frees it using
-    /// the freeing function `F`
+    /// An SDL handle
     /**
+     * Stores a pointer to the resource `T` and frees it using the freeing
+     * function `F`.
+     *
      * In practice many of the freeing functions will behave properly when
      * passed a `nullptr`, but for the sake of not having to look them all up,
      * we perform a check in the destructor anyway.
