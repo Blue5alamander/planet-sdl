@@ -1,10 +1,9 @@
+#include <planet/log.hpp>
 #include <planet/sdl/event-loop.hpp>
 #include <planet/sdl/init.hpp>
 #include <planet/sdl/window.hpp>
 
 #include <SDL.h>
-
-#include <iostream>
 
 
 using namespace std::literals;
@@ -14,7 +13,7 @@ using namespace std::literals;
 
 
 felspar::coro::task<void> planet::sdl::event_loop::run() {
-    std::cout << "planet::sdl::event_loop::run\n";
+    planet::log::info("planet::sdl::event_loop::run");
     affine::point2d last_mouse_pos{{}, {}};
     while (true) {
         SDL_Event event;
