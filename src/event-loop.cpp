@@ -35,6 +35,11 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
                             {events::button::left, events::action::down,
                              last_mouse_pos});
                     break;
+                case SDL_BUTTON_RIGHT:
+                    events.mouse.push(
+                            {events::button::right, events::action::down,
+                             last_mouse_pos});
+                    break;
                 }
                 break;
 
@@ -44,6 +49,11 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
                 case SDL_BUTTON_LEFT:
                     events.mouse.push(
                             {events::button::left, events::action::up,
+                             last_mouse_pos});
+                    break;
+                case SDL_BUTTON_RIGHT:
+                    events.mouse.push(
+                            {events::button::right, events::action::up,
                              last_mouse_pos});
                     break;
                 }
