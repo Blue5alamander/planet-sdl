@@ -35,13 +35,13 @@ namespace planet::sdl {
 
         SDL_Surface *get() const noexcept { return ps.get(); }
 
-        /// Return the texture extents. The top left co-ordinates will always be
-        /// 0, 0
+        /// ### Return the texture extents
+        /// The top left co-ordinates will always be (0, 0)
         affine::extents2d const &extents() const noexcept { return size; }
-        float width() const { return size.width; }
-        std::size_t zwidth() const { return size.zwidth(); }
-        float height() const { return size.height; }
-        std::size_t zheight() const { return size.zheight(); }
+        float width() const noexcept { return size.width; }
+        std::size_t uzwidth() const noexcept { return size.uzwidth(); }
+        float height() const noexcept { return size.height; }
+        std::size_t uzheight() const noexcept { return size.uzheight(); }
     };
 
 

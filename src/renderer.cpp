@@ -52,7 +52,7 @@ void planet::sdl::renderer::lines(std::span<SDL_Point> pts) const {
 
 
 void planet::sdl::renderer::copy(texture const &t, int const x, int const y) {
-    SDL_Rect location = {int(x), int(y), int(t.zwidth()), int(t.zheight())};
+    SDL_Rect location = {int(x), int(y), int(t.uzwidth()), int(t.uzheight())};
     drawing_worked(SDL_RenderCopy(pr.get(), t.get(), nullptr, &location));
 }
 void planet::sdl::renderer::copy(

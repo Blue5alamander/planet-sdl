@@ -40,10 +40,10 @@ namespace planet::sdl {
         affine::extents2d const &extents() const noexcept { return size; }
         affine::extents2d extents(affine::extents2d) const noexcept;
 
-        float width() const { return size.width; }
-        std::size_t zwidth() const { return size.zwidth(); }
-        float height() const { return size.height; }
-        std::size_t zheight() const { return size.zheight(); }
+        float width() const noexcept { return size.width; }
+        std::size_t uzwidth() const noexcept { return size.uzwidth(); }
+        float height() const noexcept { return size.height; }
+        std::size_t uzheight() const noexcept { return size.uzheight(); }
 
         /// ### Draw the texture
         void
