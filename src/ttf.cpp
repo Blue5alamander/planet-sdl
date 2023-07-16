@@ -31,7 +31,7 @@ planet::sdl::font::font(
 }
 
 
-planet::affine::extents2d planet::sdl::font::measure(char const *const t) {
+planet::affine::extents2d planet::sdl::font::measure(char const *const t) const {
     int w{}, h{};
     drawing_worked(TTF_SizeUTF8(pf.get(), t, &w, &h));
     return {static_cast<float>(w), static_cast<float>(h)};

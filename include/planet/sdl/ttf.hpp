@@ -40,7 +40,7 @@ namespace planet::sdl {
         TTF_Font *get() const noexcept { return pf.get(); }
 
         /// Return what the text dimensions will be when rendered
-        affine::extents2d measure(char const *text);
+        affine::extents2d measure(char const *text) const;
 
         /// Render text to a single line
         surface
