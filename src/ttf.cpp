@@ -23,7 +23,9 @@ planet::sdl::font::font(
         felspar::source_location const &loc)
 : font_data{am, filename, loc},
   pf{TTF_OpenFontRW(font_data.get(), false, pixels)},
-  colour{c} {
+  colour{c},
+  space{measure(" ")},
+  em{measure("m")} {
     if (not pf.get()) {
         throw felspar::stdexcept::runtime_error{
                 "TTF_OpenFontRW returned nullptr"};

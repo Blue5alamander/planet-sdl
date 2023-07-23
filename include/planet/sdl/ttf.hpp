@@ -16,6 +16,7 @@ namespace planet::sdl {
     class init;
 
 
+    /// ## Initialise TTF
     /// Create one of these for access to the TTF rendering parts of SDL2
     class ttf {
       public:
@@ -24,6 +25,7 @@ namespace planet::sdl {
     };
 
 
+    /// ## TTF Font
     class font {
         rw_ops_const_memory font_data;
         handle<TTF_Font, TTF_CloseFont> pf;
@@ -39,10 +41,13 @@ namespace planet::sdl {
 
         TTF_Font *get() const noexcept { return pf.get(); }
 
-        /// Return what the text dimensions will be when rendered
+        /// ### Measurements
+        affine::extents2d const space, em;
+
+        /// ### Text dimensions
         affine::extents2d measure(char const *text) const;
 
-        /// Render text to a single line
+        /// ### Render text to a single line
         surface
                 render(char const *text,
                        planet::ui::scale fit = planet::ui::scale::never) const {
@@ -53,7 +58,7 @@ namespace planet::sdl {
                        SDL_Color,
                        planet::ui::scale = planet::ui::scale::never) const;
 
-        /// Wrap text if  it is too wide
+        /// ### Wrap text if  it is too wide
         surface
                 render(char const *text,
                        std::uint32_t const width,
