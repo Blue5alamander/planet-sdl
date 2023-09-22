@@ -16,10 +16,7 @@ namespace planet::sdl::ui {
       public:
         using superclass::graphic;
 
-        button(sdl::renderer &r,
-               surface text,
-               felspar::coro::bus<Return> &o,
-               Return v)
+        button(sdl::renderer &r, surface text, queue::pmc<Return> &o, Return v)
         : superclass{
                 "planet::sdl::ui::button",
                 {"planet::sdl::ui::button.graphic", r, std::move(text)},
@@ -28,7 +25,7 @@ namespace planet::sdl::ui {
         button(std::string_view const n,
                sdl::renderer &r,
                surface text,
-               felspar::coro::bus<Return> &o,
+               queue::pmc<Return> &o,
                Return v)
         : superclass{
                 n,
