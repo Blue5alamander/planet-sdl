@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include <planet/events/bus.hpp>
+#include <planet/events/queue.hpp>
 #include <planet/ui/baseplate.hpp>
 
 #include <felspar/coro/start.hpp>
@@ -24,6 +24,7 @@ namespace planet::sdl {
         template<typename W>
         event_loop(init &s, W const &w)
         : event_loop{s, SDL_GetWindowID(w.get())} {}
+
 
         /// ### Coroutine tasks to run
         /**
@@ -51,8 +52,10 @@ namespace planet::sdl {
             co_await forwarders.wait_for_all();
         }
 
+
         /// ### Events
-        events::bus events;
+        events::queue events;
+
 
       private:
         planet::sdl::init &sdl;
