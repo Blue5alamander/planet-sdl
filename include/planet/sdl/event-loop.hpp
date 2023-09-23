@@ -39,16 +39,14 @@ namespace planet::sdl {
         felspar::coro::task<void> forward_to_baseplate(ui::baseplate<R> &bp) {
             felspar::coro::starter<> forwarders;
             forwarders.post(
-                    events.key,
-                    &felspar::coro::bus<planet::events::key>::forward<>,
+                    events.key, &queue::pmc<planet::events::key>::forward<>,
                     std::ref(bp.events.key));
             forwarders.post(
-                    events.mouse,
-                    &felspar::coro::bus<planet::events::mouse>::forward<>,
+                    events.mouse, &queue::pmc<planet::events::mouse>::forward<>,
                     std::ref(bp.events.mouse));
             forwarders.post(
                     events.scroll,
-                    &felspar::coro::bus<planet::events::scroll>::forward<>,
+                    &queue::pmc<planet::events::scroll>::forward<>,
                     std::ref(bp.events.scroll));
             co_await forwarders.wait_for_all();
         }
