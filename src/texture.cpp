@@ -6,31 +6,33 @@
 planet::sdl::texture::texture(renderer &r, surface const &s)
 : reflowable{"planet::sdl::texture"},
   pt{SDL_CreateTextureFromSurface(r.get(), s.get())},
+  rp{&r},
   size{s.extents()},
   fit{s.fit} {}
 planet::sdl::texture::texture(
         std::string_view const n, renderer &r, surface const &s)
 : reflowable{n},
   pt{SDL_CreateTextureFromSurface(r.get(), s.get())},
+  rp{&r},
   size{s.extents()},
   fit{s.fit} {}
 
 
 void planet::sdl::texture::draw_within(
-        planet::sdl::renderer &r, planet::affine::rectangle2d const &e) const {
+        planet::sdl::renderer &, planet::affine::rectangle2d const &e) const {
     auto const ex = extents(e.extents);
     SDL_Rect location = {
             int(e.top_left.x()), int(e.top_left.y()), int(ex.width),
             int(ex.height)};
-    drawing_worked(SDL_RenderCopy(r.get(), pt.get(), nullptr, &location));
+    drawing_worked(SDL_RenderCopy(rp->get(), pt.get(), nullptr, &location));
 }
 void planet::sdl::texture::draw(
-        planet::sdl::renderer &r, felspar::source_location const &loc) {
+        planet::sdl::renderer &, felspar::source_location const &loc) {
     auto const &p = position(loc);
     SDL_Rect location = {
             int(p.top_left.x()), int(p.top_left.y()), int(p.extents.width),
             int(p.extents.height)};
-    drawing_worked(SDL_RenderCopy(r.get(), pt.get(), nullptr, &location));
+    drawing_worked(SDL_RenderCopy(rp->get(), pt.get(), nullptr, &location));
 }
 
 

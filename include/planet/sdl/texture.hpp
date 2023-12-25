@@ -25,6 +25,7 @@ namespace planet::sdl {
     class texture final : public planet::ui::reflowable {
         handle<SDL_Texture, SDL_DestroyTexture> pt;
         affine::extents2d size;
+        renderer *rp;
 
       public:
         texture(renderer &, surface const &);
@@ -32,9 +33,10 @@ namespace planet::sdl {
 
         SDL_Texture *get() const noexcept { return pt.get(); }
 
-        /// Control how the texture is draw
+        /// ### Control how the texture is draw
         ui::scale fit = ui::scale::lock_aspect;
         using constrained_type = planet::ui::constrained2d<float>;
+
 
         /// ### Return the texture extents
         affine::extents2d const &extents() const noexcept { return size; }
@@ -45,6 +47,7 @@ namespace planet::sdl {
         float height() const noexcept { return size.height; }
         std::size_t uzheight() const noexcept { return size.uzheight(); }
 
+
         /// ### Draw the texture
         void
                 draw(renderer &,
@@ -52,6 +55,7 @@ namespace planet::sdl {
                              felspar::source_location::current());
         /// Draw the texture at the given screen co-ordinates
         void draw_within(renderer &, affine::rectangle2d const &) const;
+
 
       private:
         constrained_type do_reflow(constrained_type const &) override;
