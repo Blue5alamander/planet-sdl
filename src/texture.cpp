@@ -6,15 +6,15 @@
 planet::sdl::texture::texture(renderer &r, surface const &s)
 : reflowable{"planet::sdl::texture"},
   pt{SDL_CreateTextureFromSurface(r.get(), s.get())},
-  rp{&r},
   size{s.extents()},
+  rp{&r},
   fit{s.fit} {}
 planet::sdl::texture::texture(
         std::string_view const n, renderer &r, surface const &s)
 : reflowable{n},
   pt{SDL_CreateTextureFromSurface(r.get(), s.get())},
-  rp{&r},
   size{s.extents()},
+  rp{&r},
   fit{s.fit} {}
 
 
