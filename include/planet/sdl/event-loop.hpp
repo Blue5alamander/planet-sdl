@@ -36,21 +36,7 @@ namespace planet::sdl {
         felspar::coro::task<void> run();
 
         /// #### Forward all events to the base plate running the widgets
-        template<typename R>
-        felspar::coro::task<void> forward_to_baseplate(ui::baseplate<R> &bp) {
-            felspar::coro::starter<> forwarders;
-            forwarders.post(
-                    events.key, &queue::pmc<planet::events::key>::forward<>,
-                    std::ref(bp.events.key));
-            forwarders.post(
-                    events.mouse, &queue::pmc<planet::events::mouse>::forward<>,
-                    std::ref(bp.events.mouse));
-            forwarders.post(
-                    events.scroll,
-                    &queue::pmc<planet::events::scroll>::forward<>,
-                    std::ref(bp.events.scroll));
-            co_await forwarders.wait_for_all();
-        }
+        felspar::coro::task<void> forward_to_baseplate(ui::baseplate &);
 
 
         /// ### Events

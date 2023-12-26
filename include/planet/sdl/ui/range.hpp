@@ -9,8 +9,9 @@ namespace planet::sdl::ui {
 
 
     /// ## Range/slide control
-    class range final : public planet::ui::range<renderer, texture, draggable> {
-        using superclass = planet::ui::range<renderer, texture, draggable>;
+    class range final : public planet::ui::range<texture, draggable> {
+        using superclass = planet::ui::range<texture, draggable>;
+
 
         void do_draw() override;
 

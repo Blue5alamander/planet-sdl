@@ -43,7 +43,7 @@ namespace planet::sdl {
         SDL_Window *get() const noexcept { return pw.get(); }
 
         sdl::renderer renderer;
-        ui::baseplate<sdl::renderer> baseplate;
+        ui::baseplate baseplate;
 
         /// Current inner window size
         affine::extents2d const &extents() const noexcept { return size; }

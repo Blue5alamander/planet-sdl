@@ -12,6 +12,22 @@ using namespace std::literals;
 /// ## `planet::sdl::event_loop`
 
 
+felspar::coro::task<void>
+        planet::sdl::event_loop::forward_to_baseplate(ui::baseplate &bp) {
+    felspar::coro::starter<> forwarders;
+    forwarders.post(
+            events.key, &queue::pmc<planet::events::key>::forward<>,
+            std::ref(bp.events.key));
+    forwarders.post(
+            events.mouse, &queue::pmc<planet::events::mouse>::forward<>,
+            std::ref(bp.events.mouse));
+    forwarders.post(
+            events.scroll, &queue::pmc<planet::events::scroll>::forward<>,
+            std::ref(bp.events.scroll));
+    co_await forwarders.wait_for_all();
+}
+
+
 felspar::coro::task<void> planet::sdl::event_loop::run() {
     planet::log::info("planet::sdl::event_loop::run");
     affine::point2d last_mouse_pos{{}, {}};
