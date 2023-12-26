@@ -12,7 +12,7 @@ namespace planet::sdl::ui {
     class range final : public planet::ui::range<renderer, texture, draggable> {
         using superclass = planet::ui::range<renderer, texture, draggable>;
 
-        void do_draw(renderer &) override;
+        void do_draw() override;
 
 
       public:

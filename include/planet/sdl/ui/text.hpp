@@ -13,6 +13,7 @@ namespace planet::sdl::ui {
 
     /// ## A block of text
     class text : public planet::ui::reflowable {
+        renderer &r;
         sdl::font &font;
         affine::extents2d space;
 
@@ -30,10 +31,10 @@ namespace planet::sdl::ui {
         void move_sub_elements(affine::rectangle2d const &) override {}
 
       public:
-        text(sdl::font &, std::string_view);
+        text(renderer &, sdl::font &, std::string_view);
 
         /// ### Draw the texture
-        void draw(renderer &);
+        void draw();
 
         /// ### Identify words within a string
         static std::vector<std::string_view> identify_words(std::string_view);

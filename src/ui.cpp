@@ -11,7 +11,7 @@ planet::sdl::ui::draggable::draggable(renderer &r, surface ctrl)
 : superclass{"planet::sdl::ui::draggable", {r, std::move(ctrl)}} {}
 
 
-void planet::sdl::ui::draggable::do_draw(renderer &r) { hotspot.draw(r); }
+void planet::sdl::ui::draggable::do_draw() { hotspot.draw(); }
 
 
 /// ## `planet::sdl::ui::range`
@@ -36,17 +36,20 @@ planet::sdl::ui::range::range(
 : superclass{n, {r, std::move(bg)}, {r, std::move(ctrl)}, p} {}
 
 
-void planet::sdl::ui::range::do_draw(renderer &r) {
-    background.draw(r);
-    slider.draw(r);
+void planet::sdl::ui::range::do_draw() {
+    background.draw();
+    slider.draw();
 }
 
 
 /// ## `planet::sdl::ui::text`
 
 
-planet::sdl::ui::text::text(sdl::font &f, std::string_view const s)
-: reflowable{"planet::sdl::ui::text"}, font{f}, space{font.measure(" ")} {
+planet::sdl::ui::text::text(renderer &rr, sdl::font &f, std::string_view const s)
+: reflowable{"planet::sdl::ui::text"},
+  r{rr},
+  font{f},
+  space{font.measure(" ")} {
     auto const words = identify_words(s);
     for (auto const &w : words) {
         std::string word{w};
@@ -81,7 +84,7 @@ auto planet::sdl::ui::text::do_reflow(constrained_type const &within)
 }
 
 
-void planet::sdl::ui::text::draw(renderer &r) {
+void planet::sdl::ui::text::draw() {
     auto const &pos = position();
     for (auto &element : elements) {
         if (not element.value.texture) {

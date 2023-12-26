@@ -17,7 +17,7 @@ namespace planet::sdl::ui {
         draggable(renderer &, surface);
 
       private:
-        void do_draw(renderer &r) override;
+        void do_draw() override;
     };
 
 
