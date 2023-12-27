@@ -10,11 +10,15 @@ namespace planet::sdl::ui {
 
 
     template<typename Return>
-    class button final : public planet::ui::button<renderer, Return, texture> {
-        using superclass = planet::ui::button<renderer, Return, texture>;
+    class button final :
+    public planet::ui::button<Return, texture, planet::queue::pmc<Return>> {
+        using superclass =
+                planet::ui::button<Return, texture, planet::queue::pmc<Return>>;
+
 
       public:
         using superclass::graphic;
+
 
         button(sdl::renderer &r, surface text, queue::pmc<Return> &o, Return v)
         : superclass{
@@ -33,8 +37,9 @@ namespace planet::sdl::ui {
                 o,
                 std::move(v)} {}
 
+
       private:
-        void do_draw(renderer &r) override { graphic.draw(r); }
+        void do_draw() override { graphic.draw(); }
     };
 
 
