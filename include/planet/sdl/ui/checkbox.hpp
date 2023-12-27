@@ -9,10 +9,14 @@
 namespace planet::sdl::ui {
 
 
-    class checkbox final : public planet::ui::checkbox<renderer, texture> {
-        using superclass = planet::ui::checkbox<renderer, texture>;
+    class checkbox final : public planet::ui::checkbox<texture> {
+        using superclass = planet::ui::checkbox<texture>;
+
 
       public:
+        using constrained_type = superclass::constrained_type;
+
+
         explicit checkbox(renderer &r, surface on, surface off, bool &v)
         : superclass{
                 "planet::sdl::ui::checkbox",
@@ -27,14 +31,13 @@ namespace planet::sdl::ui {
                 bool &v)
         : superclass{n, {r, std::move(on)}, {r, std::move(off)}, {v}} {}
 
-        using constrained_type = superclass::constrained_type;
 
       private:
-        void do_draw(renderer &r) override {
+        void do_draw() override {
             if (value) {
-                on.draw(r);
+                on.draw();
             } else {
-                off.draw(r);
+                off.draw();
             }
         }
     };
