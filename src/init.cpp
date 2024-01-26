@@ -1,4 +1,7 @@
 #include <planet/sdl/init.hpp>
+
+#include <planet/log.hpp>
+
 #include <SDL.h>
 
 
@@ -37,12 +40,18 @@ planet::sdl::configuration::configuration(std::string_view appname) {
 
 
 void planet::sdl::configuration::set_game_folder(std::filesystem::path path) {
+    config_filename = path / "configuration";
     save_folder = path / "saves";
     /// Try to create the directory. This may not be possible on first
     /// initialisation on some platforms and there's not a lot we can do about a
     /// bad path anyway, so just ignore any errors.
     std::error_code ec;
     std::filesystem::create_directories(save_folder, ec);
+    if (ec) {
+        log::warning(
+                "Could not create save file directory", save_folder, "error",
+                ec.message());
+    }
 }
 
 

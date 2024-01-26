@@ -10,8 +10,11 @@ namespace planet::sdl {
 
 
     /// ## Engine configuration
-
-    struct configuration {
+    /**
+     * This configuraiton is only used for the save folder and the configuration
+     * save path. All other game configuration is managed by the game itself.
+     */
+    struct configuration final {
         configuration(std::string_view appname);
 
         /// ### The folder that the game has to use for any data that it may
@@ -24,6 +27,7 @@ namespace planet::sdl {
          */
         void set_game_folder(std::filesystem::path);
 
+        std::filesystem::path config_filename;
         std::filesystem::path save_folder;
     };
 
