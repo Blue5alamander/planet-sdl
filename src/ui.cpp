@@ -1,45 +1,6 @@
 #include <planet/sdl/renderer.hpp>
-#include <planet/sdl/ui/range.hpp>
 #include <planet/sdl/ui/text.hpp>
 #include <planet/ui/baseplate.hpp>
-
-
-/// ## `planet::sdl::ui::draggable`
-
-
-planet::sdl::ui::draggable::draggable(renderer &r, surface ctrl)
-: superclass{"planet::sdl::ui::draggable", {r, std::move(ctrl)}} {}
-
-
-void planet::sdl::ui::draggable::do_draw() { hotspot.draw(); }
-
-
-/// ## `planet::sdl::ui::range`
-
-
-namespace {}
-
-
-planet::sdl::ui::range::range(
-        renderer &r,
-        surface bg,
-        surface ctrl,
-        planet::ui::constrained1d<float> const &p)
-: superclass{
-        "planet::sdl::ui::range", {r, std::move(bg)}, {r, std::move(ctrl)}, p} {}
-planet::sdl::ui::range::range(
-        std::string_view const n,
-        renderer &r,
-        surface bg,
-        surface ctrl,
-        planet::ui::constrained1d<float> const &p)
-: superclass{n, {r, std::move(bg)}, {r, std::move(ctrl)}, p} {}
-
-
-void planet::sdl::ui::range::do_draw() {
-    background.draw();
-    slider.draw();
-}
 
 
 /// ## `planet::sdl::ui::text`
