@@ -21,6 +21,7 @@ planet::sdl::renderer::renderer(window &w)
 void planet::sdl::renderer::clear() {
     ++current_frame.number;
     drawing_worked(SDL_RenderClear(pr.get()));
+    win.baseplate.start_frame_reset();
 }
 
 
