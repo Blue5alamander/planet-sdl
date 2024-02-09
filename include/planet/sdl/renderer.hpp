@@ -9,6 +9,7 @@
 
 
 #include <SDL.h>
+#undef main
 
 #include <cstdint>
 #include <span>

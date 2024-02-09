@@ -7,6 +7,7 @@
 #include <felspar/exceptions.hpp>
 
 #include <SDL.h>
+#undef main
 
 
 namespace planet::sdl {

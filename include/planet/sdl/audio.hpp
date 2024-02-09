@@ -8,6 +8,7 @@
 #include <thread>
 
 #include <SDL.h>
+#undef main
 
 
 namespace planet::sdl {

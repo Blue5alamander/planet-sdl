@@ -7,6 +7,7 @@
 #include <planet/ui/scale.hpp>
 
 #include <SDL.h>
+#undef main
 
 
 namespace planet::sdl {

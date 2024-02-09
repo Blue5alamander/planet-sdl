@@ -8,6 +8,7 @@
 #include <felspar/coro/start.hpp>
 
 #include <SDL.h>
+#undef main
 
 #include <cstdint>
 
