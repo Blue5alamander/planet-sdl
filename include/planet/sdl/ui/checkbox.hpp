@@ -19,10 +19,10 @@ namespace planet::sdl::ui {
 
         explicit checkbox(renderer &r, surface on, surface off, bool &v)
         : superclass{
-                "planet::sdl::ui::checkbox",
-                {r, std::move(on)},
-                {r, std::move(off)},
-                {v}} {}
+                  "planet::sdl::ui::checkbox",
+                  {r, std::move(on)},
+                  {r, std::move(off)},
+                  {v}} {}
         explicit checkbox(
                 std::string_view const n,
                 renderer &r,
