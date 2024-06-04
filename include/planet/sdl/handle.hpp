@@ -7,7 +7,7 @@
 namespace planet::sdl {
 
 
-    /// An SDL handle
+    /// ## An SDL handle
     /**
      * Stores a pointer to the resource `T` and frees it using the freeing
      * function `F`.
@@ -25,21 +25,20 @@ namespace planet::sdl {
         handle(T *t) : object{t} {}
         ~handle() { reset(); }
 
-        /// A handle is movable, but not copyable
+        /// ### A handle is movable, but not copyable
         handle(handle &&h) : object{std::exchange(h.object, nullptr)} {}
         handle(handle const &) = delete;
         handle &operator=(handle &&h) {
-            reset();
-            object = std::exchange(h.object, nullptr);
+            std::swap(object, h.object);
             return *this;
         }
         handle &operator=(handle const &) = delete;
 
-        /// Access to the underlying pointer
+        /// ### Access to the underlying pointer
         T *get() const noexcept { return object; }
         T *operator->() const { return object; }
 
-        /// Force reset of the handle
+        /// ### Force reset of the handle
         void reset() {
             if (object) { F(std::exchange(object, nullptr)); }
         }
