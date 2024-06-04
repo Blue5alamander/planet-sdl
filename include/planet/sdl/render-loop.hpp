@@ -20,6 +20,9 @@ namespace planet::sdl {
      * Typically this should be the last member in a structure so it destructed
      * first as the render loop implementation will typically involve access to
      * a lot of member data within its structure.
+     *
+     * **NB** This is used only for the SDL renderer. If you're using the
+     * Planet's Vulkan engine then you will want to use it's [`XXX`](XXX) type.
      */
     struct render_loop final {
         template<typename N>

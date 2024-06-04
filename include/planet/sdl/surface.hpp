@@ -13,6 +13,7 @@
 namespace planet::sdl {
 
 
+    /// ## SDL Surface
     class surface {
         handle<SDL_Surface, SDL_FreeSurface> ps;
         affine::extents2d size{{}, {}};
@@ -24,10 +25,10 @@ namespace planet::sdl {
             if (ps.get()) { size = {float(ps->w), float(ps->h)}; }
         }
 
-        /// Control how the surface is draw
+        /// ### Control how the surface is draw
         ui::scale fit;
 
-        /// Create a surface by loading a BMP asset
+        /// ### Create a surface by loading a BMP asset
         static surface load_bmp(
                 asset_manager const &,
                 char const *,
