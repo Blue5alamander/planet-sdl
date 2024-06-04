@@ -17,8 +17,11 @@ namespace planet::sdl {
     struct configuration final {
         configuration(std::string_view appname);
 
-        /// ### The folder that the game has to use for any data that it may
-        /// need to persist
+        /// ### The save folder
+        /**
+         * The game should use this folder to save any data that it may need to
+         * persist.
+         */
         std::filesystem::path game_folder;
         /**
          * On some platforms it may not be possible to reliably determine the
@@ -33,7 +36,6 @@ namespace planet::sdl {
 
 
     /// ## Engine initialisation
-
     class init final {
       public:
         /// Pass the application name which is used to generate the
