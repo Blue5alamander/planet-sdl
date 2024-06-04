@@ -14,6 +14,7 @@
 namespace planet::sdl {
 
 
+    /// ## Audio output
     /// Connect an audio source to this and have it play out through SDL
     class audio_output final {
         SDL_AudioDeviceID device = {};
@@ -32,7 +33,7 @@ namespace planet::sdl {
         ~audio_output();
 
         char const *device_name = nullptr;
-        audio::linear_gain master;
+        audio::atomic_linear_gain master;
 
         /// Play this audio starting as soon as possible
         void trigger(audio::stereo_generator);
