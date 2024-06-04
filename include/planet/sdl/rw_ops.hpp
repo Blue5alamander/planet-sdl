@@ -13,6 +13,11 @@
 namespace planet::sdl {
 
 
+    /// ## SDL `SDL_RWops` wrapper
+    /**
+     * Stores a vector of bytes that can be used by SDL's file loading through
+     * its `SDL_RWops` abstraction.
+     */
     class rw_ops_const_memory final {
         std::vector<std::byte> memory;
         SDL_RWops *prw;
@@ -34,7 +39,7 @@ namespace planet::sdl {
                 char const *fn,
                 felspar::source_location const &loc =
                         felspar::source_location::current())
-        : rw_ops_const_memory{am.file_data(fn, loc)} {}
+        : rw_ops_const_memory{am.file_data(fn, loc), loc} {}
         ~rw_ops_const_memory() { SDL_RWclose(prw); }
 
         SDL_RWops *get() const noexcept { return prw; }
