@@ -44,7 +44,9 @@ void planet::sdl::configuration::set_game_folder(std::filesystem::path path) {
     config_filename = path / "configuration";
     save_folder = path / "saves";
     game_folder = std::move(path);
-    log::info("Game path", game_folder, "configuration file", config_filename, "save folder", save_folder);
+    log::info(
+            "Game path", game_folder, "configuration file", config_filename,
+            "save folder", save_folder);
     /**
      * Try to create the directory. This may not be possible on first
      * initialisation on some platforms and there's not a lot we can do about a
