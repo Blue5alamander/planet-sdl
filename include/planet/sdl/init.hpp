@@ -5,6 +5,8 @@
 
 #include <felspar/io.hpp>
 
+#include <fstream>
+
 
 namespace planet::sdl {
 
@@ -32,6 +34,7 @@ namespace planet::sdl {
 
         std::filesystem::path config_filename;
         std::filesystem::path save_folder;
+        std::ofstream logfile;
     };
 
 

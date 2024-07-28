@@ -17,6 +17,23 @@ namespace {
             return "";
         }
     }
+    bool try_make_folder(std::filesystem::path const &dir) {
+        /**
+         * Try to create the directory. This may not be possible on first
+         * initialisation on some platforms and there's not a lot we can do
+         * about a bad path anyway, so just ignore any errors.
+         */
+        std::error_code ec;
+        std::filesystem::create_directories(dir, ec);
+        if (ec) {
+            planet::log::warning(
+                    "Could not create save file directory", dir, "error",
+                    ec.message());
+            return false;
+        } else {
+            return true;
+        }
+    }
 }
 planet::sdl::configuration::configuration(std::string_view appname) {
     std::filesystem::path home;
@@ -35,7 +52,6 @@ planet::sdl::configuration::configuration(std::string_view appname) {
         home /= appname;
 #endif
     }
-    log::debug("Determined initial game folder to be", home);
     set_game_folder(std::move(home));
 }
 
@@ -43,22 +59,27 @@ planet::sdl::configuration::configuration(std::string_view appname) {
 void planet::sdl::configuration::set_game_folder(std::filesystem::path path) {
     config_filename = path / "configuration";
     save_folder = path / "saves";
+    auto logname = path / "logs";
     game_folder = std::move(path);
-    log::info(
-            "Game path", game_folder, "configuration file", config_filename,
-            "save folder", save_folder);
-    /**
-     * Try to create the directory. This may not be possible on first
-     * initialisation on some platforms and there's not a lot we can do about a
-     * bad path anyway, so just ignore any errors.
-     */
-    std::error_code ec;
-    std::filesystem::create_directories(save_folder, ec);
-    if (ec) {
-        log::warning(
-                "Could not create save file directory", save_folder, "error",
-                ec.message());
+
+    if (try_make_folder(logname)) {
+        logname /=
+                std::to_string(std::chrono::duration_cast<std::chrono::seconds>(
+                                       std::chrono::system_clock::now()
+                                               .time_since_epoch())
+                                       .count())
+                + ".plog";
+        logfile.open(logname, std::ios::binary);
+        planet::log::output.store(&logfile);
+        log::info(
+                "Game path", game_folder, "configuration file", config_filename,
+                "save folder", save_folder, "log file", logname);
+    } else {
+        log::info(
+                "Game path", game_folder, "configuration file", config_filename,
+                "save folder", save_folder, "log folder", logname);
     }
+    try_make_folder(save_folder);
 }
 
 
