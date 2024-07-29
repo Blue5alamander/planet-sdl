@@ -1,6 +1,8 @@
 #pragma once
 
 
+#include <planet/log.hpp>
+#include <planet/serialise/forward.hpp>
 #include <planet/sdl/ttf.hpp>
 
 #include <felspar/io.hpp>
@@ -19,6 +21,9 @@ namespace planet::sdl {
      * File logging will be automatically turned on.
      */
     struct configuration final {
+        static constexpr std::string_view box{"_p:sdl:config"};
+
+
         configuration(std::string_view appname);
         ~configuration();
 
@@ -30,11 +35,17 @@ namespace planet::sdl {
          * later on if the initial configuration is no good (this can happen on
          * platforms like Android where the correct writeable folder is known
          * too late).
+         */
+
+        /// #### Game folder
+        /**
          *
          * The game should use this folder to save any data that it may need to
-         * persist.
+         * persist. There are specific files and folders below for configuration, logs and game saves.
          */
         std::filesystem::path game_folder;
+
+        /// #### Changing the game folder
         /**
          * On some platforms it may not be possible to reliably determine the
          * folder name at start up. For those this method should be called so
@@ -42,13 +53,23 @@ namespace planet::sdl {
          */
         void set_game_folder(std::filesystem::path);
 
+        /// #### Configuration file name
         std::filesystem::path config_filename;
+        /// #### Save game folder
         std::filesystem::path save_folder;
 
+        /// #### Logging
         std::filesystem::path log_folder;
         std::optional<std::filesystem::path> log_filename;
         std::ofstream logfile;
+
+
+        /// ### User's configuration
+        log::level log_level = log::level::debug;
+        bool auto_remove_log_files = true;
     };
+    void save(serialise::save_buffer &, configuration const &);
+    void save(serialise::load_buffer &, configuration &);
 
 
     /// ## Engine initialisation

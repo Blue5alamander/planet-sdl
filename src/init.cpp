@@ -36,6 +36,7 @@ namespace {
     }
 }
 planet::sdl::configuration::configuration(std::string_view appname) {
+    log::active.store(log_level);
     std::filesystem::path home;
 #ifdef _WIN32
     home = safe_getenv("APPDATA");
@@ -58,7 +59,7 @@ planet::sdl::configuration::configuration(std::string_view appname) {
 
 planet::sdl::configuration::~configuration() {
     auto const logs = log::counters::current();
-    if (log_filename and not logs.error) {
+    if (auto_remove_log_files and log_filename and not logs.error) {
         std::error_code ec;
         std::filesystem::remove(*log_filename, ec);
     }
@@ -91,6 +92,16 @@ void planet::sdl::configuration::set_game_folder(std::filesystem::path path) {
     }
     try_make_folder(save_folder);
 }
+
+
+void planet::sdl::save(serialise::save_buffer &sb, configuration const &c) {
+    sb.save_box(c.box, c.log_level, c.auto_remove_log_files);
+}
+void planet::sdl::save(serialise::load_buffer &lb, configuration &c) {
+    lb.load_box(c.box, c.log_level, c.auto_remove_log_files);
+    log::active.store(c.log_level);
+}
+
 
 
 /// ## `planet::sdl::init`
