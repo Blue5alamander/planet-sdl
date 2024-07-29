@@ -23,8 +23,14 @@ namespace planet::sdl {
         ~configuration();
 
 
-        /// ### The save folder
+        /// ### File configuration
         /**
+         * File configuration is calculated when the configuration object is
+         * created, but may be altered later using the `set_game_folder` method
+         * later on if the initial configuration is no good (this can happen on
+         * platforms like Android where the correct writeable folder is known
+         * too late).
+         *
          * The game should use this folder to save any data that it may need to
          * persist.
          */
