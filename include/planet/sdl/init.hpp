@@ -15,9 +15,13 @@ namespace planet::sdl {
     /**
      * This configuraiton is only used for the save folder and the configuration
      * save path. All other game configuration is managed by the game itself.
+     *
+     * File logging will be automatically turned on.
      */
     struct configuration final {
         configuration(std::string_view appname);
+        ~configuration();
+
 
         /// ### The save folder
         /**
@@ -34,6 +38,9 @@ namespace planet::sdl {
 
         std::filesystem::path config_filename;
         std::filesystem::path save_folder;
+
+        std::filesystem::path log_folder;
+        std::optional<std::filesystem::path> log_filename;
         std::ofstream logfile;
     };
 

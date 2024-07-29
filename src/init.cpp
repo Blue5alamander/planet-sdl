@@ -56,28 +56,38 @@ planet::sdl::configuration::configuration(std::string_view appname) {
 }
 
 
+planet::sdl::configuration::~configuration() {
+    auto const logs = log::counters::current();
+    if (log_filename and not logs.error) {
+        std::error_code ec;
+        std::filesystem::remove(*log_filename, ec);
+    }
+}
+
+
 void planet::sdl::configuration::set_game_folder(std::filesystem::path path) {
     config_filename = path / "configuration";
+    log_folder = path / "logs";
     save_folder = path / "saves";
-    auto logname = path / "logs";
     game_folder = std::move(path);
 
-    if (try_make_folder(logname)) {
-        logname /=
-                std::to_string(std::chrono::duration_cast<std::chrono::seconds>(
-                                       std::chrono::system_clock::now()
-                                               .time_since_epoch())
-                                       .count())
-                + ".plog";
-        logfile.open(logname, std::ios::binary);
+    if (try_make_folder(log_folder)) {
+        log_filename = log_folder
+                / (std::to_string(
+                           std::chrono::duration_cast<std::chrono::seconds>(
+                                   std::chrono::system_clock::now()
+                                           .time_since_epoch())
+                                   .count())
+                   + ".plog");
+        logfile.open(*log_filename, std::ios::binary);
         planet::log::output.store(&logfile);
         log::info(
                 "Game path", game_folder, "configuration file", config_filename,
-                "save folder", save_folder, "log file", logname);
+                "save folder", save_folder, "log file", *log_filename);
     } else {
         log::info(
                 "Game path", game_folder, "configuration file", config_filename,
-                "save folder", save_folder, "log folder", logname);
+                "save folder", save_folder, "log folder", log_folder);
     }
     try_make_folder(save_folder);
 }
