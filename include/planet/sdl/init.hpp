@@ -41,7 +41,8 @@ namespace planet::sdl {
         /**
          *
          * The game should use this folder to save any data that it may need to
-         * persist. There are specific files and folders below for configuration, logs and game saves.
+         * persist. There are specific files and folders below for
+         * configuration, logs and game saves.
          */
         std::filesystem::path game_folder;
 
