@@ -82,6 +82,7 @@ void planet::sdl::configuration::set_game_folder(std::filesystem::path path) {
                    + ".plog");
         logfile.open(*log_filename, std::ios::binary);
         planet::log::output.store(&logfile);
+        log::write_log_file_header();
         log::info(
                 "Game path", game_folder, "configuration file", config_filename,
                 "save folder", save_folder, "log file", *log_filename);
