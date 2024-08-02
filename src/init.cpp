@@ -103,7 +103,6 @@ void planet::sdl::save(serialise::load_buffer &lb, configuration &c) {
 }
 
 
-
 /// ## `planet::sdl::init`
 
 
