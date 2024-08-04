@@ -3,6 +3,7 @@
 
 #include <planet/log.hpp>
 #include <planet/serialise/forward.hpp>
+#include <planet/telemetry/counter.hpp>
 #include <planet/sdl/ttf.hpp>
 
 #include <felspar/io.hpp>
@@ -68,9 +69,14 @@ namespace planet::sdl {
         /// ### User's configuration
         log::level log_level = log::level::debug;
         bool auto_remove_log_files = true;
+
+
+        /// ### Performance counters
+        telemetry::counter times_loaded = {
+                "planet_sdl_config__times_loaded", 1};
     };
     void save(serialise::save_buffer &, configuration const &);
-    void save(serialise::load_buffer &, configuration &);
+    void load(serialise::load_buffer &, configuration &);
 
 
     /// ## Engine initialisation

@@ -97,9 +97,11 @@ void planet::sdl::configuration::set_game_folder(std::filesystem::path path) {
 
 void planet::sdl::save(serialise::save_buffer &sb, configuration const &c) {
     sb.save_box(c.box, c.log_level, c.auto_remove_log_files);
+    telemetry::save_performance(sb, c.times_loaded);
 }
-void planet::sdl::save(serialise::load_buffer &lb, configuration &c) {
+void planet::sdl::load(serialise::load_buffer &lb, configuration &c) {
     lb.load_box(c.box, c.log_level, c.auto_remove_log_files);
+    if (not lb.empty()) { telemetry::load_performance(lb, c.times_loaded); }
     log::active.store(c.log_level);
 }
 
