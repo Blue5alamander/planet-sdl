@@ -72,8 +72,8 @@ namespace planet::sdl {
 
 
         /// ### Performance counters
-        telemetry::counter times_loaded = {
-                "planet_sdl_config_times_loaded", 1};
+        telemetry::counter times_exited = {"planet_sdl_config_times_exited", 0};
+        telemetry::counter times_loaded = {"planet_sdl_config_times_loaded", 1};
     };
     void save(serialise::save_buffer &, configuration const &);
     void load(serialise::load_buffer &, configuration &);
