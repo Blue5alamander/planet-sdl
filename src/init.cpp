@@ -1,5 +1,6 @@
 #include <planet/sdl/init.hpp>
 
+#include <planet/folders.hpp>
 #include <planet/log.hpp>
 
 #include <SDL.h>
@@ -9,14 +10,6 @@
 
 
 namespace {
-    char const *safe_getenv(char const *env) {
-        char const *value = std::getenv(env);
-        if (value) {
-            return value;
-        } else {
-            return "";
-        }
-    }
     bool try_make_folder(std::filesystem::path const &dir) {
         /**
          * Try to create the directory. This may not be possible on first
@@ -35,24 +28,9 @@ namespace {
         }
     }
 }
-planet::sdl::configuration::configuration(std::string_view appname) {
+planet::sdl::configuration::configuration(std::string_view const appname) {
     log::active.store(log_level);
-    std::filesystem::path home;
-#ifdef _WIN32
-    home = safe_getenv("APPDATA");
-#else
-    home = safe_getenv("HOME");
-#endif
-    if (home.empty()) {
-        home = std::filesystem::current_path();
-    } else {
-#ifdef _WIN32
-        home /= appname;
-#else
-        home /= ".local/share";
-        home /= appname;
-#endif
-    }
+    std::filesystem::path home = base_storage_folder() / appname;
     set_game_folder(std::move(home));
 }
 

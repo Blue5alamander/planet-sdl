@@ -1,6 +1,7 @@
 #pragma once
 
 
+#include <planet/folders.hpp>
 #include <planet/log.hpp>
 #include <planet/serialise/forward.hpp>
 #include <planet/telemetry/counter.hpp>
@@ -25,6 +26,7 @@ namespace planet::sdl {
         static constexpr std::string_view box{"_p:sdl:config"};
 
 
+        /// ### Creation
         configuration(std::string_view appname);
         ~configuration();
 
