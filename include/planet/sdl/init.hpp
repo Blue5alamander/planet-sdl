@@ -1,6 +1,7 @@
 #pragma once
 
 
+#include <planet/audio/gain.hpp>
 #include <planet/folders.hpp>
 #include <planet/log.hpp>
 #include <planet/serialise/forward.hpp>
@@ -71,6 +72,12 @@ namespace planet::sdl {
         /// ### User's configuration
         log::level log_level = log::level::debug;
         bool auto_remove_log_files = true;
+
+
+        /// ### Audio configuration
+        planet::audio::dB_gain master_volume{-9};
+        planet::audio::dB_gain music_volume{-15};
+        planet::audio::dB_gain sfx_volume{-3};
 
 
         /// ### Performance counters

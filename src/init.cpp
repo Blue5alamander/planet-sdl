@@ -74,11 +74,18 @@ void planet::sdl::configuration::set_game_folder(std::filesystem::path path) {
 
 
 void planet::sdl::save(serialise::save_buffer &sb, configuration const &c) {
-    sb.save_box(c.box, c.log_level, c.auto_remove_log_files);
+    sb.save_box(
+            c.box, c.log_level, c.auto_remove_log_files, c.master_volume,
+            c.music_volume, c.sfx_volume);
     telemetry::save_performance(sb, c.times_exited, c.times_loaded);
 }
 void planet::sdl::load(serialise::load_buffer &lb, configuration &c) {
-    lb.load_box(c.box, c.log_level, c.auto_remove_log_files);
+    auto b = planet::serialise::load_type<planet::serialise::box>(lb);
+    b.lambda(c.box, [&]() {
+        b.fields(c.log_level, c.auto_remove_log_files);
+        if (b.content.empty()) { return; }
+        b.fields(c.master_volume, c.music_volume, c.sfx_volume);
+    });
     if (not lb.empty()) {
         telemetry::load_performance(lb, c.times_exited, c.times_loaded);
     }
