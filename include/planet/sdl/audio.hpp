@@ -28,6 +28,7 @@ namespace planet::sdl {
         felspar::memory::holding_pen<audio::stereo_buffer> playing;
         std::size_t playing_marker = {};
 
+
       public:
         audio_output();
         ~audio_output();

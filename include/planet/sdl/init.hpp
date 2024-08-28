@@ -91,8 +91,10 @@ namespace planet::sdl {
     /// ## Engine initialisation
     class init final {
       public:
-        /// Pass the application name which is used to generate the
-        /// configuration paths
+        /**
+         * Pass the application name which is used to generate the configuration
+         * paths
+         */
         init(felspar::io::warden &w, std::string_view appname);
         ~init();
 
