@@ -9,7 +9,7 @@ using namespace std::literals;
 using namespace planet::audio::literals;
 
 
-planet::sdl::audio_output::audio_output() : master{-6_dB} {
+planet::sdl::audio_output::audio_output(audio::channel &m) : master{m} {
     int iscapture = {};
     device_name = SDL_GetAudioDeviceName(0, iscapture);
 

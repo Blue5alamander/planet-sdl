@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include <planet/audio/gain.hpp>
+#include <planet/audio/channel.hpp>
 #include <planet/folders.hpp>
 #include <planet/log.hpp>
 #include <planet/serialise/forward.hpp>
@@ -75,9 +75,9 @@ namespace planet::sdl {
 
 
         /// ### Audio configuration
-        planet::audio::dB_gain master_volume{-9};
-        planet::audio::dB_gain music_volume{-15};
-        planet::audio::dB_gain sfx_volume{-3};
+        audio::channel master_volume{audio::dB_gain{-9}};
+        audio::channel music_volume{audio::dB_gain{-15}};
+        audio::channel sfx_volume{audio::dB_gain{-3}};
 
 
         /// ### Performance counters
