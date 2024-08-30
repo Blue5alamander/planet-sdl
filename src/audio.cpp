@@ -9,7 +9,7 @@ using namespace std::literals;
 using namespace planet::audio::literals;
 
 
-planet::sdl::audio_output::audio_output(audio::channel &m) : master{m} {
+planet::sdl::audio_output::audio_output(audio::channel &m) : desk{m} {
     int iscapture = {};
     device_name = SDL_GetAudioDeviceName(0, iscapture);
 
@@ -35,7 +35,7 @@ planet::sdl::audio_output::~audio_output() {
 }
 
 
-void planet::sdl::audio_output::trigger(audio::stereo_generator sound) {
+void planet::sdl::audio_output::add_sound_source(audio::stereo_generator sound) {
     std::scoped_lock lock{mtx};
     desk.add_track(std::move(sound));
 }
