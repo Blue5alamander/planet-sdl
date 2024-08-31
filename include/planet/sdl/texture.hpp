@@ -58,7 +58,8 @@ namespace planet::sdl {
 
 
       private:
-        constrained_type do_reflow(constrained_type const &) override;
+        constrained_type do_reflow(
+                reflow_parameters const &, constrained_type const &) override;
         affine::rectangle2d
                 move_sub_elements(affine::rectangle2d const &o) override {
             return o;

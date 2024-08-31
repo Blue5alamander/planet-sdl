@@ -24,20 +24,25 @@ namespace planet::sdl::ui {
 
         using layout_type =
                 planet::ui::layout<std::vector<planet::ui::element<word>>>;
-        using constrained_type = typename layout_type::constrained_type;
         layout_type elements;
 
-        constrained_type do_reflow(constrained_type const &within) override;
+
+        constrained_type do_reflow(
+                reflow_parameters const &,
+                constrained_type const &within) override;
         affine::rectangle2d
                 move_sub_elements(affine::rectangle2d const &r) override {
             return r;
         }
 
+
       public:
         text(renderer &, sdl::font &, std::string_view);
 
+
         /// ### Draw the texture
         void draw();
+
 
         /// ### Identify words within a string
         static std::vector<std::string_view> identify_words(std::string_view);

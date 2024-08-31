@@ -35,8 +35,9 @@ void planet::sdl::texture::draw() {
 }
 
 
-auto planet::sdl::texture::do_reflow(constrained_type const &constraint)
-        -> constrained_type {
+auto planet::sdl::texture::do_reflow(
+        reflow_parameters const &,
+        constrained_type const &constraint) -> constrained_type {
     return ui::scaling(size, constraint, fit);
 }
 
