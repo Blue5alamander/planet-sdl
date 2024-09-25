@@ -1,3 +1,4 @@
+#include <planet/log.hpp>
 #include <planet/sdl/audio.hpp>
 
 #include <felspar/exceptions.hpp>
@@ -9,9 +10,14 @@ using namespace std::literals;
 using namespace planet::audio::literals;
 
 
-planet::sdl::audio_output::audio_output(audio::channel &m) : desk{m} {
-    int iscapture = {};
-    device_name = SDL_GetAudioDeviceName(0, iscapture);
+planet::sdl::audio_output::audio_output(
+        std::optional<std::string_view> const device_name, audio::channel &m)
+: desk{m} {
+    static constexpr int iscapture = false;
+    char const *chosen_device = nullptr;
+
+    // TODO Search for the wanted audio device in the list and set
+    // `chosen_device` to it
 
     configuration.freq = audio::stereo_buffer::samples_per_second;
     configuration.format = AUDIO_F32SYS;
@@ -21,12 +27,15 @@ planet::sdl::audio_output::audio_output(audio::channel &m) : desk{m} {
 
     SDL_AudioSpec spec = {};
     device = SDL_OpenAudioDevice(
-            device_name, iscapture, &configuration, &spec, 0);
+            chosen_device, iscapture, &configuration, &spec, 0);
     if (device <= 0) {
         throw felspar::stdexcept::runtime_error{"Audio device wouldn't open"};
     } else {
         SDL_PauseAudioDevice(device, 0);
     }
+    planet::log::info(
+            "Requested device", device_name, "opened audio device",
+            (chosen_device ? chosen_device : "nullptr"));
 }
 
 

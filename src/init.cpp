@@ -76,7 +76,7 @@ void planet::sdl::configuration::set_game_folder(std::filesystem::path path) {
 void planet::sdl::save(serialise::save_buffer &sb, configuration const &c) {
     sb.save_box(
             c.box, c.log_level, c.auto_remove_log_files, c.master_volume,
-            c.music_volume, c.sfx_volume);
+            c.music_volume, c.sfx_volume, c.audio_device_name);
     telemetry::save_performance(sb, c.times_exited, c.times_loaded);
 }
 void planet::sdl::load(serialise::load_buffer &lb, configuration &c) {
@@ -85,6 +85,8 @@ void planet::sdl::load(serialise::load_buffer &lb, configuration &c) {
         b.fields(c.log_level, c.auto_remove_log_files);
         if (b.content.empty()) { return; }
         b.fields(c.master_volume, c.music_volume, c.sfx_volume);
+        if (b.content.empty()) { return; }
+        b.fields(c.audio_device_name);
     });
     if (not lb.empty()) {
         telemetry::load_performance(lb, c.times_exited, c.times_loaded);
@@ -99,6 +101,23 @@ void planet::sdl::load(serialise::load_buffer &lb, configuration &c) {
 planet::sdl::init::init(felspar::io::warden &w, std::string_view an)
 : config{an}, io{w} {
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
+    static constexpr int iscapture = false;
+    auto const device_count = SDL_GetNumAudioDevices(iscapture);
+    if (device_count < 1) {
+        /**
+         * Apparently this can happen, but that doesn't mean that SDL will fail
+         * to be able to open one, it just means it doesn't know what is
+         * available. <https://wiki.libsdl.org/SDL2/SDL_GetNumAudioDevices>
+         */
+    } else {
+        for (int device = 0; device < device_count; ++device) {
+            audio_device_list.push_back(
+                    SDL_GetAudioDeviceName(device, iscapture));
+        }
+    }
+    planet::log::debug(
+            "Audio devices found", device_count, "device list",
+            audio_device_list);
 }
 
 

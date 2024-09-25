@@ -75,6 +75,7 @@ namespace planet::sdl {
 
 
         /// ### Audio configuration
+        std::optional<std::string> audio_device_name = {};
         audio::channel master_volume{audio::dB_gain{-9}};
         audio::channel music_volume{audio::dB_gain{-15}};
         audio::channel sfx_volume{audio::dB_gain{-3}};
@@ -101,10 +102,20 @@ namespace planet::sdl {
         configuration config;
         felspar::io::warden &io;
 
+
         template<typename F, typename... Args>
         felspar::coro::task<int> run(felspar::io::warden &, F f, Args... args) {
             co_return co_await f(*this, std::forward<Args>(args)...);
         }
+
+
+        std::span<std::string const> audio_devices() const noexcept {
+            return audio_device_list;
+        }
+
+
+      private:
+        std::vector<std::string> audio_device_list;
     };
 
 

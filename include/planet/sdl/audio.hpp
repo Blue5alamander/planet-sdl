@@ -37,18 +37,19 @@ namespace planet::sdl {
 
       public:
         /// ### Construction
-        audio_output(audio::channel &);
+        audio_output(std::optional<std::string_view>, audio::channel &);
         /// #### Construct with audio sources
         template<typename Source, typename... Sources>
-        audio_output(audio::channel &c, Source &s, Sources &...ss)
-        : audio_output{c} {
+        audio_output(
+                std::optional<std::string_view> const device_name,
+                audio::channel &c,
+                Source &s,
+                Sources &...ss)
+        : audio_output{device_name, c} {
             desk.add_track(s.output());
             (desk.add_track(ss.output()), ...);
         }
         ~audio_output();
-
-
-        char const *device_name = nullptr;
 
 
         /// ## Adds a new sound source
