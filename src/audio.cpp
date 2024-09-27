@@ -1,5 +1,6 @@
 #include <planet/log.hpp>
 #include <planet/sdl/audio.hpp>
+#include <planet/telemetry/rate.hpp>
 
 #include <felspar/exceptions.hpp>
 
@@ -13,6 +14,28 @@ using namespace planet::audio::literals;
 planet::sdl::audio_output::audio_output(
         std::optional<std::string_view> const device_name, audio::channel &m)
 : desk{m} {
+    reconnect(device_name);
+}
+
+
+planet::sdl::audio_output::~audio_output() { reset(); }
+
+
+void planet::sdl::audio_output::reset() {
+    if (device > 0) { SDL_CloseAudioDevice(std::exchange(device, 0)); }
+}
+
+
+void planet::sdl::audio_output::add_sound_source(audio::stereo_generator sound) {
+    std::scoped_lock lock{mtx};
+    desk.add_track(std::move(sound));
+}
+
+
+void planet::sdl::audio_output::reconnect(
+        std::optional<std::string_view> const device_name) {
+    reset();
+
     static constexpr int iscapture = false;
     char const *chosen_device = nullptr;
 
@@ -39,19 +62,13 @@ planet::sdl::audio_output::audio_output(
 }
 
 
-planet::sdl::audio_output::~audio_output() {
-    if (device > 0) { SDL_CloseAudioDevice(device); }
+namespace {
+    planet::telemetry::real_time_rate c_callback_rate{
+            "planet_sdl_audio_callback_rate", 1s};
 }
-
-
-void planet::sdl::audio_output::add_sound_source(audio::stereo_generator sound) {
-    std::scoped_lock lock{mtx};
-    desk.add_track(std::move(sound));
-}
-
-
 void planet::sdl::audio_output::audio_callback(
         void *userdata, Uint8 *stream, int len) {
+    c_callback_rate.tick();
     audio_output *const self = reinterpret_cast<audio_output *>(userdata);
     float *const output = reinterpret_cast<float *>(stream);
     std::size_t const wanted =

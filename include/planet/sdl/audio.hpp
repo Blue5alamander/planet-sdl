@@ -26,6 +26,8 @@ namespace planet::sdl {
         SDL_AudioDeviceID device = {};
         SDL_AudioSpec configuration = {};
 
+        void reset();
+
         /// All of these items are accessed from the SDL audio thread
         std::mutex mtx;
         static void audio_callback(void *, Uint8 *, int);
@@ -36,7 +38,7 @@ namespace planet::sdl {
 
 
       public:
-        /// ### Construction
+        /// ### Construction/destruction
         audio_output(std::optional<std::string_view>, audio::channel &);
         /// #### Construct with audio sources
         template<typename Source, typename... Sources>
@@ -52,13 +54,17 @@ namespace planet::sdl {
         ~audio_output();
 
 
-        /// ## Adds a new sound source
+        /// ### Adds a new sound source
         /**
          * Normally prefer to use the constructor that takes the sound sources.
          * A game will generally know exactly which main audio outputs are to be
          * mixed together.
          */
         void add_sound_source(audio::stereo_generator);
+
+
+        /// ### Switch connection to a different device
+        void reconnect(std::optional<std::string_view>);
     };
 
 
