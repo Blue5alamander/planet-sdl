@@ -1,6 +1,6 @@
 #include <planet/sdl.hpp>
 
-#include <felspar/coro/start.hpp>
+#include <felspar/coro/starter.hpp>
 
 
 using namespace std::literals;

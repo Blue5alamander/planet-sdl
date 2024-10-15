@@ -4,7 +4,7 @@
 #include <planet/events/queue.hpp>
 #include <planet/ui/baseplate.hpp>
 
-#include <felspar/coro/start.hpp>
+#include <felspar/coro/starter.hpp>
 
 
 namespace planet::sdl {

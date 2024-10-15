@@ -5,7 +5,7 @@
 #include <planet/events/mouse.hpp>
 #include <planet/ui/baseplate.hpp>
 
-#include <felspar/coro/start.hpp>
+#include <felspar/coro/starter.hpp>
 
 #include <SDL.h>
 #undef main
