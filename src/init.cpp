@@ -3,6 +3,8 @@
 #include <planet/folders.hpp>
 #include <planet/log.hpp>
 
+#include <iostream>
+
 #include <SDL.h>
 
 
@@ -38,8 +40,15 @@ planet::sdl::configuration::configuration(std::string_view const appname) {
 planet::sdl::configuration::~configuration() {
     auto const logs = log::counters::current();
     if (auto_remove_log_files and log_filename and not logs.error) {
+        std::cerr << "Removing log file " << *log_filename << '\n';
         std::error_code ec;
         std::filesystem::remove(*log_filename, ec);
+        if (ec) {
+            std::cerr << "Error removing log file " << *log_filename << " "
+                      << ec.message() << '\n';
+        }
+    } else {
+        std::cerr << "Keeping log file\n";
     }
 }
 
