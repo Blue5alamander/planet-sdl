@@ -38,6 +38,8 @@ planet::sdl::configuration::configuration(std::string_view const appname) {
 
 
 planet::sdl::configuration::~configuration() {
+    planet::log::stop_thread();
+    logfile.close();
     auto const logs = log::counters::current();
     if (auto_remove_log_files and log_filename and not logs.error) {
         std::cerr << "Removing log file " << *log_filename << '\n';
