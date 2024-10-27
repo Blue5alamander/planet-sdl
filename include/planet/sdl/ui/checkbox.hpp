@@ -3,14 +3,14 @@
 
 #include <planet/sdl/surface.hpp>
 #include <planet/sdl/texture.hpp>
-#include <planet/ui/checkbox.hpp>
+#include <planet/widget/checkbox.hpp>
 
 
 namespace planet::sdl::ui {
 
 
-    class checkbox final : public planet::ui::checkbox<texture> {
-        using superclass = planet::ui::checkbox<texture>;
+    class checkbox final : public planet::widget::checkbox<texture> {
+        using superclass = planet::widget::checkbox<texture>;
 
 
       public:
