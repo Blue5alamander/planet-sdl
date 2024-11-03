@@ -66,6 +66,10 @@ void planet::sdl::configuration::set_game_folder(std::filesystem::path path) {
                 std::chrono::duration_cast<std::chrono::seconds>(
                         std::chrono::system_clock::now().time_since_epoch())
                         .count());
+        /**
+         * These configuration items won't yet hold the values from the config
+         * file because that won't get loaded until much later...
+         */
         if (save_logs_to_file) {
             log_filename = log_folder / (basename + ".plog");
             logfile.open(*log_filename, std::ios::binary);
@@ -111,6 +115,10 @@ void planet::sdl::load(serialise::load_buffer &lb, configuration &c) {
         telemetry::load_performance(lb, c.times_exited, c.times_loaded);
     }
     log::active.store(c.log_level);
+    /**
+     * TODO Probably we need to deal with changes to the log and pref save file
+     * stuff now that the configuration has been loaded
+     */
 }
 
 
