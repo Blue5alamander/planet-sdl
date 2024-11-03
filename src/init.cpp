@@ -62,19 +62,24 @@ void planet::sdl::configuration::set_game_folder(std::filesystem::path path) {
     game_folder = std::move(path);
 
     if (try_make_folder(log_folder)) {
-        log_filename = log_folder
-                / (std::to_string(
-                           std::chrono::duration_cast<std::chrono::seconds>(
-                                   std::chrono::system_clock::now()
-                                           .time_since_epoch())
-                                   .count())
-                   + ".plog");
-        logfile.open(*log_filename, std::ios::binary);
-        planet::log::output.store(&logfile);
-        log::write_log_file_header();
+        auto const basename = std::to_string(
+                std::chrono::duration_cast<std::chrono::seconds>(
+                        std::chrono::system_clock::now().time_since_epoch())
+                        .count());
+        if (save_logs_to_file) {
+            log_filename = log_folder / (basename + ".plog");
+            logfile.open(*log_filename, std::ios::binary);
+            planet::log::log_output.store(&logfile);
+        }
+        if (upload_performance_data) {
+            perf_filename = log_folder / (basename + ".perf");
+            perfile.open(*perf_filename, std::ios::binary);
+            planet::log::profile_output.store(&perfile);
+        }
+        log::write_file_headers();
         log::info(
                 "Game path", game_folder, "configuration file", config_filename,
-                "save folder", save_folder, "log file", *log_filename);
+                "save folder", save_folder, "log file", log_filename);
     } else {
         log::info(
                 "Game path", game_folder, "configuration file", config_filename,
@@ -87,7 +92,8 @@ void planet::sdl::configuration::set_game_folder(std::filesystem::path path) {
 void planet::sdl::save(serialise::save_buffer &sb, configuration const &c) {
     sb.save_box(
             c.box, c.log_level, c.auto_remove_log_files, c.master_volume,
-            c.music_volume, c.sfx_volume, c.audio_device_name);
+            c.music_volume, c.sfx_volume, c.audio_device_name,
+            c.save_logs_to_file, c.upload_performance_data);
     telemetry::save_performance(sb, c.times_exited, c.times_loaded);
 }
 void planet::sdl::load(serialise::load_buffer &lb, configuration &c) {
@@ -98,6 +104,8 @@ void planet::sdl::load(serialise::load_buffer &lb, configuration &c) {
         b.fields(c.master_volume, c.music_volume, c.sfx_volume);
         if (b.content.empty()) { return; }
         b.fields(c.audio_device_name);
+        if (b.content.empty()) { return; }
+        b.fields(c.save_logs_to_file, c.upload_performance_data);
     });
     if (not lb.empty()) {
         telemetry::load_performance(lb, c.times_exited, c.times_loaded);

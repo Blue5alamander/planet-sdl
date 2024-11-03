@@ -65,13 +65,15 @@ namespace planet::sdl {
 
         /// #### Logging
         std::filesystem::path log_folder;
-        std::optional<std::filesystem::path> log_filename;
-        std::ofstream logfile;
+        std::optional<std::filesystem::path> log_filename, perf_filename;
+        std::ofstream logfile, perfile;
 
 
         /// ### User's configuration
         log::level log_level = log::level::debug;
+        bool save_logs_to_file = true;
         bool auto_remove_log_files = true;
+        bool upload_performance_data = true;
 
 
         /// ### Audio configuration
