@@ -21,8 +21,8 @@ planet::sdl::ui::text::text(renderer &rr, sdl::font &f, std::string_view const s
 
 
 auto planet::sdl::ui::text::do_reflow(
-        reflow_parameters const &,
-        constrained_type const &within) -> constrained_type {
+        reflow_parameters const &, constrained_type const &within)
+        -> constrained_type {
     if (not elements.laid_out_in
         or not elements.laid_out_in->is_at_least_as_constrained_as(within)) {
         elements.laid_out_in = within;
