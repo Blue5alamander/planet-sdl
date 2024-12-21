@@ -101,7 +101,7 @@ void planet::sdl::save(serialise::save_buffer &sb, configuration const &c) {
     telemetry::save_performance(sb, c.times_exited, c.times_loaded);
 }
 void planet::sdl::load(serialise::load_buffer &lb, configuration &c) {
-    auto b = planet::serialise::load_type<planet::serialise::box>(lb);
+    auto b = planet::serialise::expect_box(lb);
     b.lambda(c.box, [&]() {
         b.fields(c.log_level, c.auto_remove_log_files);
         if (b.content.empty()) { return; }
