@@ -30,9 +30,10 @@ namespace {
         }
     }
 }
-planet::sdl::configuration::configuration(std::string_view const appname) {
+planet::sdl::configuration::configuration(planet::version const &version) {
     log::active.store(log_level);
-    std::filesystem::path home = base_storage_folder() / appname;
+    std::filesystem::path home =
+            base_storage_folder() / version.application_folder;
     set_game_folder(std::move(home));
 }
 
@@ -125,8 +126,8 @@ void planet::sdl::load(serialise::load_buffer &lb, configuration &c) {
 /// ## `planet::sdl::init`
 
 
-planet::sdl::init::init(felspar::io::warden &w, std::string_view an)
-: config{an}, io{w} {
+planet::sdl::init::init(felspar::io::warden &w, planet::version const &version)
+: config{version}, io{w} {
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
     static constexpr int iscapture = false;
     auto const device_count = SDL_GetNumAudioDevices(iscapture);

@@ -7,6 +7,7 @@
 #include <planet/serialise/forward.hpp>
 #include <planet/telemetry/counter.hpp>
 #include <planet/sdl/ttf.hpp>
+#include <planet/version.hpp>
 
 #include <felspar/io.hpp>
 
@@ -28,7 +29,7 @@ namespace planet::sdl {
 
 
         /// ### Creation
-        configuration(std::string_view appname);
+        configuration(version const &);
         ~configuration();
 
 
@@ -98,7 +99,7 @@ namespace planet::sdl {
          * Pass the application name which is used to generate the configuration
          * paths
          */
-        init(felspar::io::warden &w, std::string_view appname);
+        init(felspar::io::warden &w, version const &);
         ~init();
 
         configuration config;
@@ -124,9 +125,9 @@ namespace planet::sdl {
     /// ## Engine set up
     /// This will set up and configure Planet
     template<typename F, typename... Args>
-    inline int co_main(F f, std::string_view appname, Args... args) {
+    inline int co_main(F f, planet::version const &version, Args... args) {
         felspar::io::poll_warden w;
-        init sdl{w, appname};
+        init sdl{w, version};
         ttf text{sdl};
         return w.run<int, init, F, Args...>(
                 sdl, &init::run, std::forward<F>(f),

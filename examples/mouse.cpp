@@ -49,10 +49,11 @@ struct ui {
 
 
 int main(int argc, char const *argv[]) {
+    planet::version const v{"mouse-example", "planet/mouse_example", "0.1", 1};
     return planet::sdl::co_main(
             [](planet::sdl::init &sdl, int,
                char const *argv[]) -> felspar::coro::task<int> {
                 co_return co_await ui{sdl, {argv[0]}}.run();
             },
-            "planet/mouse-example-planet-sdl", argc, argv);
+            v, argc, argv);
 }
