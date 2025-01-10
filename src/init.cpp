@@ -75,11 +75,6 @@ void planet::sdl::configuration::set_game_folder(std::filesystem::path path) {
             logfile.open(*log_filename, std::ios::binary);
             planet::log::log_output.store(&logfile);
         }
-        if (upload_performance_data) {
-            perf_filename = log_folder / (basename + ".perf");
-            perfile.open(*perf_filename, std::ios::binary);
-            planet::log::profile_output.store(&perfile);
-        }
         log::write_file_headers();
         log::info(
                 "Game path", game_folder, "configuration file", config_filename,
