@@ -52,7 +52,9 @@ namespace planet::sdl {
 
 
         /// ### Draw the texture
-        void draw();
+        void
+                draw(felspar::source_location const & =
+                             felspar::source_location::current());
         /// Draw the texture at the given screen co-ordinates
         void draw_within(renderer &, affine::rectangle2d const &) const;
 
