@@ -144,4 +144,15 @@ planet::sdl::init::init(felspar::io::warden &w, planet::version const &version)
 }
 
 
-planet::sdl::init::~init() { SDL_Quit(); }
+planet::sdl::init::~init() {
+    SDL_Quit();
+#ifndef __ANDROID__
+    /**
+     * `SDL_Quit` does [not clean up its thread local
+     * data](https://github.com/libsdl-org/SDL/issues/6200). On Android it seems
+     * that we should expect to re-enter SDL after quitting as the process
+     * doesn't go away, so we don't do this clean up on Android.
+     */
+    SDL_TLSCleanup();
+#endif
+}
