@@ -42,6 +42,12 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
                                  event.key.keysym.scancode),
                          events::action::down});
                 break;
+            case SDL_KEYUP:
+                events.key.push(
+                        {static_cast<events::scancode>(
+                                 event.key.keysym.scancode),
+                         events::action::up});
+                break;
 
             case SDL_MOUSEBUTTONDOWN:
                 last_mouse_pos = {float(event.motion.x), float(event.motion.y)};
