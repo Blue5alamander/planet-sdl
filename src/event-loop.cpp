@@ -101,9 +101,16 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
             case SDL_QUIT: events.quit.push({}); break;
 
             case SDL_WINDOWEVENT:
-                if (event.window.event == SDL_WINDOWEVENT_CLOSE
-                    and event.window.windowID == window_id) {
+                if (event.window.windowID != window_id) {
+                    planet::log::warning(
+                            "Got SDL_WINDOWEVENT for a window ID that isn't mine. Mine",
+                            window_id, "event", event.window.windowID);
+                } else if (event.window.event == SDL_WINDOWEVENT_CLOSE) {
                     events.quit.push({});
+                } else if (event.window.event == SDL_WINDOWEVENT_FOCUS_LOST) {
+                    planet::log::info("Window lost focus");
+                } else if (event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
+                    planet::log::info("Window gained focus");
                 }
                 break;
 
