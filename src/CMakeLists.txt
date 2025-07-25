@@ -32,3 +32,4 @@ target_link_libraries(planet-sdl PUBLIC
         planet
         felspar-io
     )
+install(TARGETS planet-sdl LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
