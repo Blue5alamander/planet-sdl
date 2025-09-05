@@ -9,7 +9,7 @@ namespace planet::sdl {
 
 
     /// Draw a hexagon at a specific location in the current colour
-    void draw_hex(renderer &, ui::panel &, hexmap::coordinates, float radius);
+    void draw_hex(renderer &, ui::panel &, map::hex::coordinates, float radius);
 
 
 }
