@@ -31,12 +31,18 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
             switch (event.type) {
 
             case SDL_KEYDOWN:
+                planet::log::debug(
+                        "SDL_KEYDOWN",
+                        static_cast<int>(event.key.keysym.scancode));
                 events.key.push(
                         {static_cast<events::scancode>(
                                  event.key.keysym.scancode),
                          events::action::down});
                 break;
             case SDL_KEYUP:
+                planet::log::debug(
+                        "SDL_KEYUP",
+                        static_cast<int>(event.key.keysym.scancode));
                 events.key.push(
                         {static_cast<events::scancode>(
                                  event.key.keysym.scancode),
