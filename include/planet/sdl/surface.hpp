@@ -32,8 +32,7 @@ namespace planet::sdl {
         static surface load_bmp(
                 asset_manager const &,
                 char const *,
-                felspar::source_location const & =
-                        felspar::source_location::current());
+                std::source_location const & = std::source_location::current());
 
         SDL_Surface *get() const noexcept { return ps.get(); }
 

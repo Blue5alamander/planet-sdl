@@ -25,8 +25,7 @@ namespace planet::sdl {
     /// If a drawing API fails then throw an exception
     inline int drawing_worked(
             int const e,
-            felspar::source_location const &loc =
-                    felspar::source_location::current()) {
+            std::source_location const &loc = std::source_location::current()) {
         if (e < 0) [[unlikely]] {
             throw felspar::stdexcept::runtime_error{
                     std::string{"Drawing API failed "} + SDL_GetError(), loc};

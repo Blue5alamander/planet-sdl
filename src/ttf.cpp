@@ -20,7 +20,7 @@ planet::sdl::font::font(
         char const *const filename,
         std::size_t const pixels,
         SDL_Color const c,
-        felspar::source_location const &loc)
+        std::source_location const &loc)
 : font_data{am, filename, loc},
   pf{TTF_OpenFontRW(font_data.get(), false, pixels)},
   colour{c},

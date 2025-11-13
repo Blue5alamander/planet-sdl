@@ -25,8 +25,8 @@ namespace planet::sdl {
       public:
         rw_ops_const_memory(
                 std::vector<std::byte> m,
-                felspar::source_location const &loc =
-                        felspar::source_location::current())
+                std::source_location const &loc =
+                        std::source_location::current())
         : memory{std::move(m)},
           prw{SDL_RWFromConstMem(memory.data(), memory.size())} {
             if (not prw) {
@@ -37,8 +37,8 @@ namespace planet::sdl {
         rw_ops_const_memory(
                 asset_manager const &am,
                 char const *fn,
-                felspar::source_location const &loc =
-                        felspar::source_location::current())
+                std::source_location const &loc =
+                        std::source_location::current())
         : rw_ops_const_memory{am.file_data(fn, loc), loc} {}
         ~rw_ops_const_memory() { SDL_RWclose(prw); }
 

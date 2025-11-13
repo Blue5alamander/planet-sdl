@@ -36,8 +36,7 @@ namespace planet::sdl {
              char const *filename,
              std::size_t pixel_height,
              SDL_Color = {255, 255, 255, 255},
-             felspar::source_location const & =
-                     felspar::source_location::current());
+             std::source_location const & = std::source_location::current());
 
         TTF_Font *get() const noexcept { return pf.get(); }
 

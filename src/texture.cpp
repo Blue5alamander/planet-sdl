@@ -26,7 +26,7 @@ void planet::sdl::texture::draw_within(
             int(ex.height)};
     drawing_worked(SDL_RenderCopy(rp->get(), pt.get(), nullptr, &location));
 }
-void planet::sdl::texture::draw(felspar::source_location const &loc) {
+void planet::sdl::texture::draw(std::source_location const &loc) {
     auto const &p = position(loc);
     SDL_Rect location = {
             int(p.top_left.x()), int(p.top_left.y()), int(p.extents.width),
