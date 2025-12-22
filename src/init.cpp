@@ -126,6 +126,7 @@ planet::sdl::init::init(felspar::io::warden &w, planet::version const &version)
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
     static constexpr int iscapture = false;
     auto const device_count = SDL_GetNumAudioDevices(iscapture);
+    audio_device_list.push_back({});
     if (device_count < 1) {
         /**
          * Apparently this can happen, but that doesn't mean that SDL will fail
@@ -134,8 +135,9 @@ planet::sdl::init::init(felspar::io::warden &w, planet::version const &version)
          */
     } else {
         for (int device = 0; device < device_count; ++device) {
-            audio_device_list.push_back(
-                    SDL_GetAudioDeviceName(device, iscapture));
+            char const *const dn = SDL_GetAudioDeviceName(device, iscapture);
+            bool const is_empty = (dn == nullptr or *dn == 0);
+            if (not is_empty) { audio_device_list.push_back(dn); }
         }
     }
     planet::log::debug(

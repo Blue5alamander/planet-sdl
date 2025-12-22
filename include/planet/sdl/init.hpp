@@ -112,13 +112,14 @@ namespace planet::sdl {
         }
 
 
-        std::span<std::string const> audio_devices() const noexcept {
+        std::span<std::optional<std::string> const>
+                audio_devices() const noexcept {
             return audio_device_list;
         }
 
 
       private:
-        std::vector<std::string> audio_device_list;
+        std::vector<std::optional<std::string>> audio_device_list;
     };
 
 
