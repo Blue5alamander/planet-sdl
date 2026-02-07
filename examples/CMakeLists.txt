@@ -4,4 +4,7 @@ if(TARGET planet-examples)
     install(TARGETS mouse-example-planet-sdl
         EXPORT mouse-example-planet-sdl
         RUNTIME DESTINATION bin)
+
+    add_executable(tone-example-planet-sdl tone-sdl.cpp)
+    target_link_libraries(tone-example-planet-sdl planet-sdl)
 endif()
