@@ -181,7 +181,7 @@ namespace {
         planet::version const version{"planet-sdl/tone-example", "1.0"};
         planet::sdl::init sdl{warden, version};
 
-        planet::audio::channel master_attenuator{-12_dB},
+        planet::audio::channel master_attenuator{-3_dB},
                 mixer_attenuator{0_dB};
         planet::audio::mixer mixer{mixer_attenuator};
         planet::sdl::audio_output output{
@@ -191,18 +191,18 @@ namespace {
         while (not args.empty()) {
             auto type = head(args);
             if (type == "h") {
-                harmonics(chord, std::stof(head(args)), 6_dB, -6_dB);
+                harmonics(chord, std::stof(head(args)), 3_dB, -3_dB);
             } else if (type == "saw") {
-                sawtooth(chord, std::stof(head(args)), -6_dB);
+                sawtooth(chord, std::stof(head(args)), -3_dB);
             } else if (type == "sin") {
                 auto const freq = std::stof(head(args));
                 planet::audio::dB_gain const gain{std::stof(head(args))};
                 chord.spinners.emplace_back(freq, gain);
                 planet::log::debug("Sine wave frequency", freq, "gain", gain);
             } else if (type == "sq") {
-                square(chord, std::stof(head(args)), -6_dB);
+                square(chord, std::stof(head(args)), -3_dB);
             } else if (type == "tri") {
-                triangle(chord, std::stof(head(args)), -6_dB);
+                triangle(chord, std::stof(head(args)), -3_dB);
             }
         }
         mixer.add_track(
