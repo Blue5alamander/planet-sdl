@@ -181,8 +181,7 @@ namespace {
         planet::version const version{"planet-sdl/tone-example", "1.0"};
         planet::sdl::init sdl{warden, version};
 
-        planet::audio::channel master_attenuator{-3_dB},
-                mixer_attenuator{0_dB};
+        planet::audio::channel master_attenuator{-3_dB}, mixer_attenuator{0_dB};
         planet::audio::mixer mixer{mixer_attenuator};
         planet::sdl::audio_output output{
                 sdl.audio_devices()[0], master_attenuator, mixer};
