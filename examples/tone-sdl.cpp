@@ -79,7 +79,7 @@ namespace {
         std::size_t harmonic{1};
         auto frequency = root;
         planet::audio::dB_gain gain;
-        while (frequency < 22'000 and gain > -128_dB) {
+        while (frequency < 24'000 and gain > -128_dB) {
             planet::audio::linear_gain const g{gain};
             tones.spinners.emplace_back(
                     frequency, g.load() * master.load() / harmonic);
@@ -109,7 +109,7 @@ namespace {
             planet::audio::linear_gain const master = {}) {
         std::size_t harmonic{1};
         auto frequency = root;
-        while (frequency < 22'000) {
+        while (frequency < 24'000) {
             tones.spinners.emplace_back(frequency, master.load() / harmonic);
             planet::log::debug(
                     "Sawtooth harmonic", harmonic, "frequency", frequency);
@@ -131,7 +131,7 @@ namespace {
                    planet::audio::linear_gain const master = {}) {
         std::size_t harmonic{1};
         auto frequency = root;
-        while (frequency < 22'000) {
+        while (frequency < 24'000) {
             tones.spinners.emplace_back(
                     frequency, master.load() / (2 * harmonic - 1));
             planet::log::debug(
@@ -155,7 +155,7 @@ namespace {
         std::size_t harmonic{1};
         float phase = 1;
         auto frequency = root;
-        while (frequency < 22'000) {
+        while (frequency < 24'000) {
             auto const gain = master.load() / (4 * harmonic * harmonic);
             tones.spinners.emplace_back(
                     frequency, gain, std::complex{phase, 0.0f});
