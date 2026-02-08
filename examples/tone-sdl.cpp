@@ -148,27 +148,31 @@ namespace {
                 tones, root, static_cast<planet::audio::linear_gain>(master));
     }
 
-    void triangle(spectrum &tones,
-           float const root,
-           planet::audio::linear_gain const master = {}) {
+    void triangle(
+            spectrum &tones,
+            float const root,
+            planet::audio::linear_gain const master = {}) {
         std::size_t harmonic{1};
         float phase = 1;
         auto frequency = root;
         while (frequency < 22'000) {
             auto const gain = master.load() / (4 * harmonic * harmonic);
-            tones.spinners.emplace_back(frequency, gain, std::complex{phase, 0.0f});
+            tones.spinners.emplace_back(
+                    frequency, gain, std::complex{phase, 0.0f});
             planet::log::debug(
-                "Triangle harmonic", harmonic, "frequency", frequency, "phase", phase, "gain", gain);
+                    "Triangle harmonic", harmonic, "frequency", frequency,
+                    "phase", phase, "gain", gain);
             phase *= -1;
             frequency += 2 * root;
             ++harmonic;
         }
     }
-    void triangle(spectrum &tones,
+    void triangle(
+            spectrum &tones,
             float const root,
             planet::audio::dB_gain const master) {
         return triangle(
-            tones, root, static_cast<planet::audio::linear_gain>(master));
+                tones, root, static_cast<planet::audio::linear_gain>(master));
     }
 
 
