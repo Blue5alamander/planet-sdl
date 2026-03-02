@@ -56,9 +56,12 @@ void planet::sdl::audio_output::reconnect(
     } else {
         SDL_PauseAudioDevice(device, 0);
     }
+    std::chrono::milliseconds const buffer_size_ms{
+            (spec.samples * 1000) / spec.freq};
     planet::log::info(
             "Requested device", device_name, "opened audio device",
-            (chosen_device ? chosen_device : "nullptr"));
+            (chosen_device ? chosen_device : "nullptr"), "- freq:", spec.freq,
+            "Hz, samples:", spec.samples, "buffer_size:", buffer_size_ms);
 }
 
 
