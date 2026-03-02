@@ -45,6 +45,7 @@ void planet::sdl::audio_output::reconnect(
     configuration.freq = audio::stereo_buffer::samples_per_second;
     configuration.format = AUDIO_F32SYS;
     configuration.channels = audio::stereo_buffer::channels;
+    configuration.samples = 512;
     configuration.callback = audio_callback;
     configuration.userdata = this;
 
