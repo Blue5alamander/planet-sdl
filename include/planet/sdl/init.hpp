@@ -17,6 +17,20 @@
 namespace planet::sdl {
 
 
+    /// ## SDL initialisation flags
+    enum class initialise : std::uint32_t {
+        audio = 0x00000010u, ///< SDL_INIT_AUDIO
+        video = 0x00000020u, ///< SDL_INIT_VIDEO
+    };
+    [[nodiscard]] constexpr auto
+            operator|(initialise const lhs, initialise const rhs)
+                    -> initialise {
+        return static_cast<initialise>(
+                static_cast<std::uint32_t>(lhs)
+                | static_cast<std::uint32_t>(rhs));
+    }
+
+
     /// ## Engine configuration
     /**
      * This configuraiton is only used for the save folder and the configuration
@@ -99,7 +113,10 @@ namespace planet::sdl {
          * Pass the application name which is used to generate the configuration
          * paths
          */
-        init(felspar::io::warden &w, version const &);
+        init(felspar::io::warden &w,
+             version const &,
+             initialise const subsystems = initialise::video
+                     | initialise::audio);
         ~init();
 
         configuration config;

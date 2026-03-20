@@ -121,9 +121,20 @@ void planet::sdl::load(serialise::load_buffer &lb, configuration &c) {
 /// ## `planet::sdl::init`
 
 
-planet::sdl::init::init(felspar::io::warden &w, planet::version const &version)
+static_assert(
+        static_cast<std::uint32_t>(planet::sdl::initialise::video)
+        == SDL_INIT_VIDEO);
+static_assert(
+        static_cast<std::uint32_t>(planet::sdl::initialise::audio)
+        == SDL_INIT_AUDIO);
+
+
+planet::sdl::init::init(
+        felspar::io::warden &w,
+        planet::version const &version,
+        initialise const subsystems)
 : config{version}, io{w} {
-    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
+    SDL_Init(static_cast<std::uint32_t>(subsystems));
     static constexpr int iscapture = false;
     auto const device_count = SDL_GetNumAudioDevices(iscapture);
     audio_device_list.push_back({});
