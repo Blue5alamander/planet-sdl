@@ -1,6 +1,7 @@
 #include <planet/log.hpp>
 #include <planet/sdl/audio.hpp>
 #include <planet/telemetry/counter.hpp>
+#include <planet/telemetry/duration.hpp>
 #include <planet/telemetry/rate.hpp>
 
 #include <felspar/exceptions/runtime_error.hpp>
@@ -70,11 +71,16 @@ void planet::sdl::audio_output::reconnect(
 namespace {
     planet::telemetry::real_time_rate c_callback_rate{
             "planet_sdl_audio_callback_rate", 1s};
+    planet::telemetry::steady_duration c_callback_duration{
+            "planet_sdl_audio_callback_duration", 16};
     planet::telemetry::counter c_clip_count{"planet_sdl_audio_clip_count"};
 }
 void planet::sdl::audio_output::audio_callback(
         void *userdata, Uint8 *stream, int len) {
+    planet::telemetry::steady_duration::measurement const _{
+            c_callback_duration};
     c_callback_rate.tick();
+
     audio_output *const self = reinterpret_cast<audio_output *>(userdata);
     float *const output = reinterpret_cast<float *>(stream);
     std::size_t const wanted =
