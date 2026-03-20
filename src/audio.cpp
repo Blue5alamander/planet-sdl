@@ -2,7 +2,7 @@
 #include <planet/sdl/audio.hpp>
 #include <planet/telemetry/rate.hpp>
 
-#include <felspar/exceptions.hpp>
+#include <felspar/exceptions/runtime_error.hpp>
 
 #include <mutex>
 

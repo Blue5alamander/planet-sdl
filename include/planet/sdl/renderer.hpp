@@ -5,7 +5,7 @@
 #include <planet/ui/panel.hpp>
 
 #include <felspar/coro/stream.hpp>
-#include <felspar/exceptions.hpp>
+#include <felspar/exceptions/runtime_error.hpp>
 
 
 #include <SDL.h>

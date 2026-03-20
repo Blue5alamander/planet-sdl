@@ -2,7 +2,7 @@
 #include <planet/sdl/init.hpp>
 #include <planet/sdl/window.hpp>
 
-#include <felspar/exceptions.hpp>
+#include <felspar/exceptions/runtime_error.hpp>
 
 
 using namespace std::literals;

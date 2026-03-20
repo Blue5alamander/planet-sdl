@@ -4,7 +4,7 @@
 #include <planet/sdl/handle.hpp>
 #include <planet/asset_manager.hpp>
 
-#include <felspar/exceptions.hpp>
+#include <felspar/exceptions/runtime_error.hpp>
 
 #include <SDL.h>
 #undef main
