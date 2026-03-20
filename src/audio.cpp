@@ -1,5 +1,6 @@
 #include <planet/log.hpp>
 #include <planet/sdl/audio.hpp>
+#include <planet/telemetry/counter.hpp>
 #include <planet/telemetry/rate.hpp>
 
 #include <felspar/exceptions/runtime_error.hpp>
@@ -69,6 +70,7 @@ void planet::sdl::audio_output::reconnect(
 namespace {
     planet::telemetry::real_time_rate c_callback_rate{
             "planet_sdl_audio_callback_rate", 1s};
+    planet::telemetry::counter c_clip_count{"planet_sdl_audio_clip_count"};
 }
 void planet::sdl::audio_output::audio_callback(
         void *userdata, Uint8 *stream, int len) {
@@ -79,6 +81,7 @@ void planet::sdl::audio_output::audio_callback(
             len / sizeof(float) / audio::stereo_buffer::channels;
 
     std::scoped_lock lock{self->mtx};
+    planet::telemetry::counter::value_type clipped{};
     for (std::size_t sample{}; sample < wanted; ++sample) {
         if (not self->playing
             or self->playing_marker >= self->playing->samples()) {
@@ -87,9 +90,11 @@ void planet::sdl::audio_output::audio_callback(
         }
         for (std::size_t channel{}; channel < audio::stereo_buffer::channels;
              ++channel) {
-            output[sample * audio::stereo_buffer::channels + channel] =
-                    (*self->playing)[self->playing_marker][channel];
+            auto const value = (*self->playing)[self->playing_marker][channel];
+            output[sample * audio::stereo_buffer::channels + channel] = value;
+            if (value > 1.0f or value < -1.0f) { ++clipped; }
         }
         ++self->playing_marker;
     }
+    c_clip_count += clipped;
 }
