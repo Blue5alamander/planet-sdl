@@ -1,3 +1,4 @@
+#include <planet/functional.hpp>
 #include <planet/log.hpp>
 #include <planet/sdl/audio.hpp>
 #include <planet/telemetry/counter.hpp>
@@ -88,19 +89,21 @@ void planet::sdl::audio_output::audio_callback(
 
     std::scoped_lock lock{self->mtx};
     planet::telemetry::counter::value_type clipped{};
-    for (std::size_t sample{}; sample < wanted; ++sample) {
+    planet::by_index(wanted, [&](std::size_t const sample) {
         if (not self->playing
             or self->playing_marker >= self->playing->samples()) {
             self->playing = self->desk_output.next();
             self->playing_marker = {};
         }
-        for (std::size_t channel{}; channel < audio::stereo_buffer::channels;
-             ++channel) {
-            auto const value = (*self->playing)[self->playing_marker][channel];
-            output[sample * audio::stereo_buffer::channels + channel] = value;
-            if (value > 1.0f or value < -1.0f) { ++clipped; }
-        }
+        planet::by_index(
+                audio::stereo_buffer::channels, [&](std::size_t const channel) {
+                    auto const value =
+                            (*self->playing)[self->playing_marker][channel];
+                    output[sample * audio::stereo_buffer::channels + channel] =
+                            value;
+                    if (value > 1.0f or value < -1.0f) { ++clipped; }
+                });
         ++self->playing_marker;
-    }
+    });
     c_clip_count += clipped;
 }
