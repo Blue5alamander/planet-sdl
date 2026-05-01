@@ -41,8 +41,8 @@ namespace planet::sdl {
                 N &o,
                 felspar::coro::stream<renderer::frame> (N::*f)()) {
             try {
-                for (auto frames = (o.*f)();
-                     auto frame = co_await frames.next();) {
+                auto frames = (o.*f)();
+                while (auto frame = co_await frames.next()) {
                     r->waiting_for_frame.push(*frame);
                 }
             } catch (std::exception const &e) {
