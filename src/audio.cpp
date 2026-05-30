@@ -110,27 +110,17 @@ void planet::sdl::audio_output::audio_callback(
     float const target_master_mul = self->master.multiplier();
     std::size_t const count = self->attached.load(std::memory_order_acquire);
 
-    /// ### Pre-roll
-    /**
-     * Gate each mixer on its pre-roll once per callback (not per frame) so we
-     * never consume from a mixer whose ring has not filled yet.
-     */
-    std::array<bool, max_mixers> active = {};
-    for (std::size_t m{}; m < count; ++m) {
-        active[m] = self->mixers[m]->activate();
-    }
-
-    /// ### Integrate active mixers
+    /// ### Integrate attached mixers
+    /// Each mixer's ring is pre-rolled with silence at construction, so we
+    /// can consume from `next_frame` unconditionally — there is no startup
+    /// window to gate against.
     planet::telemetry::counter::value_type clipped{};
     planet::by_index(wanted, [&](std::size_t const sample) {
         std::array<float, audio::stereo_buffer::channels> mix = {};
         for (std::size_t m{}; m < count; ++m) {
-            if (active[m]) {
-                auto const frame = self->mixers[m]->next_frame();
-                for (std::size_t ch{}; ch < audio::stereo_buffer::channels;
-                     ++ch) {
-                    mix[ch] += frame[ch];
-                }
+            auto const frame = self->mixers[m]->next_frame();
+            for (std::size_t ch{}; ch < audio::stereo_buffer::channels; ++ch) {
+                mix[ch] += frame[ch];
             }
         }
         float const master_mul = std::lerp(
