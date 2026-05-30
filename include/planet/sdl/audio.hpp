@@ -89,10 +89,22 @@ namespace planet::sdl {
          */
         std::atomic<audio::sample_clock> next_block_end_time{};
 
+        /**
+         * Per-mixer buffer latency the output advertises to each mixer at
+         * `attach` time. Computed once at construction from `block_count` and
+         * the device's block size (`audio::default_buffer_samples`), measured
+         * in samples so it expresses the same units the rest of the audio
+         * system uses.
+         */
+        audio::sample_clock latency;
+
 
       public:
         /// ### Construction/destruction
-        audio_output(std::optional<std::string_view>, audio::channel &);
+        audio_output(
+                std::optional<std::string_view>,
+                audio::channel &,
+                std::size_t block_count = 2);
         /// #### Construct with audio sources
         template<typename... Mixers>
         audio_output(

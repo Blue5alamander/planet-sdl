@@ -23,8 +23,12 @@ static_assert(
 
 
 planet::sdl::audio_output::audio_output(
-        std::optional<std::string_view> const device_name, audio::channel &m)
-: master{m} {
+        std::optional<std::string_view> const device_name,
+        audio::channel &m,
+        std::size_t const block_count)
+: master{m},
+  latency{audio::sample_clock{static_cast<audio::sample_clock::rep>(
+          block_count * audio::default_buffer_samples)}} {
     last_master_mul = master.multiplier();
     reconnect(device_name);
 }
@@ -51,7 +55,7 @@ void planet::sdl::audio_output::attach(audio::mixer &m) {
         throw felspar::stdexcept::runtime_error{
                 "Too many mixers attached to the audio output"};
     }
-    m.bind_playback_clock(next_block_end_time);
+    m.bind_playback_clock(next_block_end_time, latency);
     m.begin();
     mixers[idx] = &m;
     attached.store(idx + 1, std::memory_order_release);
@@ -71,7 +75,11 @@ void planet::sdl::audio_output::reconnect(
     configuration.freq = audio::stereo_buffer::samples_per_second;
     configuration.format = AUDIO_F32SYS;
     configuration.channels = audio::stereo_buffer::channels;
-    configuration.samples = 512;
+    /// TODO This value works on the hardware I'm testing on right now, but it
+    /// isn't a supported value. We really need to keep this at 512 (or lower)
+    /// here and then pass in the samples we actually get from the driver to use
+    /// on the mixers
+    configuration.samples = audio::default_buffer_samples;
     configuration.callback = audio_callback;
     configuration.userdata = this;
 
