@@ -75,6 +75,20 @@ namespace planet::sdl {
          */
         float last_master_mul = 1.0f;
 
+        /**
+         * Audio-clock position the SDL callback will have written up to by
+         * the end of the next block it produces — i.e. the deadline by which
+         * any mixer / generator needs to have rendered.
+         *
+         * Seeded in `reconnect` to the negotiated block size so the first
+         * reader (before any callback has run) sees the end-time of the
+         * first block. Advanced by the callback after each consume so that,
+         * between callbacks, the value is the end of the block the device
+         * is about to play next. Read lock-free from any thread; mixers
+         * bound via `attach` re-expose it through `mixer::playback_clock()`.
+         */
+        std::atomic<audio::sample_clock> next_block_end_time{};
+
 
       public:
         /// ### Construction/destruction
@@ -95,6 +109,18 @@ namespace planet::sdl {
 
         /// ### Switch connection to a different device
         void reconnect(std::optional<std::string_view>);
+
+
+        /// ### Playback head
+        /**
+         * The SDL audio callback advertises the audio-clock position it
+         * will have written through by the end of the next block it
+         * produces. Use this to schedule new audio events relative to the
+         * playback head with no `steady_clock`→`sample_clock` rounding.
+         */
+        std::atomic<audio::sample_clock> const &playback_clock() const noexcept {
+            return next_block_end_time;
+        }
 
       private:
         /// ### Attach a mixer

@@ -17,6 +17,11 @@ using namespace std::literals;
 using namespace planet::audio::literals;
 
 
+static_assert(
+        std::atomic<planet::audio::sample_clock>::is_always_lock_free,
+        "Playback-head atomic must be lock-free on the real-time audio thread");
+
+
 planet::sdl::audio_output::audio_output(
         std::optional<std::string_view> const device_name, audio::channel &m)
 : master{m} {
@@ -46,6 +51,7 @@ void planet::sdl::audio_output::attach(audio::mixer &m) {
         throw felspar::stdexcept::runtime_error{
                 "Too many mixers attached to the audio output"};
     }
+    m.bind_playback_clock(next_block_end_time);
     m.begin();
     mixers[idx] = &m;
     attached.store(idx + 1, std::memory_order_release);
@@ -75,6 +81,16 @@ void planet::sdl::audio_output::reconnect(
     if (device <= 0) {
         throw felspar::stdexcept::runtime_error{"Audio device wouldn't open"};
     } else {
+        /**
+         * Seed the published playback head with the end-time of the first
+         * block, so a producer thread that polls the clock before the
+         * first callback fires sees the same kind of value it will see
+         * between subsequent callbacks.
+         */
+        next_block_end_time.store(
+                audio::sample_clock{
+                        static_cast<audio::sample_clock::rep>(spec.samples)},
+                std::memory_order_release);
         SDL_PauseAudioDevice(device, 0);
     }
     std::chrono::milliseconds const buffer_size_ms{
@@ -144,4 +160,16 @@ void planet::sdl::audio_output::audio_callback(
         c_underrun_count += total - self->last_underruns[m];
         self->last_underruns[m] = total;
     }
+
+    /// ### Advance the published playback head
+    /**
+     * The atomic now reflects the end-time of the block the device is
+     * about to play *next* — i.e. the deadline by which a mixer producer
+     * must have rendered for the upcoming callback.
+     */
+    auto const advanced =
+            self->next_block_end_time.load(std::memory_order_relaxed)
+            + audio::sample_clock{
+                    static_cast<audio::sample_clock::rep>(wanted)};
+    self->next_block_end_time.store(advanced, std::memory_order_release);
 }
