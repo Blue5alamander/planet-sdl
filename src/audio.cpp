@@ -7,6 +7,9 @@
 
 #include <felspar/exceptions/runtime_error.hpp>
 
+#include <array>
+#include <chrono>
+#include <cmath>
 #include <mutex>
 
 
@@ -16,12 +19,19 @@ using namespace planet::audio::literals;
 
 planet::sdl::audio_output::audio_output(
         std::optional<std::string_view> const device_name, audio::channel &m)
-: desk{m} {
+: master{m} {
+    last_master_mul = master.multiplier();
     reconnect(device_name);
 }
 
 
-planet::sdl::audio_output::~audio_output() { reset(); }
+planet::sdl::audio_output::~audio_output() {
+    /**
+     * Close the device first so the callback can never touch an attached mixer
+     * again; the mixers (owned elsewhere) are destroyed after this returns.
+     */
+    reset();
+}
 
 
 void planet::sdl::audio_output::reset() {
@@ -29,9 +39,16 @@ void planet::sdl::audio_output::reset() {
 }
 
 
-void planet::sdl::audio_output::add_sound_source(audio::stereo_generator sound) {
-    std::scoped_lock lock{mtx};
-    desk.add_track(std::move(sound));
+void planet::sdl::audio_output::attach(audio::mixer &m) {
+    std::scoped_lock lock{attach_mtx};
+    std::size_t const idx = attached.load(std::memory_order_relaxed);
+    if (idx >= max_mixers) {
+        throw felspar::stdexcept::runtime_error{
+                "Too many mixers attached to the audio output"};
+    }
+    m.begin();
+    mixers[idx] = &m;
+    attached.store(idx + 1, std::memory_order_release);
 }
 
 
@@ -71,10 +88,12 @@ void planet::sdl::audio_output::reconnect(
 
 namespace {
     planet::telemetry::real_time_rate c_callback_rate{
-            "planet_sdl_audio_callback_rate", 1s};
+            "planet_sdl__audio__callback_rate", 1s};
     planet::telemetry::steady_duration c_callback_duration{
-            "planet_sdl_audio_callback_duration", 16};
-    planet::telemetry::counter c_clip_count{"planet_sdl_audio_clip_count"};
+            "planet_sdl__audio__callback_duration", 16};
+    planet::telemetry::counter c_clip_count{"planet_sdl__audio__clip_count"};
+    planet::telemetry::counter c_underrun_count{
+            "planet_sdl__audio__underrun_count"};
 }
 void planet::sdl::audio_output::audio_callback(
         void *userdata, Uint8 *stream, int len) {
@@ -87,23 +106,52 @@ void planet::sdl::audio_output::audio_callback(
     std::size_t const wanted =
             len / sizeof(float) / audio::stereo_buffer::channels;
 
-    std::scoped_lock lock{self->mtx};
+    float const old_master_mul = self->last_master_mul;
+    float const target_master_mul = self->master.multiplier();
+    std::size_t const count = self->attached.load(std::memory_order_acquire);
+
+    /// ### Pre-roll
+    /**
+     * Gate each mixer on its pre-roll once per callback (not per frame) so we
+     * never consume from a mixer whose ring has not filled yet.
+     */
+    std::array<bool, max_mixers> active = {};
+    for (std::size_t m{}; m < count; ++m) {
+        active[m] = self->mixers[m]->activate();
+    }
+
+    /// ### Integrate active mixers
     planet::telemetry::counter::value_type clipped{};
     planet::by_index(wanted, [&](std::size_t const sample) {
-        if (not self->playing
-            or self->playing_marker >= self->playing->samples()) {
-            self->playing = self->desk_output.next();
-            self->playing_marker = {};
+        std::array<float, audio::stereo_buffer::channels> mix = {};
+        for (std::size_t m{}; m < count; ++m) {
+            if (active[m]) {
+                auto const frame = self->mixers[m]->next_frame();
+                for (std::size_t ch{}; ch < audio::stereo_buffer::channels;
+                     ++ch) {
+                    mix[ch] += frame[ch];
+                }
+            }
         }
+        float const master_mul = std::lerp(
+                old_master_mul, target_master_mul,
+                static_cast<float>(sample) / wanted);
         planet::by_index(
                 audio::stereo_buffer::channels, [&](std::size_t const channel) {
-                    auto const value =
-                            (*self->playing)[self->playing_marker][channel];
+                    float const value = mix[channel] * master_mul;
                     output[sample * audio::stereo_buffer::channels + channel] =
                             value;
                     if (value > 1.0f or value < -1.0f) { ++clipped; }
                 });
-        ++self->playing_marker;
     });
     c_clip_count += clipped;
+    self->last_master_mul = target_master_mul;
+
+    /// ### Underrun recording
+    /// Publish the per-mixer underrun deltas once per callback.
+    for (std::size_t m{}; m < count; ++m) {
+        auto const total = self->mixers[m]->underrun_count();
+        c_underrun_count += total - self->last_underruns[m];
+        self->last_underruns[m] = total;
+    }
 }
