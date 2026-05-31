@@ -2,6 +2,7 @@
 
 
 #include <planet/audio.hpp>
+#include <planet/audio/driver.hpp>
 #include <planet/sdl/handle.hpp>
 
 #include <array>
@@ -76,27 +77,21 @@ namespace planet::sdl {
         float last_master_mul = 1.0f;
 
         /**
-         * Audio-clock position the SDL callback will have written up to by
-         * the end of the next block it produces — i.e. the deadline by which
-         * any mixer / generator needs to have rendered.
+         * Backend driver handed to each attached mixer at `attach` time.
          *
-         * Seeded in `reconnect` to the negotiated block size so the first
-         * reader (before any callback has run) sees the end-time of the
-         * first block. Advanced by the callback after each consume so that,
-         * between callbacks, the value is the end of the block the device
-         * is about to play next. Read lock-free from any thread; mixers
-         * bound via `attach` re-expose it through `mixer::playback_clock()`.
+         * Carries the block size, block count (== mixer ring depth),
+         * derived latency, and the audio-clock position the SDL callback
+         * will have written up to by the end of the next block it produces.
+         *
+         * The playback head is seeded in `reconnect` to the negotiated
+         * block size so the first reader (before any callback has run) sees
+         * the end-time of the first block. The callback advances it after
+         * each consume so that, between callbacks, the value is the end of
+         * the block the device is about to play next. Read lock-free from
+         * any thread; mixers bound via `attach` re-expose it through
+         * `mixer::playback_clock()`.
          */
-        std::atomic<audio::sample_clock> next_block_end_time{};
-
-        /**
-         * Per-mixer buffer latency the output advertises to each mixer at
-         * `attach` time. Computed once at construction from `block_count` and
-         * the device's block size (`audio::default_buffer_samples`), measured
-         * in samples so it expresses the same units the rest of the audio
-         * system uses.
-         */
-        audio::sample_clock latency;
+        audio::driver drv;
 
 
       public:
@@ -131,7 +126,7 @@ namespace planet::sdl {
          * playback head with no `steady_clock`→`sample_clock` rounding.
          */
         std::atomic<audio::sample_clock> const &playback_clock() const noexcept {
-            return next_block_end_time;
+            return drv.playback_head;
         }
 
       private:
