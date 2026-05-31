@@ -78,7 +78,10 @@ namespace planet::sdl {
         float last_master_mul = 1.0f;
 
         /**
-         * Backend driver handed to each attached mixer at `attach` time.
+         * Backend driver handed to each attached mixer at `attach` time, and
+         * re-handed to every already-attached mixer at the end of each
+         * `reconnect` (the SDL device is held paused across that window so
+         * the consumer side does not race the rebuild).
          *
          * Carries the block size, block count (== mixer ring depth),
          * derived latency, and the audio-clock position the SDL callback

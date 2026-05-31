@@ -87,25 +87,45 @@ void planet::sdl::audio_output::reconnect(
             chosen_device, iscapture, &configuration, &spec, 0);
     if (device <= 0) {
         throw felspar::stdexcept::runtime_error{"Audio device wouldn't open"};
-    } else {
-        /**
-         * Build the driver against the block size the device actually gave
-         * us, so each attached mixer renders blocks that match the size the
-         * SDL callback will consume.
-         */
-        drv.emplace(static_cast<std::size_t>(spec.samples), block_count);
-        /**
-         * Seed the published playback head with the end-time of the first
-         * block, so a producer thread that polls the clock before the
-         * first callback fires sees the same kind of value it will see
-         * between subsequent callbacks.
-         */
-        drv->playback_head.store(
-                audio::sample_clock{
-                        static_cast<audio::sample_clock::rep>(spec.samples)},
-                std::memory_order_release);
-        SDL_PauseAudioDevice(device, 0);
     }
+    /**
+     * `SDL_OpenAudioDevice` leaves the device paused; the callback does not
+     * fire until `SDL_PauseAudioDevice(device, 0)` below. That window is
+     * what lets us safely tear down the previous driver, rebuild it against
+     * the negotiated block size, and re-bind every attached mixer (which
+     * stops and restarts each producer thread) before the consumer side
+     * starts pulling from `next_frame` again.
+     */
+    drv.emplace(static_cast<std::size_t>(spec.samples), block_count);
+    /**
+     * Seed the published playback head with the end-time of the first
+     * block, so a producer thread that polls the clock before the
+     * first callback fires sees the same kind of value it will see
+     * between subsequent callbacks.
+     */
+    drv->playback_head.store(
+            audio::sample_clock{
+                    static_cast<audio::sample_clock::rep>(spec.samples)},
+            std::memory_order_release);
+    /**
+     * Re-bind every mixer that was attached before this `reconnect`. The
+     * device just renegotiated its block size; without this loop those
+     * mixers would still hold a `driver const *` to the storage we just
+     * re-emplaced and would render slots sized for the previous block.
+     * `bind_driver` stops a running producer, resets the ring, and
+     * pre-rolls silence; `begin()` restarts the producer. Newly-attached
+     * mixers (added via the templated constructor after the first
+     * `reconnect`) are handled by `attach` itself.
+     */
+    {
+        std::scoped_lock lock{attach_mtx};
+        std::size_t const count = attached.load(std::memory_order_acquire);
+        for (std::size_t i{}; i < count; ++i) {
+            mixers[i]->bind_driver(*drv);
+            mixers[i]->begin();
+        }
+    }
+    SDL_PauseAudioDevice(device, 0);
     std::chrono::milliseconds const buffer_size_ms{
             (spec.samples * 1000) / spec.freq};
     planet::log::info(
