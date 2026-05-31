@@ -26,7 +26,7 @@ planet::sdl::audio_output::audio_output(
         std::optional<std::string_view> const device_name,
         audio::channel &m,
         std::size_t const block_count)
-: master{m}, drv{audio::default_buffer_samples, block_count} {
+: master{m}, block_count{block_count} {
     last_master_mul = master.multiplier();
     reconnect(device_name);
 }
@@ -53,7 +53,7 @@ void planet::sdl::audio_output::attach(audio::mixer &m) {
         throw felspar::stdexcept::runtime_error{
                 "Too many mixers attached to the audio output"};
     }
-    m.bind_driver(drv);
+    m.bind_driver(*drv);
     m.begin();
     mixers[idx] = &m;
     attached.store(idx + 1, std::memory_order_release);
@@ -73,11 +73,12 @@ void planet::sdl::audio_output::reconnect(
     configuration.freq = audio::stereo_buffer::samples_per_second;
     configuration.format = AUDIO_F32SYS;
     configuration.channels = audio::stereo_buffer::channels;
-    /// TODO This value works on the hardware I'm testing on right now, but it
-    /// isn't a supported value. We really need to keep this at 512 (or lower)
-    /// here and then pass in the samples we actually get from the driver to use
-    /// on the mixers
-    configuration.samples = audio::default_buffer_samples;
+    /**
+     * SDL2 requires the requested sample count to be a power of two; the device
+     * may return a different value in `spec.samples` after opening, which is
+     * what we use to size the mixer blocks below.
+     */
+    configuration.samples = 512;
     configuration.callback = audio_callback;
     configuration.userdata = this;
 
@@ -88,12 +89,18 @@ void planet::sdl::audio_output::reconnect(
         throw felspar::stdexcept::runtime_error{"Audio device wouldn't open"};
     } else {
         /**
+         * Build the driver against the block size the device actually gave
+         * us, so each attached mixer renders blocks that match the size the
+         * SDL callback will consume.
+         */
+        drv.emplace(static_cast<std::size_t>(spec.samples), block_count);
+        /**
          * Seed the published playback head with the end-time of the first
          * block, so a producer thread that polls the clock before the
          * first callback fires sees the same kind of value it will see
          * between subsequent callbacks.
          */
-        drv.playback_head.store(
+        drv->playback_head.store(
                 audio::sample_clock{
                         static_cast<audio::sample_clock::rep>(spec.samples)},
                 std::memory_order_release);
@@ -133,9 +140,11 @@ void planet::sdl::audio_output::audio_callback(
     std::size_t const count = self->attached.load(std::memory_order_acquire);
 
     /// ### Integrate attached mixers
-    /// Each mixer's ring is pre-rolled with silence at construction, so we
-    /// can consume from `next_frame` unconditionally — there is no startup
-    /// window to gate against.
+    /**
+     * Each mixer's ring is pre-rolled with silence at construction, so we can
+     * consume from `next_frame` unconditionally — there is no startup window to
+     * gate against.
+     */
     planet::telemetry::counter::value_type clipped{};
     planet::by_index(wanted, [&](std::size_t const sample) {
         std::array<float, audio::stereo_buffer::channels> mix = {};
@@ -174,8 +183,8 @@ void planet::sdl::audio_output::audio_callback(
      * must have rendered for the upcoming callback.
      */
     auto const advanced =
-            self->drv.playback_head.load(std::memory_order_relaxed)
+            self->drv->playback_head.load(std::memory_order_relaxed)
             + audio::sample_clock{
                     static_cast<audio::sample_clock::rep>(wanted)};
-    self->drv.playback_head.store(advanced, std::memory_order_release);
+    self->drv->playback_head.store(advanced, std::memory_order_release);
 }

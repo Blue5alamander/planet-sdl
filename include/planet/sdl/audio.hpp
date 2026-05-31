@@ -9,6 +9,7 @@
 #include <atomic>
 #include <cstdint>
 #include <mutex>
+#include <optional>
 
 #include <SDL.h>
 #undef main
@@ -90,8 +91,14 @@ namespace planet::sdl {
          * the block the device is about to play next. Read lock-free from
          * any thread; mixers bound via `attach` re-expose it through
          * `mixer::playback_clock()`.
+         *
+         * Constructed by `reconnect` once `SDL_OpenAudioDevice` has
+         * negotiated the actual block size; until then it is empty. Always
+         * engaged by the time a constructor or `reconnect` call returns.
          */
-        audio::driver drv;
+        std::optional<audio::driver> drv;
+        /// ### Number of blocks of buffered latency (mixer ring depth)
+        std::size_t const block_count;
 
 
       public:
@@ -126,7 +133,7 @@ namespace planet::sdl {
          * playback head with no `steady_clock`→`sample_clock` rounding.
          */
         std::atomic<audio::sample_clock> const &playback_clock() const noexcept {
-            return drv.playback_head;
+            return drv->playback_head;
         }
 
       private:
