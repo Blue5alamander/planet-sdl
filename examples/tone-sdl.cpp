@@ -11,8 +11,11 @@
 #include <planet/sdl/audio.hpp>
 #include <planet/sdl/init.hpp>
 #include <planet/maths.hpp>
+#include <planet/numbers.hpp>
 
 #include <felspar/exceptions/runtime_error.hpp>
+
+#include <cmath>
 
 using namespace std::literals;
 using namespace planet::audio::literals;
@@ -43,7 +46,14 @@ namespace {
         : frequency{f}, phase{p}, gain{g} {
             auto const root =
                     frequency / planet::audio::sample_clock::period::den;
-            rotate = {planet::cos(root), planet::sin(root)};
+            /**
+             * Seed the phasor with full `std::` precision: this unit-magnitude
+             * complex is multiplied into `phase` every sample, so any
+             * sub-unit magnitude from the LUT would compound into audible
+             * amplitude drift over a sustained tone.
+             */
+            rotate = {
+                    std::cos(root * planet::tau), std::sin(root * planet::tau)};
         }
         float frequency;
         std::complex<float> rotate, phase;
