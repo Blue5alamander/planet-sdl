@@ -93,7 +93,8 @@ void planet::sdl::save(serialise::save_buffer &sb, configuration const &c) {
     sb.save_box(
             c.box, c.log_level, c.auto_remove_log_files, c.master_volume,
             c.music_volume, c.sfx_volume, c.audio_device_name,
-            c.save_logs_to_file, c.upload_performance_data);
+            c.save_logs_to_file, c.upload_performance_data,
+            c.audio_latency_injected_block_count);
     telemetry::save_performance(sb, c.times_exited, c.times_loaded);
 }
 void planet::sdl::load(serialise::load_buffer &lb, configuration &c) {
@@ -106,6 +107,8 @@ void planet::sdl::load(serialise::load_buffer &lb, configuration &c) {
         b.fields(c.audio_device_name);
         if (b.content.empty()) { return; }
         b.fields(c.save_logs_to_file, c.upload_performance_data);
+        if (b.content.empty()) { return; }
+        b.fields(c.audio_latency_injected_block_count);
     });
     if (not lb.empty()) {
         telemetry::load_performance(lb, c.times_exited, c.times_loaded);

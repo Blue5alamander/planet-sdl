@@ -1,6 +1,7 @@
 #include <planet/functional.hpp>
 #include <planet/log.hpp>
 #include <planet/sdl/audio.hpp>
+#include <planet/sdl/init.hpp>
 #include <planet/telemetry/counter.hpp>
 #include <planet/telemetry/duration.hpp>
 #include <planet/telemetry/rate.hpp>
@@ -22,13 +23,10 @@ static_assert(
         "Playback-head atomic must be lock-free on the real-time audio thread");
 
 
-planet::sdl::audio_output::audio_output(
-        std::optional<std::string_view> const device_name,
-        audio::channel &m,
-        std::size_t const block_count)
-: master{m}, block_count{block_count} {
-    last_master_mul = master.multiplier();
-    reconnect(device_name);
+planet::sdl::audio_output::audio_output(configuration &config)
+: config{config} {
+    last_master_mul = config.master_volume.multiplier();
+    reconnect(config.audio_device_name);
 }
 
 
@@ -70,21 +68,20 @@ void planet::sdl::audio_output::reconnect(
     // TODO Search for the wanted audio device in the list and set
     // `chosen_device` to it
 
-    configuration.freq = audio::stereo_buffer::samples_per_second;
-    configuration.format = AUDIO_F32SYS;
-    configuration.channels = audio::stereo_buffer::channels;
+    desired.freq = audio::stereo_buffer::samples_per_second;
+    desired.format = AUDIO_F32SYS;
+    desired.channels = audio::stereo_buffer::channels;
     /**
      * SDL2 requires the requested sample count to be a power of two; the device
      * may return a different value in `spec.samples` after opening, which is
      * what we use to size the mixer blocks below.
      */
-    configuration.samples = 512;
-    configuration.callback = audio_callback;
-    configuration.userdata = this;
+    desired.samples = 512;
+    desired.callback = audio_callback;
+    desired.userdata = this;
 
     SDL_AudioSpec spec = {};
-    device = SDL_OpenAudioDevice(
-            chosen_device, iscapture, &configuration, &spec, 0);
+    device = SDL_OpenAudioDevice(chosen_device, iscapture, &desired, &spec, 0);
     if (device <= 0) {
         throw felspar::stdexcept::runtime_error{"Audio device wouldn't open"};
     }
@@ -96,7 +93,9 @@ void planet::sdl::audio_output::reconnect(
      * stops and restarts each producer thread) before the consumer side
      * starts pulling from `next_frame` again.
      */
-    drv.emplace(static_cast<std::size_t>(spec.samples), block_count);
+    drv.emplace(
+            static_cast<std::size_t>(spec.samples),
+            config.audio_latency_injected_block_count);
     /**
      * Seed the published playback head with the end-time of the first
      * block, so a producer thread that polls the clock before the
@@ -156,7 +155,7 @@ void planet::sdl::audio_output::audio_callback(
             len / sizeof(float) / audio::stereo_buffer::channels;
 
     float const old_master_mul = self->last_master_mul;
-    float const target_master_mul = self->master.multiplier();
+    float const target_master_mul = self->config.master_volume.multiplier();
     std::size_t const count = self->attached.load(std::memory_order_acquire);
 
     /// ### Integrate attached mixers

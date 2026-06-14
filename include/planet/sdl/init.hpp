@@ -9,9 +9,7 @@
 #include <planet/sdl/ttf.hpp>
 #include <planet/version.hpp>
 
-#include <felspar/io.hpp>
-
-#include <fstream>
+#include <felspar/io/warden.poll.hpp>
 
 
 namespace planet::sdl {
@@ -57,21 +55,21 @@ namespace planet::sdl {
          */
 
         /// #### Game folder
+        std::filesystem::path game_folder;
         /**
          *
          * The game should use this folder to save any data that it may need to
          * persist. There are specific files and folders below for
          * configuration, logs and game saves.
          */
-        std::filesystem::path game_folder;
 
         /// #### Changing the game folder
+        void set_game_folder(std::filesystem::path);
         /**
          * On some platforms it may not be possible to reliably determine the
          * folder name at start up. For those this method should be called so
          * that the folder structure can be determined.
          */
-        void set_game_folder(std::filesystem::path);
 
         /// #### Configuration file name
         std::filesystem::path config_filename;
@@ -96,6 +94,17 @@ namespace planet::sdl {
         audio::channel master_volume{audio::dB_gain{-9}};
         audio::channel music_volume{audio::dB_gain{-15}};
         audio::channel sfx_volume{audio::dB_gain{-3}};
+
+        /// #### Blocks of audio latency injected ahead of the device
+        std::size_t audio_latency_injected_block_count = 2;
+        /**
+         * The mixer pre-renders this many blocks ahead of the SDL callback (the
+         * mixer ring depth / `driver::block_count`), trading output latency for
+         * resilience against producer-thread scheduling jitter. A track handed
+         * to a mixer becomes audible `block_size * this` samples later, on top
+         * of the device's own buffering. Must be in `[1,
+         * mixer::max_ring_depth]` or the driver logs `critical`.
+         */
 
 
         /// ### Performance counters

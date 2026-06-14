@@ -3,6 +3,7 @@
 
 #include <planet/audio.hpp>
 #include <planet/audio/driver.hpp>
+#include <planet/sdl/forward.hpp>
 #include <planet/sdl/handle.hpp>
 
 #include <array>
@@ -32,15 +33,22 @@ namespace planet::sdl {
      */
     class audio_output final {
         SDL_AudioDeviceID device = {};
-        SDL_AudioSpec configuration = {};
+        SDL_AudioSpec desired = {};
 
         void reset();
 
         static void audio_callback(void *, Uint8 *, int);
 
-        /// ### Master gain
-        /// The master gain applied over the summed mix in the callback
-        audio::channel &master;
+
+        /// ### Engine configuration
+        configuration &config;
+        /**
+         * The single source for every audio setting: the master gain (read live
+         * by the callback), the requested device name, the PulseAudio latency
+         * hint, and any audio settings added later. Holding the whole
+         * configuration means a new setting needs no constructor or call-site
+         * change. Must outlive this `audio_output`.
+         */
 
         /**
          * Attached mixers. Written only by `attach` (under `attach_mtx`) and
@@ -50,6 +58,10 @@ namespace planet::sdl {
         std::array<audio::mixer *, max_mixers> mixers = {};
         std::atomic<std::size_t> attached = 0;
         std::mutex attach_mtx;
+
+
+        /// ### Underruns values
+        std::array<std::uint64_t, max_mixers> last_underruns = {};
         /**
          * Per-mixer underrun totals as seen at the previous callback;
          * callback-thread-only.
@@ -67,7 +79,10 @@ namespace planet::sdl {
          * telemetry counter, then refreshes the snapshot — so the counter
          * reflects underruns across all mixers without double-counting.
          */
-        std::array<std::uint64_t, max_mixers> last_underruns = {};
+
+
+        /// ### Gain change monitoring
+        float last_master_mul = 1.0f;
         /**
          * Master multiplier at the end of the previous callback;
          * callback-thread-only. Used to ramp the master gain across each buffer
@@ -75,8 +90,10 @@ namespace planet::sdl {
          * the per-channel gains are already ramped inside each mixer's
          * `attenuate`.
          */
-        float last_master_mul = 1.0f;
 
+
+        /// ### Backend driver
+        std::optional<audio::driver> drv;
         /**
          * Backend driver handed to each attached mixer at `attach` time, and
          * re-handed to every already-attached mixer at the end of each
@@ -99,25 +116,15 @@ namespace planet::sdl {
          * negotiated the actual block size; until then it is empty. Always
          * engaged by the time a constructor or `reconnect` call returns.
          */
-        std::optional<audio::driver> drv;
-        /// ### Number of blocks of buffered latency (mixer ring depth)
-        std::size_t const block_count;
 
 
       public:
         /// ### Construction/destruction
-        audio_output(
-                std::optional<std::string_view>,
-                audio::channel &,
-                std::size_t block_count = 2);
+        explicit audio_output(configuration &);
         /// #### Construct with audio sources
         template<typename... Mixers>
-        audio_output(
-                std::optional<std::string_view> const device_name,
-                audio::channel &c,
-                audio::mixer &m,
-                Mixers &...ms)
-        : audio_output{device_name, c} {
+        audio_output(configuration &config, audio::mixer &m, Mixers &...ms)
+        : audio_output{config} {
             attach(m);
             (attach(ms), ...);
         }
@@ -138,6 +145,7 @@ namespace planet::sdl {
         std::atomic<audio::sample_clock> const &playback_clock() const noexcept {
             return drv->playback_head;
         }
+
 
       private:
         /// ### Attach a mixer
