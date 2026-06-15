@@ -114,10 +114,6 @@ void planet::sdl::load(serialise::load_buffer &lb, configuration &c) {
         telemetry::load_performance(lb, c.times_exited, c.times_loaded);
     }
     log::active.store(c.log_level);
-    /**
-     * TODO Probably we need to deal with changes to the log and pref save file
-     * stuff now that the configuration has been loaded
-     */
 }
 
 
