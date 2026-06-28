@@ -17,14 +17,21 @@ planet::sdl::window::window(
         int const height,
         std::uint32_t const flags)
 : pw{SDL_CreateWindow(name, posx, posy, width, height, flags)},
-  size{float(width), float(height)},
+  desktop_size{},
+  window_size{float(width), float(height)},
   renderer{*this} {
     if (not pw.get()) {
         throw felspar::stdexcept::runtime_error{"SDL_CreateWindow failed"};
     }
     int ww{}, wh{};
     SDL_GL_GetDrawableSize(pw.get(), &ww, &wh);
-    size = {float(ww), float(wh)};
+    window_size = {float(ww), float(wh)};
+
+    int const found = SDL_GetWindowDisplayIndex(pw.get());
+    SDL_DisplayMode mode{};
+    SDL_GetDesktopDisplayMode(found < 0 ? 0 : found, &mode);
+    desktop_size = {float(mode.w), float(mode.h)};
+
     planet::log::info("Window created", ww, wh);
 }
 
