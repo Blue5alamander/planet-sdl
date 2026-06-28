@@ -1,6 +1,7 @@
 #pragma once
 
 
+#include <planet/sdl/forward.hpp>
 #include <planet/sdl/renderer.hpp>
 #include <planet/events/mouse.hpp>
 #include <planet/ui/baseplate.hpp>
@@ -14,9 +15,6 @@
 
 
 namespace planet::sdl {
-
-
-    class init;
 
 
     class window final {
