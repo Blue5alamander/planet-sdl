@@ -11,6 +11,7 @@
 #include <cstdint>
 #include <mutex>
 #include <optional>
+#include <span>
 
 #include <SDL.h>
 #undef main
@@ -127,6 +128,17 @@ namespace planet::sdl {
         : audio_output{config} {
             attach(m);
             (attach(ms), ...);
+        }
+        /// #### Construct from a span of audio sources
+        /**
+         * Attaches every mixer in `ms`, in order. Equivalent to the variadic
+         * constructor but for a run-time-sized collection, so a caller holding
+         * a `std::span` of mixers need not expand it into an argument pack.
+         * Each mixer must outlive this `audio_output`.
+         */
+        audio_output(configuration &config, std::span<audio::mixer> const ms)
+        : audio_output{config} {
+            for (auto &m : ms) { attach(m); }
         }
         ~audio_output();
 
