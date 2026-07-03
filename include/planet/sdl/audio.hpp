@@ -6,12 +6,12 @@
 #include <planet/sdl/forward.hpp>
 #include <planet/sdl/handle.hpp>
 
-#include <array>
 #include <atomic>
 #include <cstdint>
 #include <mutex>
 #include <optional>
 #include <span>
+#include <vector>
 
 #include <SDL.h>
 #undef main
@@ -54,18 +54,27 @@ namespace planet::sdl {
         /**
          * Attached mixers. Written only by `attach` (under `attach_mtx`) and
          * published via `attached`; read lock-free by the audio callback.
+         *
+         * Reserved to the final mixer count by `reserve_mixers` before the
+         * first `attach`, so `attach`'s `push_back` never reallocates. That
+         * invariant is load-bearing: the audio callback reads `mixers[m]` on the
+         * real-time thread without a lock while construction is still attaching
+         * (the device is unpaused by `reconnect` before the constructor body
+         * runs), so a reallocation would move the buffer out from under it.
+         * `attach` refuses to grow past the reserved capacity to enforce it.
          */
-        static constexpr std::size_t max_mixers = 8;
-        std::array<audio::mixer *, max_mixers> mixers = {};
+        std::vector<audio::mixer *> mixers;
         std::atomic<std::size_t> attached = 0;
         std::mutex attach_mtx;
 
 
         /// ### Underruns values
-        std::array<std::uint64_t, max_mixers> last_underruns = {};
+        std::vector<std::uint64_t> last_underruns;
         /**
-         * Per-mixer underrun totals as seen at the previous callback;
-         * callback-thread-only.
+         * Per-mixer underrun totals as seen at the previous callback. Sized to
+         * the mixer count by `reserve_mixers` at construction — before the
+         * callback can observe a nonzero `attached` — and callback-thread-only
+         * thereafter.
          *
          * An **underrun** happens when the callback asks a mixer for its next
          * block but the mixer's producer thread has not finished rendering one
@@ -126,6 +135,7 @@ namespace planet::sdl {
         template<typename... Mixers>
         audio_output(configuration &config, audio::mixer &m, Mixers &...ms)
         : audio_output{config} {
+            reserve_mixers(1 + sizeof...(ms));
             attach(m);
             (attach(ms), ...);
         }
@@ -138,6 +148,7 @@ namespace planet::sdl {
          */
         audio_output(configuration &config, std::span<audio::mixer> const ms)
         : audio_output{config} {
+            reserve_mixers(ms.size());
             for (auto &m : ms) { attach(m); }
         }
         ~audio_output();
@@ -160,6 +171,15 @@ namespace planet::sdl {
 
 
       private:
+        /// ### Reserve storage for the mixers attached at construction
+        void reserve_mixers(std::size_t);
+        /**
+         * Called once from each mixer-taking constructor before the `attach`
+         * loop, with the exact number of mixers about to be attached. Fixes the
+         * capacity of `mixers` so `attach`'s `push_back` never reallocates
+         * under the live callback, and sizes `last_underruns` to match.
+         */
+
         /// ### Attach a mixer
         void attach(audio::mixer &);
         /**

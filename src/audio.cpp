@@ -7,12 +7,7 @@
 #include <planet/telemetry/load.hpp>
 #include <planet/telemetry/rate.hpp>
 
-#include <felspar/exceptions/runtime_error.hpp>
-
-#include <array>
-#include <chrono>
-#include <cmath>
-#include <mutex>
+#include <felspar/exceptions/logic_error.hpp>
 
 
 using namespace std::literals;
@@ -45,17 +40,29 @@ void planet::sdl::audio_output::reset() {
 }
 
 
+void planet::sdl::audio_output::reserve_mixers(std::size_t const count) {
+    mixers.reserve(count);
+    last_underruns.resize(count, 0);
+}
+
+
 void planet::sdl::audio_output::attach(audio::mixer &m) {
     std::scoped_lock lock{attach_mtx};
-    std::size_t const idx = attached.load(std::memory_order_relaxed);
-    if (idx >= max_mixers) {
-        throw felspar::stdexcept::runtime_error{
-                "Too many mixers attached to the audio output"};
+    if (mixers.size() == mixers.capacity()) {
+        /**
+         * `push_back` here would reallocate and move the buffer the audio
+         * callback reads lock-free on the real-time thread. Every mixer-taking
+         * constructor calls `reserve_mixers` first, so reaching this means
+         * `attach` was called without reserving room — a programming error.
+         */
+        throw felspar::stdexcept::logic_error{
+                "audio_output::attach would grow the mixer vector past its "
+                "reserved capacity while the audio callback may be reading it"};
     }
     m.bind_driver(*drv);
     m.begin();
-    mixers[idx] = &m;
-    attached.store(idx + 1, std::memory_order_release);
+    mixers.push_back(&m);
+    attached.store(mixers.size(), std::memory_order_release);
 }
 
 
