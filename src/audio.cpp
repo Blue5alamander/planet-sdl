@@ -4,6 +4,7 @@
 #include <planet/sdl/init.hpp>
 #include <planet/telemetry/counter.hpp>
 #include <planet/telemetry/duration.hpp>
+#include <planet/telemetry/load.hpp>
 #include <planet/telemetry/rate.hpp>
 
 #include <felspar/exceptions/runtime_error.hpp>
@@ -135,10 +136,23 @@ void planet::sdl::audio_output::reconnect(
 
 
 namespace {
+    /**
+     * All of the smoothed callback counters share the same wall-clock
+     * half-life so their values stay comparable, e.g. `callback_load` should
+     * be close to `callback_duration` times `callback_rate`. The
+     * `steady_duration` half-life is counted in readings, so it is converted
+     * assuming one reading per default buffer duration.
+     */
+    auto constexpr c_half_life = 2s;
+    std::size_t constexpr c_half_life_callbacks =
+            c_half_life / planet::audio::default_buffer_duration;
+
     planet::telemetry::real_time_rate c_callback_rate{
-            "planet_sdl__audio__callback_rate", 1s};
+            "planet_sdl__audio__callback_rate", c_half_life};
     planet::telemetry::steady_duration c_callback_duration{
-            "planet_sdl__audio__callback_duration", 16};
+            "planet_sdl__audio__callback_duration", c_half_life_callbacks};
+    planet::telemetry::thread_load c_callback_load{
+            "planet_sdl__audio__callback_load", c_half_life};
     planet::telemetry::counter c_clip_count{"planet_sdl__audio__clip_count"};
     planet::telemetry::counter c_underrun_count{
             "planet_sdl__audio__underrun_count"};
@@ -147,6 +161,7 @@ void planet::sdl::audio_output::audio_callback(
         void *userdata, Uint8 *stream, int len) {
     planet::telemetry::steady_duration::measurement const _{
             c_callback_duration};
+    planet::telemetry::thread_load::measurement const _load{c_callback_load};
     c_callback_rate.tick();
 
     audio_output *const self = reinterpret_cast<audio_output *>(userdata);
