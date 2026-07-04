@@ -5,6 +5,7 @@
 #include <planet/sdl/renderer.hpp>
 #include <planet/events/mouse.hpp>
 #include <planet/ui/baseplate.hpp>
+#include <planet/ui/constrained.hpp>
 
 #include <felspar/coro/starter.hpp>
 
