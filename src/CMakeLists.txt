@@ -33,3 +33,27 @@ target_link_libraries(planet-sdl PUBLIC
         felspar-io
     )
 install(TARGETS planet-sdl LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
+
+
+target_sources(planet-sdl PUBLIC
+  FILE_SET HEADERS
+  BASE_DIRS ../include/
+  FILES
+        ../include/planet/sdl/audio.hpp
+        ../include/planet/sdl/draw.hpp
+        ../include/planet/sdl/event-loop.hpp
+        ../include/planet/sdl/forward.hpp
+        ../include/planet/sdl/handle.hpp
+        ../include/planet/sdl.hpp
+        ../include/planet/sdl/init.hpp
+        ../include/planet/sdl/renderer.hpp
+        ../include/planet/sdl/render-loop.hpp
+        ../include/planet/sdl/rw_ops.hpp
+        ../include/planet/sdl/surface.hpp
+        ../include/planet/sdl/texture.hpp
+        ../include/planet/sdl/ttf.hpp
+        ../include/planet/sdl/ui/text.hpp
+        ../include/planet/sdl/window.hpp
+    )
+set_property(TARGET planet-sdl PROPERTY VERIFY_INTERFACE_HEADER_SETS ON)
+add_dependencies(check planet-sdl_verify_interface_header_sets)
