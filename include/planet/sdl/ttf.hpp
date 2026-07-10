@@ -3,6 +3,7 @@
 
 #include <planet/affine/extents2d.hpp>
 #include <planet/asset_manager.hpp>
+#include <planet/sdl/forward.hpp>
 #include <planet/sdl/handle.hpp>
 #include <planet/sdl/rw_ops.hpp>
 #include <planet/sdl/surface.hpp>
@@ -11,9 +12,6 @@
 
 
 namespace planet::sdl {
-
-
-    class init;
 
 
     /// ## Initialise TTF
@@ -40,11 +38,14 @@ namespace planet::sdl {
 
         TTF_Font *get() const noexcept { return pf.get(); }
 
+
         /// ### Measurements
         affine::extents2d const space, em;
 
+
         /// ### Text dimensions
         affine::extents2d measure(char const *text) const;
+
 
         /// ### Render text to a single line
         surface
@@ -56,6 +57,7 @@ namespace planet::sdl {
                 render(char const *text,
                        SDL_Color,
                        planet::ui::scale = planet::ui::scale::never) const;
+
 
         /// ### Wrap text if  it is too wide
         surface

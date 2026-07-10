@@ -1,7 +1,6 @@
 #include <planet/log.hpp>
 #include <planet/sdl/event-loop.hpp>
 #include <planet/sdl/init.hpp>
-#include <planet/sdl/window.hpp>
 
 #include <SDL.h>
 

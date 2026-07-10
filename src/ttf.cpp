@@ -1,6 +1,29 @@
-#include <planet/sdl/renderer.hpp>
 #include <planet/sdl/ttf.hpp>
 #include <planet/ui/scale.hpp>
+
+#include <felspar/exceptions/runtime_error.hpp>
+
+#include <source_location>
+#include <string>
+
+
+namespace {
+
+
+    /// Throw if an SDL API call reports failure
+    int check_worked(
+            int const e,
+            std::source_location const &loc = std::source_location::current()) {
+        if (e < 0) [[unlikely]] {
+            throw felspar::stdexcept::runtime_error{
+                    std::string{"SDL TTF API failed "} + SDL_GetError(), loc};
+        } else {
+            return e;
+        }
+    }
+
+
+}
 
 
 /// ## `planet::sdl::ttf`
@@ -35,7 +58,7 @@ planet::sdl::font::font(
 
 planet::affine::extents2d planet::sdl::font::measure(char const *const t) const {
     int w{}, h{};
-    drawing_worked(TTF_SizeUTF8(pf.get(), t, &w, &h));
+    check_worked(TTF_SizeUTF8(pf.get(), t, &w, &h));
     return {static_cast<float>(w), static_cast<float>(h)};
 }
 

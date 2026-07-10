@@ -2,16 +2,13 @@
 
 
 #include <planet/events/queue.hpp>
+#include <planet/sdl/forward.hpp>
 #include <planet/ui/baseplate.hpp>
 
 #include <felspar/coro/starter.hpp>
 
 
 namespace planet::sdl {
-
-
-    class init;
-    class window;
 
 
     /// ## Event loop
