@@ -13,6 +13,7 @@ add_library(planet-sdl
         audio.cpp
         event-loop.cpp
         init.cpp
+        open_url.cpp
         surface.cpp
         ttf.cpp
     )
@@ -40,6 +41,7 @@ target_sources(planet-sdl PUBLIC
         ../include/planet/sdl/handle.hpp
         ../include/planet/sdl.hpp
         ../include/planet/sdl/init.hpp
+        ../include/planet/sdl/open_url.hpp
         ../include/planet/sdl/rw_ops.hpp
         ../include/planet/sdl/sdl.hpp
         ../include/planet/sdl/surface.hpp
