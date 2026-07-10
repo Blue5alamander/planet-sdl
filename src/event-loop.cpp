@@ -28,27 +28,54 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
 
-            case SDL_KEYDOWN:
+#if PLANET_SDL3
+            case SDL_EVENT_KEY_DOWN: {
+#else
+            case SDL_KEYDOWN: {
+#endif
+                auto const scancode =
+#if PLANET_SDL3
+                        event.key.scancode;
+#else
+                        event.key.keysym.scancode;
+#endif
                 planet::log::debug(
-                        "SDL_KEYDOWN",
-                        static_cast<int>(event.key.keysym.scancode));
+                        "SDL_KEYDOWN", static_cast<int>(scancode));
                 events.key.push(
-                        {static_cast<events::scancode>(
-                                 event.key.keysym.scancode),
+                        {static_cast<events::scancode>(scancode),
                          events::action::down});
                 break;
-            case SDL_KEYUP:
+            }
+#if PLANET_SDL3
+            case SDL_EVENT_KEY_UP: {
+#else
+            case SDL_KEYUP: {
+#endif
+                auto const scancode =
+#if PLANET_SDL3
+                        event.key.scancode;
+#else
+                        event.key.keysym.scancode;
+#endif
                 planet::log::debug(
-                        "SDL_KEYUP",
-                        static_cast<int>(event.key.keysym.scancode));
+                        "SDL_KEYUP", static_cast<int>(scancode));
                 events.key.push(
-                        {static_cast<events::scancode>(
-                                 event.key.keysym.scancode),
+                        {static_cast<events::scancode>(scancode),
                          events::action::up});
                 break;
+            }
 
+#if PLANET_SDL3
+            case SDL_EVENT_MOUSE_BUTTON_DOWN:
+#else
             case SDL_MOUSEBUTTONDOWN:
-                last_mouse_pos = {float(event.motion.x), float(event.motion.y)};
+#endif
+                last_mouse_pos =
+#if PLANET_SDL3
+                        {event.motion.x, event.motion.y};
+#else
+                        {float(event.motion.x), float(event.motion.y)};
+#endif
                 switch (event.button.button) {
                 case SDL_BUTTON_LEFT:
                     events.mouse.push(
@@ -63,8 +90,17 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
                 }
                 break;
 
+#if PLANET_SDL3
+            case SDL_EVENT_MOUSE_BUTTON_UP:
+#else
             case SDL_MOUSEBUTTONUP:
-                last_mouse_pos = {float(event.motion.x), float(event.motion.y)};
+#endif
+                last_mouse_pos =
+#if PLANET_SDL3
+                        {event.motion.x, event.motion.y};
+#else
+                        {float(event.motion.x), float(event.motion.y)};
+#endif
                 switch (event.button.button) {
                 case SDL_BUTTON_LEFT:
                     events.mouse.push(
@@ -79,8 +115,17 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
                 }
                 break;
 
+#if PLANET_SDL3
+            case SDL_EVENT_MOUSE_MOTION:
+#else
             case SDL_MOUSEMOTION:
-                last_mouse_pos = {float(event.motion.x), float(event.motion.y)};
+#endif
+                last_mouse_pos =
+#if PLANET_SDL3
+                        {event.motion.x, event.motion.y};
+#else
+                        {float(event.motion.x), float(event.motion.y)};
+#endif
                 {
                     events::action a = events::action::released;
                     events::button b = events::button::none;
@@ -96,14 +141,36 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
                 }
                 break;
 
+#if PLANET_SDL3
+            case SDL_EVENT_MOUSE_WHEEL:
+#else
             case SDL_MOUSEWHEEL:
+#endif
                 events.scroll.push(
+#if PLANET_SDL3
+                        {event.wheel.x, event.wheel.y, last_mouse_pos});
+#else
                         {event.wheel.preciseX, event.wheel.preciseY,
                          last_mouse_pos});
+#endif
                 break;
 
-            case SDL_QUIT: events.quit.push({}); break;
+#if PLANET_SDL3
+            case SDL_EVENT_QUIT:
+#else
+            case SDL_QUIT:
+#endif
+                events.quit.push({});
+                break;
 
+#if not PLANET_SDL3
+                /**
+                 * SDL3 removed the `SDL_WINDOWEVENT` event type entirely,
+                 * splitting it into top-level `SDL_EVENT_WINDOW_*` events
+                 * (close-requested, focus lost/gained). Those are wired up in
+                 * chunk 6.2; until then this block is SDL2-only so the SDL3
+                 * build still compiles.
+                 */
             case SDL_WINDOWEVENT:
                 if (event.window.windowID != window_id) {
                     planet::log::warning(
@@ -117,6 +184,7 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
                     planet::log::info("Window gained focus");
                 }
                 break;
+#endif
 
             default: break;
             }
