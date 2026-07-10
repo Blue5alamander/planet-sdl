@@ -39,8 +39,7 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
 #else
                         event.key.keysym.scancode;
 #endif
-                planet::log::debug(
-                        "SDL_KEYDOWN", static_cast<int>(scancode));
+                planet::log::debug("SDL_KEYDOWN", static_cast<int>(scancode));
                 events.key.push(
                         {static_cast<events::scancode>(scancode),
                          events::action::down});
@@ -57,8 +56,7 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
 #else
                         event.key.keysym.scancode;
 #endif
-                planet::log::debug(
-                        "SDL_KEYUP", static_cast<int>(scancode));
+                planet::log::debug("SDL_KEYUP", static_cast<int>(scancode));
                 events.key.push(
                         {static_cast<events::scancode>(scancode),
                          events::action::up});
@@ -163,14 +161,29 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
                 events.quit.push({});
                 break;
 
-#if not PLANET_SDL3
+#if PLANET_SDL3
                 /**
-                 * SDL3 removed the `SDL_WINDOWEVENT` event type entirely,
-                 * splitting it into top-level `SDL_EVENT_WINDOW_*` events
-                 * (close-requested, focus lost/gained). Those are wired up in
-                 * chunk 6.2; until then this block is SDL2-only so the SDL3
-                 * build still compiles.
+                 * SDL3 removed the `SDL_WINDOWEVENT` event type, splitting it
+                 * into these top-level `SDL_EVENT_WINDOW_*` events. They share
+                 * the window-ID check, then discriminate on `event.type` (SDL2
+                 * discriminated on the `event.window.event` sub-code instead).
                  */
+            case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
+            case SDL_EVENT_WINDOW_FOCUS_LOST:
+            case SDL_EVENT_WINDOW_FOCUS_GAINED:
+                if (event.window.windowID != window_id) {
+                    planet::log::warning(
+                            "Got SDL_WINDOWEVENT for a window ID that isn't mine. Mine",
+                            window_id, "event", event.window.windowID);
+                } else if (event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED) {
+                    events.quit.push({});
+                } else if (event.type == SDL_EVENT_WINDOW_FOCUS_LOST) {
+                    planet::log::info("Window lost focus");
+                } else if (event.type == SDL_EVENT_WINDOW_FOCUS_GAINED) {
+                    planet::log::info("Window gained focus");
+                }
+                break;
+#else
             case SDL_WINDOWEVENT:
                 if (event.window.windowID != window_id) {
                     planet::log::warning(

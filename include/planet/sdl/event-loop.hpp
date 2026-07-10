@@ -42,13 +42,7 @@ namespace planet::sdl {
 
       private:
         planet::sdl::init &sdl;
-#if PLANET_SDL3
-        /// Unused until chunk 6.2 wires up the SDL3 window events (its only
-        /// readers); `[[maybe_unused]]` keeps the interim SDL3 build green.
-        [[maybe_unused]] std::uint32_t window_id;
-#else
         std::uint32_t window_id;
-#endif
     };
 
 
