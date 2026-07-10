@@ -11,6 +11,15 @@
 namespace planet::sdl {
 
 
+    /// ## Surface blend modes
+    /**
+     * Mirrors the subset of SDL's `SDL_BlendMode` values the wrapper needs so
+     * that callers do not have to touch the raw SDL enum. The SDL enum values
+     * are unchanged between SDL2 and SDL3.
+     */
+    enum class blend_mode { none, blend, add, mod };
+
+
     /// ## SDL Surface
     class surface {
         handle<SDL_Surface, SDL_FreeSurface> ps;
@@ -32,6 +41,12 @@ namespace planet::sdl {
                 char const *,
                 std::source_location const & = std::source_location::current());
 
+        /// ### Create a blank ARGB8888 surface of the requested pixel size
+        static surface create_argb8888(
+                std::size_t width,
+                std::size_t height,
+                ui::scale const fit = ui::scale::lock_aspect) noexcept;
+
         SDL_Surface *get() const noexcept { return ps.get(); }
 
         /// ### Return the texture extents
@@ -41,6 +56,13 @@ namespace planet::sdl {
         std::size_t uzwidth() const noexcept { return size.uzwidth(); }
         float height() const noexcept { return size.height; }
         std::size_t uzheight() const noexcept { return size.uzheight(); }
+
+        /// ### Blit this surface onto the top-left corner `(x, y)` of another
+        void blit_onto(surface const &destination, std::size_t x, std::size_t y)
+                const noexcept;
+
+        /// ### Set the blend mode used when this surface is blitted
+        void set_blend_mode(blend_mode const mode) const noexcept;
     };
 
 
