@@ -10,6 +10,21 @@
 namespace {
 
 
+#if PLANET_SDL3
+    /// Throw if an SDL TTF API call reports failure
+    /**
+     * SDL3's TTF calls (sizing, rendering and `TTF_Init`) return `bool` and
+     * report failure as `false`.
+     */
+    void check_worked(
+            bool const ok,
+            std::source_location const &loc = std::source_location::current()) {
+        if (not ok) [[unlikely]] {
+            throw felspar::stdexcept::runtime_error{
+                    std::string{"SDL TTF API failed "} + SDL_GetError(), loc};
+        }
+    }
+#else
     /// Throw if an SDL API call reports failure
     int check_worked(
             int const e,
@@ -21,6 +36,7 @@ namespace {
             return e;
         }
     }
+#endif
 
 
 }
@@ -29,7 +45,7 @@ namespace {
 /// ## `planet::sdl::ttf`
 
 
-planet::sdl::ttf::ttf(init &) { TTF_Init(); }
+planet::sdl::ttf::ttf(init &) { check_worked(TTF_Init()); }
 
 
 planet::sdl::ttf::~ttf() { TTF_Quit(); }
@@ -45,13 +61,24 @@ planet::sdl::font::font(
         SDL_Color const c,
         std::source_location const &loc)
 : font_data{am, filename, loc},
-  pf{TTF_OpenFontRW(font_data.get(), false, pixels)},
+  pf{
+#if PLANET_SDL3
+          TTF_OpenFontIO(font_data.get(), false, static_cast<float>(pixels))
+#else
+          TTF_OpenFontRW(font_data.get(), false, pixels)
+#endif
+  },
   colour{c},
   space{measure(" ")},
   em{measure("m")} {
     if (not pf.get()) {
         throw felspar::stdexcept::runtime_error{
-                "TTF_OpenFontRW returned nullptr"};
+#if PLANET_SDL3
+                "TTF_OpenFontIO returned nullptr"
+#else
+                "TTF_OpenFontRW returned nullptr"
+#endif
+        };
     }
 }
 
