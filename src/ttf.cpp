@@ -85,14 +85,26 @@ planet::sdl::font::font(
 
 planet::affine::extents2d planet::sdl::font::measure(char const *const t) const {
     int w{}, h{};
-    check_worked(TTF_SizeUTF8(pf.get(), t, &w, &h));
+    check_worked(
+#if PLANET_SDL3
+            TTF_GetStringSize(pf.get(), t, 0, &w, &h)
+#else
+            TTF_SizeUTF8(pf.get(), t, &w, &h)
+#endif
+    );
     return {static_cast<float>(w), static_cast<float>(h)};
 }
 
 
 planet::sdl::surface planet::sdl::font::render(
         char const *text, SDL_Color c, ui::scale const fit) const {
-    return {TTF_RenderUTF8_Blended(pf.get(), text, c), fit};
+    return {
+#if PLANET_SDL3
+            TTF_RenderText_Blended(pf.get(), text, 0, c),
+#else
+            TTF_RenderUTF8_Blended(pf.get(), text, c),
+#endif
+            fit};
 }
 
 
@@ -101,5 +113,11 @@ planet::sdl::surface planet::sdl::font::render(
         SDL_Color const c,
         std::uint32_t const width,
         ui::scale const fit) const {
-    return {TTF_RenderUTF8_Blended_Wrapped(pf.get(), text, c, width), fit};
+    return {
+#if PLANET_SDL3
+            TTF_RenderText_Blended_Wrapped(pf.get(), text, 0, c, width),
+#else
+            TTF_RenderUTF8_Blended_Wrapped(pf.get(), text, c, width),
+#endif
+            fit};
 }
