@@ -4,10 +4,8 @@
 #include <planet/asset_manager.hpp>
 #include <planet/affine2d.hpp>
 #include <planet/sdl/handle.hpp>
+#include <planet/sdl/sdl.hpp>
 #include <planet/ui/scale.hpp>
-
-#include <SDL.h>
-#undef main
 
 
 namespace planet::sdl {

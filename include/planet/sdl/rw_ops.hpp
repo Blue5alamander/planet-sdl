@@ -2,12 +2,10 @@
 
 
 #include <planet/sdl/handle.hpp>
+#include <planet/sdl/sdl.hpp>
 #include <planet/asset_manager.hpp>
 
 #include <felspar/exceptions/runtime_error.hpp>
-
-#include <SDL.h>
-#undef main
 
 
 namespace planet::sdl {

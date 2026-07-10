@@ -41,6 +41,7 @@ target_sources(planet-sdl PUBLIC
         ../include/planet/sdl.hpp
         ../include/planet/sdl/init.hpp
         ../include/planet/sdl/rw_ops.hpp
+        ../include/planet/sdl/sdl.hpp
         ../include/planet/sdl/surface.hpp
         ../include/planet/sdl/ttf.hpp
     )

@@ -2,10 +2,9 @@
 
 #include <planet/folders.hpp>
 #include <planet/log.hpp>
+#include <planet/sdl/sdl.hpp>
 
 #include <iostream>
-
-#include <SDL.h>
 
 
 /// ## `planet::sdl::configuration`

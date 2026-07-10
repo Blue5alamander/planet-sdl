@@ -1,8 +1,7 @@
 #include <planet/log.hpp>
 #include <planet/sdl/event-loop.hpp>
 #include <planet/sdl/init.hpp>
-
-#include <SDL.h>
+#include <planet/sdl/sdl.hpp>
 
 
 using namespace std::literals;

@@ -5,6 +5,7 @@
 #include <planet/audio/driver.hpp>
 #include <planet/sdl/forward.hpp>
 #include <planet/sdl/handle.hpp>
+#include <planet/sdl/sdl.hpp>
 
 #include <atomic>
 #include <cstdint>
@@ -12,9 +13,6 @@
 #include <optional>
 #include <span>
 #include <vector>
-
-#include <SDL.h>
-#undef main
 
 
 namespace planet::sdl {
