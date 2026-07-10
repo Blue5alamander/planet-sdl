@@ -8,7 +8,11 @@
 #include <planet/sdl/rw_ops.hpp>
 #include <planet/sdl/surface.hpp>
 
+#if PLANET_SDL3
+#include <SDL3_ttf/SDL_ttf.h>
+#else
 #include <SDL_ttf.h>
+#endif
 
 
 namespace planet::sdl {

@@ -10,5 +10,9 @@
  * edit in this file rather than a scatter-shot change across every header and
  * source that touches SDL.
  */
+#if PLANET_SDL3
+#include <SDL3/SDL.h>
+#else
 #include <SDL.h>
+#endif
 #undef main
