@@ -22,7 +22,16 @@ namespace planet::sdl {
 
     /// ## SDL Surface
     class surface {
+        /**
+         * The freeing function passed to `handle` is `SDL_FreeSurface` on SDL2
+         * and `SDL_DestroySurface` on SDL3. They share the same signature, so
+         * only the non-type template argument branches here.
+         */
+#if PLANET_SDL3
+        handle<SDL_Surface, SDL_DestroySurface> ps;
+#else
         handle<SDL_Surface, SDL_FreeSurface> ps;
+#endif
         affine::extents2d size{{}, {}};
 
       public:

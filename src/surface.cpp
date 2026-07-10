@@ -7,7 +7,11 @@ planet::sdl::surface planet::sdl::surface::load_bmp(
         char const *fn,
         std::source_location const &loc) {
     rw_ops_const_memory data{am.file_data(fn, loc)};
+#if PLANET_SDL3
+    return {SDL_LoadBMP_IO(data.get(), false), ui::scale::lock_aspect};
+#else
     return {SDL_LoadBMP_RW(data.get(), false), ui::scale::lock_aspect};
+#endif
 }
 
 
@@ -15,10 +19,22 @@ planet::sdl::surface planet::sdl::surface::create_argb8888(
         std::size_t const width,
         std::size_t const height,
         ui::scale const fit) noexcept {
+    /**
+     * SDL2's `SDL_CreateRGBSurfaceWithFormat` takes flags, depth and the pixel
+     * format; SDL3's `SDL_CreateSurface` drops the now-unused flags and depth
+     * (it infers the depth from the format).
+     */
+#if PLANET_SDL3
+    return {SDL_CreateSurface(
+                    static_cast<int>(width), static_cast<int>(height),
+                    SDL_PIXELFORMAT_ARGB8888),
+            fit};
+#else
     return {SDL_CreateRGBSurfaceWithFormat(
                     0, static_cast<int>(width), static_cast<int>(height), 32,
                     SDL_PIXELFORMAT_ARGB8888),
             fit};
+#endif
 }
 
 
