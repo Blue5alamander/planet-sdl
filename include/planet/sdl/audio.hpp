@@ -31,12 +31,44 @@ namespace planet::sdl {
      * filled and in sync.
      */
     class audio_output final {
+#if PLANET_SDL3
+        /// ### App-side block size in sample frames
+        /**
+         * SDL3 no longer hands back a negotiated device block size (the
+         * `SDL_AudioSpec` `samples` field is gone), so the block size the
+         * mixer rings and the playback head advance in is chosen here
+         * instead: the same 512 sample frames the SDL2 build requests. The
+         * stream callback renders whole blocks of this size and queues them
+         * on the stream with `SDL_PutAudioStreamData`.
+         */
+        static std::size_t constexpr block_size = 512;
+
+        handle<SDL_AudioStream, SDL_DestroyAudioStream> stream;
+        /**
+         * Stream bound to the playback device opened by
+         * `SDL_OpenAudioDeviceStream`. Destroying the stream also closes that
+         * device, quiescing the callback.
+         */
+
+        static void audio_callback(void *, SDL_AudioStream *, int, int);
+#else
         SDL_AudioDeviceID device = {};
         SDL_AudioSpec desired = {};
 
+        static void audio_callback(void *, Uint8 *, int);
+#endif
+
         void reset();
 
-        static void audio_callback(void *, Uint8 *, int);
+        /// ### Render one block of mixed output
+        void render(float *, std::size_t) noexcept;
+        /**
+         * The shared body of the backend audio callbacks: sums the ready
+         * frames from every attached mixer, applies the (ramped) master gain,
+         * records clip and underrun telemetry, and advances the published
+         * playback head by the number of frames written. Only ever called
+         * from the real-time audio thread.
+         */
 
 
         /// ### Engine configuration
@@ -120,9 +152,9 @@ namespace planet::sdl {
          * any thread; mixers bound via `attach` re-expose it through
          * `mixer::playback_clock()`.
          *
-         * Constructed by `reconnect` once `SDL_OpenAudioDevice` has
-         * negotiated the actual block size; until then it is empty. Always
-         * engaged by the time a constructor or `reconnect` call returns.
+         * Constructed by `reconnect` once the device has been opened and
+         * the block size is known; until then it is empty. Always engaged
+         * by the time a constructor or `reconnect` call returns.
          */
 
 
