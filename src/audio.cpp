@@ -36,7 +36,6 @@ planet::sdl::audio_output::~audio_output() {
 
 
 void planet::sdl::audio_output::reset() {
-#if PLANET_SDL3
     /**
      * The stream was created by `SDL_OpenAudioDeviceStream`, so destroying it
      * also closes the device that was opened alongside it. SDL takes the
@@ -44,9 +43,6 @@ void planet::sdl::audio_output::reset() {
      * before the stream goes away.
      */
     stream.reset();
-#else
-    if (device > 0) { SDL_CloseAudioDevice(std::exchange(device, 0)); }
-#endif
 }
 
 
@@ -80,7 +76,6 @@ void planet::sdl::audio_output::reconnect(
         std::optional<std::string_view> const device_name) {
     reset();
 
-#if PLANET_SDL3
     // TODO Search for the wanted audio device in the list and open that
     // device's ID instead of the default
 
@@ -96,65 +91,29 @@ void planet::sdl::audio_output::reconnect(
     /**
      * `SDL_OpenAudioDeviceStream` opens the device paused; the stream's get
      * callback does not fire until `SDL_ResumeAudioStreamDevice` below. That
-     * window is what lets us safely tear down the previous driver, rebuild
-     * it against the chosen block size, and re-bind every attached mixer
-     * (which stops and restarts each producer thread) before the consumer
-     * side starts pulling from `next_frame` again.
+     * window is what lets us safely tear down the previous driver, rebuild it
+     * against the chosen block size, and re-bind every attached mixer (which
+     * stops and restarts each producer thread) before the consumer side starts
+     * pulling from `next_frame` again.
      */
     std::size_t const samples = block_size;
-#else
-    static constexpr int iscapture = false;
-    char const *chosen_device = nullptr;
-
-    // TODO Search for the wanted audio device in the list and set
-    // `chosen_device` to it
-
-    desired.freq = audio::stereo_buffer::samples_per_second;
-    desired.format = AUDIO_F32SYS;
-    desired.channels = audio::stereo_buffer::channels;
-    /**
-     * SDL2 requires the requested sample count to be a power of two; the device
-     * may return a different value in `spec.samples` after opening, which is
-     * what we use to size the mixer blocks below.
-     */
-    desired.samples = 512;
-    desired.callback = audio_callback;
-    desired.userdata = this;
-
-    SDL_AudioSpec spec = {};
-    device = SDL_OpenAudioDevice(chosen_device, iscapture, &desired, &spec, 0);
-    if (device <= 0) {
-        throw felspar::stdexcept::runtime_error{"Audio device wouldn't open"};
-    }
-    /**
-     * `SDL_OpenAudioDevice` leaves the device paused; the callback does not
-     * fire until `SDL_PauseAudioDevice(device, 0)` below. That window is
-     * what lets us safely tear down the previous driver, rebuild it against
-     * the negotiated block size, and re-bind every attached mixer (which
-     * stops and restarts each producer thread) before the consumer side
-     * starts pulling from `next_frame` again.
-     */
-    std::size_t const samples = static_cast<std::size_t>(spec.samples);
-#endif
     drv.emplace(samples, config.audio_latency_injected_block_count);
     /**
-     * Seed the published playback head with the end-time of the first
-     * block, so a producer thread that polls the clock before the
-     * first callback fires sees the same kind of value it will see
-     * between subsequent callbacks.
+     * Seed the published playback head with the end-time of the first block,
+     * so a producer thread that polls the clock before the first callback fires
+     * sees the same kind of value it will see between subsequent callbacks.
      */
     drv->playback_head.store(
             audio::sample_clock{static_cast<audio::sample_clock::rep>(samples)},
             std::memory_order_release);
     /**
-     * Re-bind every mixer that was attached before this `reconnect`. The
-     * device just renegotiated its block size; without this loop those
-     * mixers would still hold a `driver const *` to the storage we just
-     * re-emplaced and would render slots sized for the previous block.
-     * `bind_driver` stops a running producer, resets the ring, and
-     * pre-rolls silence; `begin()` restarts the producer. Newly-attached
-     * mixers (added via the templated constructor after the first
-     * `reconnect`) are handled by `attach` itself.
+     * Re-bind every mixer that was attached before this `reconnect`. The device
+     * just renegotiated its block size; without this loop those mixers would
+     * still hold a `driver const *` to the storage we just re-emplaced and
+     * would render slots sized for the previous block. `bind_driver` stops a
+     * running producer, resets the ring, and pre-rolls silence; `begin()`
+     * restarts the producer. Newly-attached mixers (added via the templated
+     * constructor after the first `reconnect`) are handled by `attach` itself.
      */
     {
         std::scoped_lock lock{attach_mtx};
@@ -164,7 +123,6 @@ void planet::sdl::audio_output::reconnect(
             mixers[i]->begin();
         }
     }
-#if PLANET_SDL3
     if (not SDL_ResumeAudioStreamDevice(stream.get())) {
         throw felspar::stdexcept::runtime_error{
                 "Audio device stream wouldn't resume"};
@@ -175,25 +133,16 @@ void planet::sdl::audio_output::reconnect(
             "Requested device", device_name,
             "opened the default playback device - freq:", spec.freq,
             "Hz, samples:", samples, "buffer_size:", buffer_size_ms);
-#else
-    SDL_PauseAudioDevice(device, 0);
-    std::chrono::milliseconds const buffer_size_ms{
-            (spec.samples * 1000) / spec.freq};
-    planet::log::info(
-            "Requested device", device_name, "opened audio device",
-            (chosen_device ? chosen_device : "nullptr"), "- freq:", spec.freq,
-            "Hz, samples:", spec.samples, "buffer_size:", buffer_size_ms);
-#endif
 }
 
 
 namespace {
     /**
-     * All of the smoothed callback counters share the same wall-clock
-     * half-life so their values stay comparable, e.g. `callback_load` should
-     * be close to `callback_duration` times `callback_rate`. The
-     * `steady_duration` half-life is counted in readings, so it is converted
-     * assuming one reading per default buffer duration.
+     * All of the smoothed callback counters share the same wall-clock half-life
+     * so their values stay comparable, e.g. `callback_load` should be close to
+     * `callback_duration` times `callback_rate`. The `steady_duration`
+     * half-life is counted in readings, so it is converted assuming one reading
+     * per default buffer duration.
      */
     auto constexpr c_half_life = 2s;
     std::size_t constexpr c_half_life_callbacks =
@@ -209,7 +158,8 @@ namespace {
     planet::telemetry::counter c_underrun_count{
             "planet_sdl__audio__underrun_count"};
 }
-#if PLANET_SDL3
+
+
 void planet::sdl::audio_output::audio_callback(
         void *const userdata,
         SDL_AudioStream *const stream,
@@ -223,10 +173,9 @@ void planet::sdl::audio_output::audio_callback(
     audio_output *const self = reinterpret_cast<audio_output *>(userdata);
     /**
      * The stream asks for however many bytes it needs to satisfy the device;
-     * render whole app-side blocks (rounding the request up) so the mixer
-     * rings and the playback head always advance in `block_size` steps. Any
-     * surplus stays queued in the stream and is deducted from the next
-     * request.
+     * render whole app-side blocks (rounding the request up) so the mixer rings
+     * and the playback head always advance in `block_size` steps. Any surplus
+     * stays queued in the stream and is deducted from the next request.
      */
     std::array<float, block_size * audio::stereo_buffer::channels> buffer;
     std::size_t constexpr buffer_bytes = buffer.size() * sizeof(float);
@@ -237,20 +186,6 @@ void planet::sdl::audio_output::audio_callback(
                 stream, buffer.data(), static_cast<int>(buffer_bytes));
     }
 }
-#else
-void planet::sdl::audio_output::audio_callback(
-        void *userdata, Uint8 *stream, int len) {
-    planet::telemetry::steady_duration::measurement const _{
-            c_callback_duration};
-    planet::telemetry::thread_load::measurement const _load{c_callback_load};
-    c_callback_rate.tick();
-
-    audio_output *const self = reinterpret_cast<audio_output *>(userdata);
-    self->render(
-            reinterpret_cast<float *>(stream),
-            len / sizeof(float) / audio::stereo_buffer::channels);
-}
-#endif
 
 
 void planet::sdl::audio_output::render(
@@ -298,9 +233,9 @@ void planet::sdl::audio_output::render(
 
     /// ### Advance the published playback head
     /**
-     * The atomic now reflects the end-time of the block the device is
-     * about to play *next* — i.e. the deadline by which a mixer producer
-     * must have rendered for the upcoming callback.
+     * The atomic now reflects the end-time of the block the device is about to
+     * play *next* — i.e. the deadline by which a mixer producer must have
+     * rendered for the upcoming callback.
      */
     auto const advanced = drv->playback_head.load(std::memory_order_relaxed)
             + audio::sample_clock{

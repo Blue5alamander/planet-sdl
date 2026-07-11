@@ -31,15 +31,11 @@ namespace planet::sdl {
      * filled and in sync.
      */
     class audio_output final {
-#if PLANET_SDL3
         /// ### App-side block size in sample frames
         /**
-         * SDL3 no longer hands back a negotiated device block size (the
-         * `SDL_AudioSpec` `samples` field is gone), so the block size the
-         * mixer rings and the playback head advance in is chosen here
-         * instead: the same 512 sample frames the SDL2 build requests. The
-         * stream callback renders whole blocks of this size and queues them
-         * on the stream with `SDL_PutAudioStreamData`.
+         * The block size the mixer rings and the playback head advance in. The
+         * stream callback renders whole blocks of this size and queues them on
+         * the stream with `SDL_PutAudioStreamData`.
          */
         static std::size_t constexpr block_size = 512;
 
@@ -51,12 +47,6 @@ namespace planet::sdl {
          */
 
         static void audio_callback(void *, SDL_AudioStream *, int, int);
-#else
-        SDL_AudioDeviceID device = {};
-        SDL_AudioSpec desired = {};
-
-        static void audio_callback(void *, Uint8 *, int);
-#endif
 
         void reset();
 

@@ -28,52 +28,27 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
 
-#if PLANET_SDL3
             case SDL_EVENT_KEY_DOWN: {
-#else
-            case SDL_KEYDOWN: {
-#endif
-                auto const scancode =
-#if PLANET_SDL3
-                        event.key.scancode;
-#else
-                        event.key.keysym.scancode;
-#endif
-                planet::log::debug("SDL_KEYDOWN", static_cast<int>(scancode));
+                auto const scancode = event.key.scancode;
+                planet::log::debug(
+                        "SDL_EVENT_KEY_DOWN", static_cast<int>(scancode));
                 events.key.push(
                         {static_cast<events::scancode>(scancode),
                          events::action::down});
                 break;
             }
-#if PLANET_SDL3
             case SDL_EVENT_KEY_UP: {
-#else
-            case SDL_KEYUP: {
-#endif
-                auto const scancode =
-#if PLANET_SDL3
-                        event.key.scancode;
-#else
-                        event.key.keysym.scancode;
-#endif
-                planet::log::debug("SDL_KEYUP", static_cast<int>(scancode));
+                auto const scancode = event.key.scancode;
+                planet::log::debug(
+                        "SDL_EVENT_KEY_UP", static_cast<int>(scancode));
                 events.key.push(
                         {static_cast<events::scancode>(scancode),
                          events::action::up});
                 break;
             }
 
-#if PLANET_SDL3
             case SDL_EVENT_MOUSE_BUTTON_DOWN:
-#else
-            case SDL_MOUSEBUTTONDOWN:
-#endif
-                last_mouse_pos =
-#if PLANET_SDL3
-                        {event.motion.x, event.motion.y};
-#else
-                        {float(event.motion.x), float(event.motion.y)};
-#endif
+                last_mouse_pos = {event.motion.x, event.motion.y};
                 switch (event.button.button) {
                 case SDL_BUTTON_LEFT:
                     events.mouse.push(
@@ -88,17 +63,8 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
                 }
                 break;
 
-#if PLANET_SDL3
             case SDL_EVENT_MOUSE_BUTTON_UP:
-#else
-            case SDL_MOUSEBUTTONUP:
-#endif
-                last_mouse_pos =
-#if PLANET_SDL3
-                        {event.motion.x, event.motion.y};
-#else
-                        {float(event.motion.x), float(event.motion.y)};
-#endif
+                last_mouse_pos = {event.motion.x, event.motion.y};
                 switch (event.button.button) {
                 case SDL_BUTTON_LEFT:
                     events.mouse.push(
@@ -113,17 +79,8 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
                 }
                 break;
 
-#if PLANET_SDL3
             case SDL_EVENT_MOUSE_MOTION:
-#else
-            case SDL_MOUSEMOTION:
-#endif
-                last_mouse_pos =
-#if PLANET_SDL3
-                        {event.motion.x, event.motion.y};
-#else
-                        {float(event.motion.x), float(event.motion.y)};
-#endif
+                last_mouse_pos = {event.motion.x, event.motion.y};
                 {
                     events::action a = events::action::released;
                     events::button b = events::button::none;
@@ -139,65 +96,34 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
                 }
                 break;
 
-#if PLANET_SDL3
             case SDL_EVENT_MOUSE_WHEEL:
-#else
-            case SDL_MOUSEWHEEL:
-#endif
                 events.scroll.push(
-#if PLANET_SDL3
                         {event.wheel.x, event.wheel.y, last_mouse_pos});
-#else
-                        {event.wheel.preciseX, event.wheel.preciseY,
-                         last_mouse_pos});
-#endif
                 break;
 
-#if PLANET_SDL3
-            case SDL_EVENT_QUIT:
-#else
-            case SDL_QUIT:
-#endif
-                events.quit.push({});
-                break;
+            case SDL_EVENT_QUIT: events.quit.push({}); break;
 
-#if PLANET_SDL3
-                /**
-                 * SDL3 removed the `SDL_WINDOWEVENT` event type, splitting it
-                 * into these top-level `SDL_EVENT_WINDOW_*` events. They share
-                 * the window-ID check, then discriminate on `event.type` (SDL2
-                 * discriminated on the `event.window.event` sub-code instead).
-                 */
             case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
-            case SDL_EVENT_WINDOW_FOCUS_LOST:
+                if (event.window.windowID != window_id) {
+                    planet::log::warning(
+                            "Got SDL_WINDOWEVENT for a window ID that isn't mine. Mine",
+                            window_id, "event", event.window.windowID);
+                } else {
+                    events.quit.push({});
+                }
+                break;
+            case SDL_EVENT_WINDOW_FOCUS_LOST: [[fallthrough]];
             case SDL_EVENT_WINDOW_FOCUS_GAINED:
                 if (event.window.windowID != window_id) {
                     planet::log::warning(
                             "Got SDL_WINDOWEVENT for a window ID that isn't mine. Mine",
                             window_id, "event", event.window.windowID);
-                } else if (event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED) {
-                    events.quit.push({});
                 } else if (event.type == SDL_EVENT_WINDOW_FOCUS_LOST) {
                     planet::log::info("Window lost focus");
                 } else if (event.type == SDL_EVENT_WINDOW_FOCUS_GAINED) {
                     planet::log::info("Window gained focus");
                 }
                 break;
-#else
-            case SDL_WINDOWEVENT:
-                if (event.window.windowID != window_id) {
-                    planet::log::warning(
-                            "Got SDL_WINDOWEVENT for a window ID that isn't mine. Mine",
-                            window_id, "event", event.window.windowID);
-                } else if (event.window.event == SDL_WINDOWEVENT_CLOSE) {
-                    events.quit.push({});
-                } else if (event.window.event == SDL_WINDOWEVENT_FOCUS_LOST) {
-                    planet::log::info("Window lost focus");
-                } else if (event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
-                    planet::log::info("Window gained focus");
-                }
-                break;
-#endif
 
             default: break;
             }

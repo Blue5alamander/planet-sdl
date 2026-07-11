@@ -33,7 +33,6 @@ namespace {
         }
     }
 
-#if PLANET_SDL3
     /// ## Deleter for the SDL3 audio playback device list
     /**
      * `SDL_GetAudioPlaybackDevices` returns an array allocated by SDL that must
@@ -45,8 +44,9 @@ namespace {
     void free_audio_device_list(SDL_AudioDeviceID *devices) noexcept {
         SDL_free(devices);
     }
-#endif
 }
+
+
 planet::sdl::configuration::configuration(planet::version const &version) {
     log::active.store(log_level);
     std::filesystem::path home =
@@ -150,20 +150,11 @@ planet::sdl::init::init(
         planet::version const &version,
         initialise const subsystems)
 : config{version}, io{w} {
-    /**
-     * `SDL_Init` reports failure as a negative `int` on SDL2 and as `false` on
-     * SDL3, so the success test is branched while the error path is shared.
-     */
-#if PLANET_SDL3
     if (not SDL_Init(static_cast<std::uint32_t>(subsystems))) {
-#else
-    if (SDL_Init(static_cast<std::uint32_t>(subsystems)) < 0) {
-#endif
         throw felspar::stdexcept::runtime_error{
                 std::string{"SDL_Init failed "} + SDL_GetError()};
     }
     audio_device_list.push_back({});
-#if PLANET_SDL3
     /**
      * SDL3 hands back a freshly-allocated, 0-terminated array of playback
      * device IDs that we own until `SDL_free`, and looks each name up by ID
@@ -174,24 +165,15 @@ planet::sdl::init::init(
     handle<SDL_AudioDeviceID, free_audio_device_list> devices{
             SDL_GetAudioPlaybackDevices(&device_count)};
     if (devices.get() == nullptr or device_count < 1) {
-#else
-    static constexpr int iscapture = false;
-    auto const device_count = SDL_GetNumAudioDevices(iscapture);
-    if (device_count < 1) {
-#endif
         /**
          * Apparently this can happen, but that doesn't mean that SDL will fail
          * to be able to open one, it just means it doesn't know what is
-         * available. <https://wiki.libsdl.org/SDL2/SDL_GetNumAudioDevices>
+         * available.
          */
     } else {
         for (int device = 0; device < device_count; ++device) {
-#if PLANET_SDL3
             char const *const dn =
                     SDL_GetAudioDeviceName(devices.get()[device]);
-#else
-            char const *const dn = SDL_GetAudioDeviceName(device, iscapture);
-#endif
             bool const is_empty = (dn == nullptr or *dn == 0);
             if (not is_empty) { audio_device_list.push_back(dn); }
         }
@@ -209,13 +191,8 @@ planet::sdl::init::~init() {
      * `SDL_Quit` does [not clean up its thread local
      * data](https://github.com/libsdl-org/SDL/issues/6200). On Android it seems
      * that we should expect to re-enter SDL after quitting as the process
-     * doesn't go away, so we don't do this clean up on Android. SDL3 renamed
-     * the call from `SDL_TLSCleanup` to `SDL_CleanupTLS`.
+     * doesn't go away, so we don't do this clean up on Android.
      */
-#if PLANET_SDL3
     SDL_CleanupTLS();
-#else
-    SDL_TLSCleanup();
-#endif
 #endif
 }
