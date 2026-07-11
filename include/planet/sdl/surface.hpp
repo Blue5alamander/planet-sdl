@@ -7,6 +7,8 @@
 #include <planet/sdl/sdl.hpp>
 #include <planet/ui/scale.hpp>
 
+#include <cstdint>
+
 
 namespace planet::sdl {
 
@@ -72,6 +74,24 @@ namespace planet::sdl {
 
         /// ### Set the blend mode used when this surface is blitted
         void set_blend_mode(blend_mode const mode) const noexcept;
+
+        /// ### Map an RGBA colour into this surface's pixel format
+        std::uint32_t map_rgba(
+                std::uint8_t r,
+                std::uint8_t g,
+                std::uint8_t b,
+                std::uint8_t a) const noexcept;
+
+        /// ### Fill the whole surface with a packed colour
+        void fill(std::uint32_t colour) const noexcept;
+
+        /// ### Fill a rectangle of the surface with a packed colour
+        void fill_rect(
+                std::size_t x,
+                std::size_t y,
+                std::size_t width,
+                std::size_t height,
+                std::uint32_t colour) const noexcept;
     };
 
 

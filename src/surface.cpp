@@ -59,3 +59,49 @@ void planet::sdl::surface::set_blend_mode(blend_mode const mode) const noexcept 
     }
     SDL_SetSurfaceBlendMode(get(), sdl_mode);
 }
+
+
+std::uint32_t planet::sdl::surface::map_rgba(
+        std::uint8_t const r,
+        std::uint8_t const g,
+        std::uint8_t const b,
+        std::uint8_t const a) const noexcept {
+    /**
+     * SDL3 flattened `SDL_Surface::format` from a pointer-to-details struct to
+     * a plain enum, so `SDL_MapRGBA` can no longer be handed it directly;
+     * `SDL_MapSurfaceRGBA` maps against the surface's own format instead. SDL2
+     * keeps the `SDL_PixelFormat *` in `format`.
+     */
+#if PLANET_SDL3
+    return SDL_MapSurfaceRGBA(get(), r, g, b, a);
+#else
+    return SDL_MapRGBA(get()->format, r, g, b, a);
+#endif
+}
+
+
+void planet::sdl::surface::fill(std::uint32_t const colour) const noexcept {
+    /// SDL3 renamed `SDL_FillRect` to `SDL_FillSurfaceRect`.
+#if PLANET_SDL3
+    SDL_FillSurfaceRect(get(), nullptr, colour);
+#else
+    SDL_FillRect(get(), nullptr, colour);
+#endif
+}
+
+
+void planet::sdl::surface::fill_rect(
+        std::size_t const x,
+        std::size_t const y,
+        std::size_t const width,
+        std::size_t const height,
+        std::uint32_t const colour) const noexcept {
+    SDL_Rect const rect{
+            static_cast<int>(x), static_cast<int>(y), static_cast<int>(width),
+            static_cast<int>(height)};
+#if PLANET_SDL3
+    SDL_FillSurfaceRect(get(), &rect, colour);
+#else
+    SDL_FillRect(get(), &rect, colour);
+#endif
+}
