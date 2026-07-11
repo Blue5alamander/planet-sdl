@@ -2,6 +2,7 @@
 
 #include <planet/folders.hpp>
 #include <planet/log.hpp>
+#include <planet/sdl/handle.hpp>
 #include <planet/sdl/sdl.hpp>
 
 #include <iostream>
@@ -28,6 +29,20 @@ namespace {
             return true;
         }
     }
+
+#if PLANET_SDL3
+    /// ## Deleter for the SDL3 audio playback device list
+    /**
+     * `SDL_GetAudioPlaybackDevices` returns an array allocated by SDL that must
+     * be released with `SDL_free`. That takes `void *`, but the
+     * `planet::sdl::handle` deleter signature is `void(T *)`; this adapts the
+     * two so the device list can be owned by a `handle` rather than freed by
+     * hand.
+     */
+    void free_audio_device_list(SDL_AudioDeviceID *devices) noexcept {
+        SDL_free(devices);
+    }
+#endif
 }
 planet::sdl::configuration::configuration(planet::version const &version) {
     log::active.store(log_level);
@@ -133,10 +148,23 @@ planet::sdl::init::init(
         initialise const subsystems)
 : config{version}, io{w} {
     SDL_Init(static_cast<std::uint32_t>(subsystems));
+    audio_device_list.push_back({});
+#if PLANET_SDL3
+    /**
+     * SDL3 hands back a freshly-allocated, 0-terminated array of playback
+     * device IDs that we own until `SDL_free`, and looks each name up by ID
+     * rather than by index. The array is held in a `handle` so it is released
+     * even if the enumeration below throws.
+     */
+    int device_count = 0;
+    handle<SDL_AudioDeviceID, free_audio_device_list> devices{
+            SDL_GetAudioPlaybackDevices(&device_count)};
+    if (devices.get() == nullptr or device_count < 1) {
+#else
     static constexpr int iscapture = false;
     auto const device_count = SDL_GetNumAudioDevices(iscapture);
-    audio_device_list.push_back({});
     if (device_count < 1) {
+#endif
         /**
          * Apparently this can happen, but that doesn't mean that SDL will fail
          * to be able to open one, it just means it doesn't know what is
@@ -144,7 +172,12 @@ planet::sdl::init::init(
          */
     } else {
         for (int device = 0; device < device_count; ++device) {
+#if PLANET_SDL3
+            char const *const dn =
+                    SDL_GetAudioDeviceName(devices.get()[device]);
+#else
             char const *const dn = SDL_GetAudioDeviceName(device, iscapture);
+#endif
             bool const is_empty = (dn == nullptr or *dn == 0);
             if (not is_empty) { audio_device_list.push_back(dn); }
         }
