@@ -5,7 +5,10 @@
 #include <planet/sdl/handle.hpp>
 #include <planet/sdl/sdl.hpp>
 
+#include <felspar/exceptions/runtime_error.hpp>
+
 #include <iostream>
+#include <string>
 
 
 /// ## `planet::sdl::configuration`
@@ -147,7 +150,18 @@ planet::sdl::init::init(
         planet::version const &version,
         initialise const subsystems)
 : config{version}, io{w} {
-    SDL_Init(static_cast<std::uint32_t>(subsystems));
+    /**
+     * `SDL_Init` reports failure as a negative `int` on SDL2 and as `false` on
+     * SDL3, so the success test is branched while the error path is shared.
+     */
+#if PLANET_SDL3
+    if (not SDL_Init(static_cast<std::uint32_t>(subsystems))) {
+#else
+    if (SDL_Init(static_cast<std::uint32_t>(subsystems)) < 0) {
+#endif
+        throw felspar::stdexcept::runtime_error{
+                std::string{"SDL_Init failed "} + SDL_GetError()};
+    }
     audio_device_list.push_back({});
 #if PLANET_SDL3
     /**
@@ -195,8 +209,13 @@ planet::sdl::init::~init() {
      * `SDL_Quit` does [not clean up its thread local
      * data](https://github.com/libsdl-org/SDL/issues/6200). On Android it seems
      * that we should expect to re-enter SDL after quitting as the process
-     * doesn't go away, so we don't do this clean up on Android.
+     * doesn't go away, so we don't do this clean up on Android. SDL3 renamed
+     * the call from `SDL_TLSCleanup` to `SDL_CleanupTLS`.
      */
+#if PLANET_SDL3
+    SDL_CleanupTLS();
+#else
     SDL_TLSCleanup();
+#endif
 #endif
 }
