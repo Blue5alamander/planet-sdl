@@ -2,8 +2,16 @@ if(PLANET_SDL3)
     # SDL3 ships as two separate packages, each with its own CMake config and
     # an imported target that carries its own interface include directory, so
     # no manual include path is needed and the include guard picks <SDL3/...>.
-    find_package(SDL3 REQUIRED)
-    find_package(SDL3_ttf REQUIRED)
+    # When BUILD_SDL_LIBRARIES is on, SDL3 / SDL3_ttf are added via
+    # add_subdirectory (in b5/_external) and the SDL3::SDL3 / SDL3_ttf::SDL3_ttf
+    # alias targets already exist -- only fall back to find_package for the
+    # system-package case (e.g. the default Linux PLANET_SDL3=ON build).
+    if(NOT TARGET SDL3::SDL3)
+        find_package(SDL3 REQUIRED)
+    endif()
+    if(NOT TARGET SDL3_ttf::SDL3_ttf)
+        find_package(SDL3_ttf REQUIRED)
+    endif()
     set(planet_sdl_library SDL3::SDL3)
     set(planet_sdl_ttf_library SDL3_ttf::SDL3_ttf)
     set(planet_sdl_include_dirs)
