@@ -19,6 +19,23 @@ static_assert(
         "Playback-head atomic must be lock-free on the real-time audio thread");
 
 
+/// ## `planet::sdl::audio_output`
+
+
+namespace {
+    /// ### Deleter for the SDL3 audio playback device list, as in `init`
+    void free_audio_device_list(SDL_AudioDeviceID *const devices) noexcept
+    /**
+     * `SDL_GetAudioPlaybackDevices` hands back an `SDL_free`-owned array. That
+     * takes `void *` while `planet::sdl::handle` wants `void(T *)`, so this
+     * adapts the two and lets the list be owned by a `handle`.
+     */
+    {
+        SDL_free(devices);
+    }
+}
+
+
 planet::sdl::audio_output::audio_output(configuration &config)
 : config{config} {
     last_master_mul = config.master_volume.multiplier();
@@ -76,15 +93,40 @@ void planet::sdl::audio_output::reconnect(
         std::optional<std::string_view> const device_name) {
     reset();
 
-    // TODO Search for the wanted audio device in the list and open that
-    // device's ID instead of the default
+    /**
+     * Resolve the requested device name to a playback device ID. The list is
+     * enumerated fresh here rather than cached from start up because the set of
+     * devices changes over the life of the program (headphones plugged in, a
+     * monitor woken up). An empty name — or a name that no longer matches any
+     * present device — falls back to the system default, so a device that has
+     * since gone away still leaves the game with sound.
+     */
+    SDL_AudioDeviceID device_id = SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK;
+    if (device_name) {
+        int device_count = 0;
+        handle<SDL_AudioDeviceID, free_audio_device_list> const devices{
+                SDL_GetAudioPlaybackDevices(&device_count)};
+        for (int device = 0; device < device_count; ++device) {
+            char const *const dn =
+                    SDL_GetAudioDeviceName(devices.get()[device]);
+            if (dn and *device_name == dn) {
+                device_id = devices.get()[device];
+                break;
+            }
+        }
+        if (device_id == SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK) {
+            planet::log::warning(
+                    "Requested audio device not found, using the default "
+                    "instead",
+                    device_name);
+        }
+    }
 
     SDL_AudioSpec spec = {};
     spec.format = SDL_AUDIO_F32;
     spec.channels = static_cast<int>(audio::stereo_buffer::channels);
     spec.freq = static_cast<int>(audio::stereo_buffer::samples_per_second);
-    stream = SDL_OpenAudioDeviceStream(
-            SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, audio_callback, this);
+    stream = SDL_OpenAudioDeviceStream(device_id, &spec, audio_callback, this);
     if (not stream.get()) {
         throw felspar::stdexcept::runtime_error{"Audio device wouldn't open"};
     }
@@ -130,9 +172,9 @@ void planet::sdl::audio_output::reconnect(
     std::chrono::milliseconds const buffer_size_ms{
             (samples * 1000) / static_cast<std::size_t>(spec.freq)};
     planet::log::info(
-            "Requested device", device_name,
-            "opened the default playback device - freq:", spec.freq,
-            "Hz, samples:", samples, "buffer_size:", buffer_size_ms);
+            "Connected audio output. Requested device", device_name,
+            "- freq:", spec.freq, "Hz, samples:", samples,
+            "buffer_size:", buffer_size_ms);
 }
 
 
