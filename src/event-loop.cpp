@@ -24,6 +24,17 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
     planet::log::info("planet::sdl::event_loop::run");
     affine::point2d last_mouse_pos{{}, {}};
     while (true) {
+        /**
+         * Mouse events arrive in logical window points, but the swapchain and
+         * UI work in drawable pixels (the window is created
+         * `SDL_WINDOW_HIGH_PIXEL_DENSITY`), so scale pointer positions by the
+         * window's pixel density. Recomputed each cycle so it tracks a window
+         * moved to a display of a different density; falls back to 1 if the
+         * density is unavailable.
+         */
+        auto *const win = SDL_GetWindowFromID(window_id);
+        float const density = win ? SDL_GetWindowPixelDensity(win) : 0.0f;
+        float const scale = density > 0.0f ? density : 1.0f;
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
@@ -48,7 +59,8 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
             }
 
             case SDL_EVENT_MOUSE_BUTTON_DOWN:
-                last_mouse_pos = {event.motion.x, event.motion.y};
+                last_mouse_pos = {
+                        event.motion.x * scale, event.motion.y * scale};
                 switch (event.button.button) {
                 case SDL_BUTTON_LEFT:
                     events.mouse.push(
@@ -64,7 +76,8 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
                 break;
 
             case SDL_EVENT_MOUSE_BUTTON_UP:
-                last_mouse_pos = {event.motion.x, event.motion.y};
+                last_mouse_pos = {
+                        event.motion.x * scale, event.motion.y * scale};
                 switch (event.button.button) {
                 case SDL_BUTTON_LEFT:
                     events.mouse.push(
@@ -80,7 +93,8 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
                 break;
 
             case SDL_EVENT_MOUSE_MOTION:
-                last_mouse_pos = {event.motion.x, event.motion.y};
+                last_mouse_pos = {
+                        event.motion.x * scale, event.motion.y * scale};
                 {
                     events::action a = events::action::released;
                     events::button b = events::button::none;
