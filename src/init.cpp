@@ -14,7 +14,10 @@
 /// ## `planet::sdl::configuration`
 
 
-planet::sdl::configuration::configuration() { log::active.store(log_level); }
+planet::sdl::configuration::configuration(log::level const level)
+: log_level{level} {
+    log::active.store(log_level);
+}
 
 
 /// ## `planet::sdl::files`

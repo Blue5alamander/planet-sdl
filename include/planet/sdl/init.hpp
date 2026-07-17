@@ -41,11 +41,16 @@ namespace planet::sdl {
 
 
         /// ### Creation
-        configuration();
+        configuration(log::level = log::level::debug);
+        /**
+         * Applies `level` to the global `planet::log::active` straight away so
+         * logging is filtered from the very first message. Pass a higher level
+         * (for example in tests) to suppress the lower-level messages.
+         */
 
 
         /// ### User's configuration
-        log::level log_level = log::level::debug;
+        log::level log_level;
         bool save_logs_to_file = true;
         bool auto_remove_log_files = true;
         bool upload_performance_data = true;
