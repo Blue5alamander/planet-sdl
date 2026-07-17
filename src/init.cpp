@@ -14,6 +14,12 @@
 /// ## `planet::sdl::configuration`
 
 
+planet::sdl::configuration::configuration() { log::active.store(log_level); }
+
+
+/// ## `planet::sdl::files`
+
+
 namespace {
     bool try_make_folder(std::filesystem::path const &dir) {
         /**
@@ -32,34 +38,22 @@ namespace {
             return true;
         }
     }
-
-    /// ## Deleter for the SDL3 audio playback device list
-    /**
-     * `SDL_GetAudioPlaybackDevices` returns an array allocated by SDL that must
-     * be released with `SDL_free`. That takes `void *`, but the
-     * `planet::sdl::handle` deleter signature is `void(T *)`; this adapts the
-     * two so the device list can be owned by a `handle` rather than freed by
-     * hand.
-     */
-    void free_audio_device_list(SDL_AudioDeviceID *devices) noexcept {
-        SDL_free(devices);
-    }
 }
 
 
-planet::sdl::configuration::configuration(planet::version const &version) {
-    log::active.store(log_level);
+planet::sdl::files::files(planet::version const &version, configuration const &c)
+: config{c} {
     std::filesystem::path home =
             base_storage_folder() / version.application_folder;
     set_game_folder(std::move(home));
 }
 
 
-planet::sdl::configuration::~configuration() {
+planet::sdl::files::~files() {
     planet::log::stop_thread();
     logfile.close();
     auto const logs = log::counters::current();
-    if (auto_remove_log_files and log_filename and not logs.error) {
+    if (config.auto_remove_log_files and log_filename and not logs.error) {
         std::cerr << "Removing log file " << *log_filename << '\n';
         std::error_code ec;
         std::filesystem::remove(*log_filename, ec);
@@ -73,7 +67,7 @@ planet::sdl::configuration::~configuration() {
 }
 
 
-void planet::sdl::configuration::set_game_folder(std::filesystem::path path) {
+void planet::sdl::files::set_game_folder(std::filesystem::path path) {
     config_filename = path / "configuration";
     log_folder = path / "logs";
     save_folder = path / "saves";
@@ -88,7 +82,7 @@ void planet::sdl::configuration::set_game_folder(std::filesystem::path path) {
          * These configuration items won't yet hold the values from the config
          * file because that won't get loaded until much later...
          */
-        if (save_logs_to_file) {
+        if (config.save_logs_to_file) {
             log_filename = log_folder / (basename + ".plog");
             logfile.open(*log_filename, std::ios::binary);
             planet::log::log_output.store(&logfile);
@@ -145,11 +139,26 @@ static_assert(
         == SDL_INIT_AUDIO);
 
 
+namespace {
+    /// ## Deleter for the SDL3 audio playback device list
+    /**
+     * `SDL_GetAudioPlaybackDevices` returns an array allocated by SDL that must
+     * be released with `SDL_free`. That takes `void *`, but the
+     * `planet::sdl::handle` deleter signature is `void(T *)`; this adapts the
+     * two so the device list can be owned by a `handle` rather than freed by
+     * hand.
+     */
+    void free_audio_device_list(SDL_AudioDeviceID *devices) noexcept {
+        SDL_free(devices);
+    }
+}
+
+
 planet::sdl::init::init(
         felspar::io::warden &w,
         planet::version const &version,
         initialise const subsystems)
-: config{version}, io{w} {
+: files{version, config}, io{w} {
     if (not SDL_Init(static_cast<std::uint32_t>(subsystems))) {
         throw felspar::stdexcept::runtime_error{
                 std::string{"SDL_Init failed "} + SDL_GetError()};

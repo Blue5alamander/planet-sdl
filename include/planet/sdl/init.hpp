@@ -31,55 +31,17 @@ namespace planet::sdl {
 
     /// ## Engine configuration
     /**
-     * This configuraiton is only used for the save folder and the configuration
-     * save path. All other game configuration is managed by the game itself.
-     *
-     * File logging will be automatically turned on.
+     * The user's preferences — logging, audio and some persistent telemetry.
+     * All other game configuration is managed by the game itself. The file
+     * locations these preferences are saved to and loaded from are handled by
+     * `files`.
      */
     struct configuration final {
         static constexpr std::string_view box{"_p:sdl:config"};
 
 
         /// ### Creation
-        configuration(version const &);
-        ~configuration();
-
-
-        /// ### File configuration
-        /**
-         * File configuration is calculated when the configuration object is
-         * created, but may be altered later using the `set_game_folder` method
-         * later on if the initial configuration is no good (this can happen on
-         * platforms like Android where the correct writeable folder is known
-         * too late).
-         */
-
-        /// #### Game folder
-        std::filesystem::path game_folder;
-        /**
-         *
-         * The game should use this folder to save any data that it may need to
-         * persist. There are specific files and folders below for
-         * configuration, logs and game saves.
-         */
-
-        /// #### Changing the game folder
-        void set_game_folder(std::filesystem::path);
-        /**
-         * On some platforms it may not be possible to reliably determine the
-         * folder name at start up. For those this method should be called so
-         * that the folder structure can be determined.
-         */
-
-        /// #### Configuration file name
-        std::filesystem::path config_filename;
-        /// #### Save game folder
-        std::filesystem::path save_folder;
-
-        /// #### Logging
-        std::filesystem::path log_folder;
-        std::optional<std::filesystem::path> log_filename, perf_filename;
-        std::ofstream logfile, perfile;
+        configuration();
 
 
         /// ### User's configuration
@@ -115,6 +77,56 @@ namespace planet::sdl {
     void load(serialise::load_buffer &, configuration &);
 
 
+    /// ## Engine file locations
+    /**
+     * The folders and files that the engine reads from and writes to. These are
+     * calculated when the object is created, but may be altered later using the
+     * `set_game_folder` method if the initial location is no good (this can
+     * happen on platforms like Android where the correct writeable folder is
+     * known too late).
+     *
+     * File logging will be automatically turned on when `save_logs_to_file` is
+     * set in the `configuration`.
+     */
+    struct files final {
+        /// ### Creation
+        files(version const &, configuration const &);
+        ~files();
+
+
+        /// #### Game folder
+        std::filesystem::path game_folder;
+        /**
+         *
+         * The game should use this folder to save any data that it may need to
+         * persist. There are specific files and folders below for
+         * configuration, logs and game saves.
+         */
+
+        /// #### Changing the game folder
+        void set_game_folder(std::filesystem::path);
+        /**
+         * On some platforms it may not be possible to reliably determine the
+         * folder name at start up. For those this method should be called so
+         * that the folder structure can be determined.
+         */
+
+        /// #### Configuration file name
+        std::filesystem::path config_filename;
+        /// #### Save game folder
+        std::filesystem::path save_folder;
+
+        /// #### Logging
+        std::filesystem::path log_folder;
+        std::optional<std::filesystem::path> log_filename, perf_filename;
+        std::ofstream logfile, perfile;
+
+
+      private:
+        configuration const &config;
+    };
+
+
     /// ## Engine initialisation
     class init final {
       public:
@@ -129,6 +141,7 @@ namespace planet::sdl {
         ~init();
 
         configuration config;
+        sdl::files files;
         felspar::io::warden &io;
 
 
