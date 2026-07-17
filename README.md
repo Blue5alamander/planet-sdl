@@ -13,7 +13,7 @@ Provides some basic C++ wrappers around SDL2 APIs to make them a bit more conven
 On Linux you'll need some dev packages installed:
 
 ```bash
-sudo apt install libsdl2-dev libsdl2-ttf-dev
+sudo apt install libsdl3-dev libsdl3-ttf-dev
 ```
 
 On Windows it's generally best to add these as submodules to your project and use `add_subdirectory` from cmake to build them.
