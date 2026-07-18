@@ -2,6 +2,7 @@
 
 #include <planet/folders.hpp>
 #include <planet/log.hpp>
+#include <planet/serialise/affine.hpp>
 #include <planet/sdl/handle.hpp>
 #include <planet/sdl/sdl.hpp>
 
@@ -9,6 +10,7 @@
 
 #include <iostream>
 #include <string>
+#include <utility>
 
 
 /// ## `planet::sdl::configuration`
@@ -103,12 +105,56 @@ void planet::sdl::files::set_game_folder(std::filesystem::path path) {
 }
 
 
+/// ## `planet::sdl::window_mode`
+
+
+std::string planet::sdl::to_string(window_mode const m) {
+    switch (m) {
+    case window_mode::windowed: return "windowed";
+    case window_mode::full_screen_windowed: return "full-screen-windowed";
+    case window_mode::full_screen_borderless: return "full-screen-borderless";
+    }
+    std::unreachable();
+}
+auto planet::sdl::window_mode_from_string(std::string_view const s)
+        -> window_mode {
+    if (s == "windowed") {
+        return window_mode::windowed;
+    } else if (s == "full-screen-windowed") {
+        return window_mode::full_screen_windowed;
+    } else if (s == "full-screen-borderless") {
+        return window_mode::full_screen_borderless;
+    } else {
+        throw felspar::stdexcept::runtime_error{
+                "Cannot parse window_mode\nString: '" + std::string{s} + "'"};
+    }
+}
+void planet::sdl::save(serialise::save_buffer &b, window_mode const m) {
+    b.save_box(1, window_mode_box, to_string(m));
+}
+void planet::sdl::load(serialise::box &b, window_mode &m) {
+    b.lambda(window_mode_box, [&]() {
+        if (b.version == 1) {
+            std::string s;
+            b.fields(s);
+            m = window_mode_from_string(s);
+        } else {
+            b.throw_unsupported_version(1);
+        }
+    });
+}
+
+
+/// ## `planet::sdl::configuration` save and load
+
+
 void planet::sdl::save(serialise::save_buffer &sb, configuration const &c) {
     sb.save_box(
             c.box, c.log_level, c.auto_remove_log_files, c.master_volume,
             c.music_volume, c.sfx_volume, c.audio_device_name,
             c.save_logs_to_file, c.upload_performance_data,
-            c.audio_latency_injected_block_count);
+            c.audio_latency_injected_block_count, c.window_display_mode,
+            c.window_extents, c.window_position);
     telemetry::save_performance(sb, c.times_exited, c.times_loaded);
 }
 void planet::sdl::load(serialise::load_buffer &lb, configuration &c) {
@@ -123,6 +169,8 @@ void planet::sdl::load(serialise::load_buffer &lb, configuration &c) {
         b.fields(c.save_logs_to_file, c.upload_performance_data);
         if (b.content.empty()) { return; }
         b.fields(c.audio_latency_injected_block_count);
+        if (b.content.empty()) { return; }
+        b.fields(c.window_display_mode, c.window_extents, c.window_position);
     });
     if (not lb.empty()) {
         telemetry::load_performance(lb, c.times_exited, c.times_loaded);

@@ -1,15 +1,21 @@
 #pragma once
 
 
+#include <planet/affine2d.hpp>
 #include <planet/audio/channel.hpp>
 #include <planet/folders.hpp>
 #include <planet/log.hpp>
+#include <planet/platform.hpp>
 #include <planet/serialise/forward.hpp>
 #include <planet/telemetry/counter.hpp>
 #include <planet/sdl/ttf.hpp>
 #include <planet/version.hpp>
 
 #include <felspar/io/warden.poll.hpp>
+
+#include <ostream>
+#include <string>
+#include <string_view>
 
 
 namespace planet::sdl {
@@ -27,6 +33,23 @@ namespace planet::sdl {
                 static_cast<std::uint32_t>(lhs)
                 | static_cast<std::uint32_t>(rhs));
     }
+
+
+    /// ## Window display mode
+    enum class window_mode {
+        windowed,
+        full_screen_windowed,
+        full_screen_borderless,
+    };
+    std::string to_string(window_mode);
+    window_mode window_mode_from_string(std::string_view);
+    inline std::ostream &operator<<(std::ostream &os, window_mode const m) {
+        return os << to_string(m);
+    }
+    inline constexpr std::string_view window_mode_box{
+            "planet::sdl::window_mode"};
+    void save(serialise::save_buffer &, window_mode);
+    void load(serialise::box &, window_mode &);
 
 
     /// ## Engine configuration
@@ -72,6 +95,19 @@ namespace planet::sdl {
          * of the device's own buffering. Must be in `[1,
          * mixer::max_ring_depth]` or the driver logs `critical`.
          */
+
+
+        /// ### Window configuration
+        /**
+         * Desktop platforms default to a 720p window; the mobile platforms
+         * default to full-screen, which is the only sensible mode there and
+         * matches the pre-configurable behaviour.
+         */
+        window_mode window_display_mode = planet::is_mobile()
+                ? window_mode::full_screen_windowed
+                : window_mode::windowed;
+        affine::extents2d window_extents = {1280, 720};
+        std::optional<affine::point2d> window_position = {};
 
 
         /// ### Performance counters

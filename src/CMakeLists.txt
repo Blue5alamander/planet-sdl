@@ -51,3 +51,8 @@ target_sources(planet-sdl PUBLIC
     )
 set_property(TARGET planet-sdl PROPERTY VERIFY_INTERFACE_HEADER_SETS ON)
 add_dependencies(check planet-sdl_verify_interface_header_sets)
+
+
+add_test_run(check planet-sdl TESTS
+        init.tests.cpp
+    )
