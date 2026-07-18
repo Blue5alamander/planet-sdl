@@ -1,6 +1,7 @@
 #include <planet/log.hpp>
 #include <planet/sdl/event-loop.hpp>
 #include <planet/sdl/init.hpp>
+#include <planet/sdl/pixel_density.hpp>
 #include <planet/sdl/sdl.hpp>
 
 
@@ -29,12 +30,9 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
          * UI work in drawable pixels (the window is created
          * `SDL_WINDOW_HIGH_PIXEL_DENSITY`), so scale pointer positions by the
          * window's pixel density. Recomputed each cycle so it tracks a window
-         * moved to a display of a different density; falls back to 1 if the
-         * density is unavailable.
+         * moved to a display of a different density.
          */
-        auto *const win = SDL_GetWindowFromID(window_id);
-        float const density = win ? SDL_GetWindowPixelDensity(win) : 0.0f;
-        float const scale = density > 0.0f ? density : 1.0f;
+        affine::extents2d const scale = pixel_density(window_id);
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
@@ -60,7 +58,8 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
 
             case SDL_EVENT_MOUSE_BUTTON_DOWN:
                 last_mouse_pos = {
-                        event.motion.x * scale, event.motion.y * scale};
+                        event.motion.x * scale.width,
+                        event.motion.y * scale.height};
                 switch (event.button.button) {
                 case SDL_BUTTON_LEFT:
                     events.mouse.push(
@@ -77,7 +76,8 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
 
             case SDL_EVENT_MOUSE_BUTTON_UP:
                 last_mouse_pos = {
-                        event.motion.x * scale, event.motion.y * scale};
+                        event.motion.x * scale.width,
+                        event.motion.y * scale.height};
                 switch (event.button.button) {
                 case SDL_BUTTON_LEFT:
                     events.mouse.push(
@@ -94,7 +94,8 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
 
             case SDL_EVENT_MOUSE_MOTION:
                 last_mouse_pos = {
-                        event.motion.x * scale, event.motion.y * scale};
+                        event.motion.x * scale.width,
+                        event.motion.y * scale.height};
                 {
                     events::action a = events::action::released;
                     events::button b = events::button::none;

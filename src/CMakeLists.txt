@@ -43,6 +43,7 @@ target_sources(planet-sdl PUBLIC
         ../include/planet/sdl.hpp
         ../include/planet/sdl/init.hpp
         ../include/planet/sdl/open_url.hpp
+        ../include/planet/sdl/pixel_density.hpp
         ../include/planet/sdl/rw_ops.hpp
         ../include/planet/sdl/sdl.hpp
         ../include/planet/sdl/surface.hpp
