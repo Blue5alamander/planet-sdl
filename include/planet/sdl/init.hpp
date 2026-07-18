@@ -46,8 +46,7 @@ namespace planet::sdl {
     inline std::ostream &operator<<(std::ostream &os, window_mode const m) {
         return os << to_string(m);
     }
-    inline constexpr std::string_view window_mode_box{
-            "planet::sdl::window_mode"};
+    inline constexpr std::string_view window_mode_box{"_p:window_mode"};
     void save(serialise::save_buffer &, window_mode);
     void load(serialise::box &, window_mode &);
 

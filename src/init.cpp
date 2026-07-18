@@ -13,6 +13,9 @@
 #include <utility>
 
 
+using namespace std::literals;
+
+
 /// ## `planet::sdl::configuration`
 
 
@@ -133,7 +136,7 @@ void planet::sdl::save(serialise::save_buffer &b, window_mode const m) {
     b.save_box(1, window_mode_box, to_string(m));
 }
 void planet::sdl::load(serialise::box &b, window_mode &m) {
-    b.lambda(window_mode_box, [&]() {
+    b.lambda(std::array{window_mode_box, "planet::sdl::window_mode"sv}, [&]() {
         if (b.version == 1) {
             std::string s;
             b.fields(s);
