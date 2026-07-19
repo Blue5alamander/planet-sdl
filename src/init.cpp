@@ -111,9 +111,10 @@ void planet::sdl::files::set_game_folder(std::filesystem::path path) {
 /// ## `planet::sdl::window_mode`
 
 
-std::string planet::sdl::to_string(window_mode const m) {
+std::string_view planet::sdl::to_string(window_mode const m) {
     switch (m) {
-    case window_mode::windowed: return "windowed";
+    case window_mode::windowed_fixed_size: return "windowed-fixed-size";
+    case window_mode::windowed_resizable: return "windowed-resizable";
     case window_mode::full_screen_windowed: return "full-screen-windowed";
     case window_mode::full_screen_borderless: return "full-screen-borderless";
     }
@@ -121,8 +122,14 @@ std::string planet::sdl::to_string(window_mode const m) {
 }
 auto planet::sdl::window_mode_from_string(std::string_view const s)
         -> window_mode {
-    if (s == "windowed") {
-        return window_mode::windowed;
+    if (s == "windowed" or s == "windowed-fixed-size") {
+        /**
+         * `"windowed"` is the legacy spelling from before the fixed/resizable
+         * split and still loads as the fixed-size mode.
+         */
+        return window_mode::windowed_fixed_size;
+    } else if (s == "windowed-resizable") {
+        return window_mode::windowed_resizable;
     } else if (s == "full-screen-windowed") {
         return window_mode::full_screen_windowed;
     } else if (s == "full-screen-borderless") {

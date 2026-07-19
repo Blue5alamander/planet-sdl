@@ -11,7 +11,8 @@ namespace {
 
 
     constexpr planet::sdl::window_mode all_modes[] = {
-            planet::sdl::window_mode::windowed,
+            planet::sdl::window_mode::windowed_fixed_size,
+            planet::sdl::window_mode::windowed_resizable,
             planet::sdl::window_mode::full_screen_windowed,
             planet::sdl::window_mode::full_screen_borderless};
 
@@ -25,6 +26,15 @@ namespace {
                           == m)
                             == true;
                 }
+            });
+
+
+    /// The legacy `"windowed"` spelling still loads as the fixed-size mode
+    auto const legacy =
+            suite.test("window_mode_legacy_windowed", [](auto check, auto &) {
+                check(planet::sdl::window_mode_from_string("windowed")
+                      == planet::sdl::window_mode::windowed_fixed_size)
+                        == true;
             });
 
 
@@ -50,7 +60,8 @@ namespace {
             auto const bytes = ab.complete();
 
             // Clobber the fields so a successful reload is meaningful.
-            c.window_display_mode = planet::sdl::window_mode::windowed;
+            c.window_display_mode =
+                    planet::sdl::window_mode::windowed_fixed_size;
             c.window_extents = {0, 0};
             c.window_position = {};
 

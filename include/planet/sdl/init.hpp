@@ -37,11 +37,12 @@ namespace planet::sdl {
 
     /// ## Window display mode
     enum class window_mode {
-        windowed,
+        windowed_fixed_size,
+        windowed_resizable,
         full_screen_windowed,
         full_screen_borderless,
     };
-    std::string to_string(window_mode);
+    std::string_view to_string(window_mode);
     window_mode window_mode_from_string(std::string_view);
     inline std::ostream &operator<<(std::ostream &os, window_mode const m) {
         return os << to_string(m);
@@ -49,6 +50,12 @@ namespace planet::sdl {
     inline constexpr std::string_view window_mode_box{"_p:window_mode"};
     void save(serialise::save_buffer &, window_mode);
     void load(serialise::box &, window_mode &);
+
+    /// ### Is this one of the windowed (non-full-screen) modes?
+    constexpr bool is_windowed(window_mode const m) noexcept {
+        return m == window_mode::windowed_fixed_size
+                or m == window_mode::windowed_resizable;
+    }
 
 
     /// ## Engine configuration
@@ -100,12 +107,14 @@ namespace planet::sdl {
         /**
          * Desktop platforms default to a 720p window; the mobile platforms
          * default to full-screen, which is the only sensible mode there and
-         * matches the pre-configurable behaviour.
+         * matches the pre-configurable behaviour. A resizable window may not be
+         * shrunk below `window_minimum` (540p).
          */
         window_mode window_display_mode = planet::is_mobile()
                 ? window_mode::full_screen_windowed
-                : window_mode::windowed;
+                : window_mode::windowed_fixed_size;
         affine::extents2d window_extents = {1280, 720};
+        affine::extents2d window_minimum = {960, 540};
         std::optional<affine::point2d> window_position = {};
 
 
