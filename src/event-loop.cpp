@@ -34,6 +34,20 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
          */
         affine::extents2d const scale = pixel_density(window_id);
         SDL_Event event;
+        /**
+         * Window events carry the ID of the window they relate to. In a
+         * single-window application anything other than our own window is
+         * unexpected, so warn and ignore it rather than acting on it.
+         */
+        auto const from_my_window = [this, &event]() {
+            bool const mine = (event.window.windowID == window_id);
+            if (not mine) {
+                planet::log::warning(
+                        "Got a window event for a window ID that isn't mine. Mine",
+                        window_id, "event", event.window.windowID);
+            }
+            return mine;
+        };
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
 
@@ -119,24 +133,65 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
             case SDL_EVENT_QUIT: events.quit.push({}); break;
 
             case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
-                if (event.window.windowID != window_id) {
-                    planet::log::warning(
-                            "Got SDL_WINDOWEVENT for a window ID that isn't mine. Mine",
-                            window_id, "event", event.window.windowID);
-                } else {
-                    events.quit.push({});
+                if (from_my_window()) { events.quit.push({}); }
+                break;
+
+            case SDL_EVENT_WINDOW_FOCUS_LOST:
+                if (from_my_window()) {
+                    events.focus.push({.change = events::window_focus::lost});
                 }
                 break;
-            case SDL_EVENT_WINDOW_FOCUS_LOST: [[fallthrough]];
             case SDL_EVENT_WINDOW_FOCUS_GAINED:
-                if (event.window.windowID != window_id) {
-                    planet::log::warning(
-                            "Got SDL_WINDOWEVENT for a window ID that isn't mine. Mine",
-                            window_id, "event", event.window.windowID);
-                } else if (event.type == SDL_EVENT_WINDOW_FOCUS_LOST) {
-                    planet::log::info("Window lost focus");
-                } else if (event.type == SDL_EVENT_WINDOW_FOCUS_GAINED) {
-                    planet::log::info("Window gained focus");
+                if (from_my_window()) {
+                    events.focus.push({.change = events::window_focus::gained});
+                }
+                break;
+
+            /**
+             * Window position and size are reported in logical points -- the
+             * same units the saved window geometry round-trips through -- so
+             * they are used directly without the pixel density scaling the
+             * pointer events need.
+             */
+            case SDL_EVENT_WINDOW_MOVED:
+                if (from_my_window()) {
+                    events.position.push(
+                            {.location = affine::point2d{
+                                     float(event.window.data1),
+                                     float(event.window.data2)}});
+                }
+                break;
+            case SDL_EVENT_WINDOW_RESIZED:
+                if (from_my_window()) {
+                    events.resize.push(
+                            {.transition = events::window_resize::change,
+                             .extents = affine::extents2d{
+                                     float(event.window.data1),
+                                     float(event.window.data2)}});
+                }
+                break;
+            /**
+             * Minimise, maximise and full screen are state changes that do not
+             * themselves carry a new content size (a `SDL_EVENT_WINDOW_RESIZED`
+             * follows when the size actually changes), so the extents are left
+             * unset.
+             */
+            case SDL_EVENT_WINDOW_MINIMIZED:
+                if (from_my_window()) {
+                    events.resize.push(
+                            {.transition = events::window_resize::minimise});
+                }
+                break;
+            case SDL_EVENT_WINDOW_MAXIMIZED:
+                if (from_my_window()) {
+                    events.resize.push(
+                            {.transition = events::window_resize::maximise});
+                }
+                break;
+            case SDL_EVENT_WINDOW_ENTER_FULLSCREEN:
+                if (from_my_window()) {
+                    events.resize.push(
+                            {.transition = events::window_resize::full_screen});
                 }
                 break;
 

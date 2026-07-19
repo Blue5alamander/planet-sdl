@@ -13,8 +13,21 @@ namespace planet::sdl {
 
     /// ## Event loop
     /**
-     * This will handle and event loop sending all of the mouse events to the
-     * window's panel from which UI elements which need them can get them.
+     * Polls the platform for events, translates each one into the matching
+     * `planet::events` type and pushes it onto the relevant queue in `events`.
+     * There are two kinds of event and they are consumed in two different ways.
+     *
+     * The **interactive events** -- `key`, `mouse` and `scroll` -- are the
+     * input the UI reacts to. `forward_to_baseplate` forwards them into a
+     * `ui::baseplate`'s own queue, so code that handles user input works
+     * against the base plate rather than against this event loop.
+     *
+     * The **window events** -- `focus`, `position` and `resize`, along with
+     * `quit` -- describe the window itself rather than anything a widget acts
+     * on, so they are deliberately not forwarded. The application consumes them
+     * directly from `events`. They are what a program watches to, for example,
+     * save and restore the window geometry, or pause rendering while the window
+     * is minimised or has lost focus.
      */
     struct event_loop final {
         event_loop(init &s, std::uint32_t const wid) : sdl{s}, window_id{wid} {}
@@ -32,11 +45,22 @@ namespace planet::sdl {
         /// #### Run the event loop until the UX is done
         felspar::coro::task<void> run();
 
-        /// #### Forward all events to the base plate running the widgets
+        /// #### Forward the interactive events to the base plate running the
+        /// widgets
+        /**
+         * Forwards the `key`, `mouse` and `scroll` queues into the base plate's
+         * own `events`. The window events are left for the application to
+         * consume directly from `events`.
+         */
         felspar::coro::task<void> forward_to_baseplate(ui::baseplate &);
 
 
         /// ### Events
+        /**
+         * The queues fed by `run()`. Interactive events are usually taken via
+         * `forward_to_baseplate`; the window events are consumed from here
+         * directly.
+         */
         events::queue events;
 
 
