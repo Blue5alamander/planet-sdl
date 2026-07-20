@@ -191,16 +191,13 @@ namespace {
      * half-life is counted in readings, so it is converted from wall-clock time
      * to a reading count assuming one reading per buffer. That counter is a
      * namespace-scope static constructed before any configuration loads, so it
-     * cannot see the runtime block size; the reading count therefore assumes
-     * the largest buffer the system can produce.
+     * cannot read the runtime block size; the reading count therefore assumes
+     * the initial working block, i.e. one callback every
+     * `initial_buffer_duration` samples.
      */
     auto constexpr c_half_life = 2s;
     std::size_t constexpr c_half_life_callbacks =
-            c_half_life / planet::audio::default_buffer_duration;
-    /**
-     * TODO Once we have `initial_buffer_duration` defined then set
-     * the `c_half_life_callbacks` using that.
-     */
+            c_half_life / planet::audio::initial_buffer_duration;
 
     planet::telemetry::real_time_rate c_callback_rate{
             "planet_sdl__audio__callback_rate", c_half_life};
