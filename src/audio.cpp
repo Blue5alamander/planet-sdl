@@ -138,7 +138,12 @@ void planet::sdl::audio_output::reconnect(
      * stops and restarts each producer thread) before the consumer side starts
      * pulling from `next_frame` again.
      */
-    std::size_t const samples = block_size;
+    std::size_t const samples = 512;
+    /**
+     * `samples` is the block size the mixer rings and the playback head advance
+     * in. The stream callback renders whole blocks of this size and queues them
+     * on the stream with `SDL_PutAudioStreamData`.
+     */
     drv.emplace(samples, config.audio_latency_injected_block_count);
     /**
      * Seed the published playback head with the end-time of the first block,
@@ -160,10 +165,10 @@ void planet::sdl::audio_output::reconnect(
     {
         std::scoped_lock lock{attach_mtx};
         std::size_t const count = attached.load(std::memory_order_acquire);
-        for (std::size_t i{}; i < count; ++i) {
+        planet::by_index(count, [&](auto const i) {
             mixers[i]->bind_driver(*drv);
             mixers[i]->begin();
-        }
+        });
     }
     if (not SDL_ResumeAudioStreamDevice(stream.get())) {
         throw felspar::stdexcept::runtime_error{
@@ -183,12 +188,19 @@ namespace {
      * All of the smoothed callback counters share the same wall-clock half-life
      * so their values stay comparable, e.g. `callback_load` should be close to
      * `callback_duration` times `callback_rate`. The `steady_duration`
-     * half-life is counted in readings, so it is converted assuming one reading
-     * per default buffer duration.
+     * half-life is counted in readings, so it is converted from wall-clock time
+     * to a reading count assuming one reading per buffer. That counter is a
+     * namespace-scope static constructed before any configuration loads, so it
+     * cannot see the runtime block size; the reading count therefore assumes
+     * the largest buffer the system can produce.
      */
     auto constexpr c_half_life = 2s;
     std::size_t constexpr c_half_life_callbacks =
             c_half_life / planet::audio::default_buffer_duration;
+    /**
+     * TODO Once we have `initial_buffer_duration` defined then set
+     * the `c_half_life_callbacks` using that.
+     */
 
     planet::telemetry::real_time_rate c_callback_rate{
             "planet_sdl__audio__callback_rate", c_half_life};
@@ -216,11 +228,14 @@ void planet::sdl::audio_output::audio_callback(
     /**
      * The stream asks for however many bytes it needs to satisfy the device;
      * render whole app-side blocks (rounding the request up) so the mixer rings
-     * and the playback head always advance in `block_size` steps. Any surplus
-     * stays queued in the stream and is deducted from the next request.
+     * and the playback head always advance in the driver's block size. Any
+     * surplus stays queued in the stream and is deducted from the next request.
      */
-    std::array<float, block_size * audio::stereo_buffer::channels> buffer;
-    std::size_t constexpr buffer_bytes = buffer.size() * sizeof(float);
+    std::size_t const block_size = self->drv->block_size;
+    std::array<float, audio::max_buffer_samples * audio::stereo_buffer::channels>
+            buffer;
+    std::size_t const buffer_bytes =
+            block_size * audio::stereo_buffer::channels * sizeof(float);
     for (int remaining = additional_amount; remaining > 0;
          remaining -= static_cast<int>(buffer_bytes)) {
         self->render(buffer.data(), block_size);

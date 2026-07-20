@@ -31,14 +31,6 @@ namespace planet::sdl {
      * filled and in sync.
      */
     class audio_output final {
-        /// ### App-side block size in sample frames
-        /**
-         * The block size the mixer rings and the playback head advance in. The
-         * stream callback renders whole blocks of this size and queues them on
-         * the stream with `SDL_PutAudioStreamData`.
-         */
-        static std::size_t constexpr block_size = 512;
-
         handle<SDL_AudioStream, SDL_DestroyAudioStream> stream;
         /**
          * Stream bound to the playback device opened by
