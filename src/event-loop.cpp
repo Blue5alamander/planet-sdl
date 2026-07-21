@@ -138,12 +138,12 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
 
             case SDL_EVENT_WINDOW_FOCUS_LOST:
                 if (from_my_window()) {
-                    events.focus.push({.change = events::window_focus::lost});
+                    events.focus.push(events::window_focus::lost);
                 }
                 break;
             case SDL_EVENT_WINDOW_FOCUS_GAINED:
                 if (from_my_window()) {
-                    events.focus.push({.change = events::window_focus::gained});
+                    events.focus.push(events::window_focus::gained);
                 }
                 break;
 
@@ -173,9 +173,9 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
             case SDL_EVENT_WINDOW_MOVED:
                 if (from_my_window()) {
                     events.position.push(
-                            {.location = affine::point2d{
-                                     float(event.window.data1),
-                                     float(event.window.data2)}});
+                            affine::point2d{
+                                    float(event.window.data1),
+                                    float(event.window.data2)});
                 }
                 break;
             case SDL_EVENT_WINDOW_RESIZED:
