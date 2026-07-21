@@ -68,15 +68,17 @@ namespace {
 
     struct spectrum {
         std::vector<spinner> spinners;
-        std::array<float, planet::audio::default_buffer_samples> buffer = {};
+        std::array<float, planet::audio::max_buffer_samples> buffer = {};
 
         felspar::coro::generator<std::span<float>> signal() {
             while (true) {
-                for (auto &s : buffer) {
+                auto const slice = std::span{buffer}.first(
+                        planet::audio::buffer_samples());
+                for (auto &s : slice) {
                     s = {};
                     for (auto &osc : spinners) { s += osc.step(); }
                 }
-                co_yield buffer;
+                co_yield slice;
             }
         }
     };
