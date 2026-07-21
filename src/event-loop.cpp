@@ -148,6 +148,23 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
                 break;
 
             /**
+             * The pointer crossing the window boundary is independent of
+             * keyboard focus -- it can leave a window that stays focused, and
+             * the window can lose focus with the pointer still inside -- so
+             * these are reported separately rather than as focus changes.
+             */
+            case SDL_EVENT_WINDOW_MOUSE_ENTER:
+                if (from_my_window()) {
+                    events.pointer.push(events::window_pointer::enter);
+                }
+                break;
+            case SDL_EVENT_WINDOW_MOUSE_LEAVE:
+                if (from_my_window()) {
+                    events.pointer.push(events::window_pointer::leave);
+                }
+                break;
+
+            /**
              * Window position and size are reported in logical points -- the
              * same units the saved window geometry round-trips through -- so
              * they are used directly without the pixel density scaling the
