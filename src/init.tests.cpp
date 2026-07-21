@@ -107,6 +107,53 @@ namespace {
         check(c.window_extents == planet::affine::extents2d{640, 480}) == true;
         check(c.window_position == std::optional{planet::affine::point2d{5, 5}})
                 == true;
+
+        /// ### `default_buffer_duration` survives a save/load round-trip
+        {
+            c.default_buffer_duration = planet::audio::sample_clock{1024};
+            planet::serialise::save_buffer ab;
+            save(ab, c);
+            auto const bytes = ab.complete();
+
+            // Clobber so a successful reload is meaningful.
+            c.default_buffer_duration = planet::audio::sample_clock{512};
+
+            planet::serialise::load_buffer lb{bytes.cmemory()};
+            load(lb, c);
+
+            check(c.default_buffer_duration
+                  == planet::audio::sample_clock{1024})
+                    == true;
+        }
+
+        /// ### A pre-`default_buffer_duration` configuration still loads
+        /**
+         * Serialise only the fields that existed before
+         * `default_buffer_duration` was appended, exactly as an older build
+         * would have written them. The field is absent from the buffer, so the
+         * load guard returns before reaching it and it keeps its 512 default.
+         */
+        {
+            c.default_buffer_duration = planet::audio::sample_clock{512};
+            planet::serialise::save_buffer ab;
+            ab.save_box(
+                    c.box, c.log_level, c.auto_remove_log_files,
+                    c.master_volume, c.music_volume, c.sfx_volume,
+                    c.audio_device_name, c.save_logs_to_file,
+                    c.upload_performance_data,
+                    c.audio_latency_injected_block_count, c.window_display_mode,
+                    c.window_extents, c.window_position);
+            auto const bytes = ab.complete();
+
+            // Flip an earlier field to prove the reload still ran.
+            c.auto_remove_log_files = true;
+            planet::serialise::load_buffer lb{bytes.cmemory()};
+            load(lb, c);
+
+            check(c.auto_remove_log_files) == false;
+            check(c.default_buffer_duration == planet::audio::sample_clock{512})
+                    == true;
+        }
     });
 
 

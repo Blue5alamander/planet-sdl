@@ -103,6 +103,15 @@ namespace planet::sdl {
          */
 
 
+        /// #### The audio block size the engine advances in
+        audio::sample_clock default_buffer_duration{512};
+        /**
+         * The number of samples rendered and consumed per audio block. Must be
+         * in `(0, audio::max_buffer_duration]` so it fits the storage sized by
+         * `audio::max_buffer_samples`.
+         */
+
+
         /// ### Window configuration
         /**
          * Desktop platforms default to a 720p window; the mobile platforms
