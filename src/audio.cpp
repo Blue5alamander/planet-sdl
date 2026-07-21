@@ -138,12 +138,14 @@ void planet::sdl::audio_output::reconnect(
      * stops and restarts each producer thread) before the consumer side starts
      * pulling from `next_frame` again.
      */
-    std::size_t const samples = 512;
     /**
-     * `samples` is the block size the mixer rings and the playback head advance
-     * in. The stream callback renders whole blocks of this size and queues them
-     * on the stream with `SDL_PutAudioStreamData`.
+     * The block size the mixer rings and the playback head advance in, read
+     * from the configuration and clamped at load to lie in `(0,
+     * audio::max_buffer_duration]`. The stream callback renders whole blocks of
+     * this size and queues them on the stream with `SDL_PutAudioStreamData`.
      */
+    std::size_t const samples =
+            static_cast<std::size_t>(config.default_buffer_duration.count());
     drv.emplace(samples, config.audio_latency_injected_block_count);
     /**
      * Seed the published playback head with the end-time of the first block,

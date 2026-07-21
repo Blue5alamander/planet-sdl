@@ -188,6 +188,29 @@ void planet::sdl::load(serialise::load_buffer &lb, configuration &c) {
         telemetry::load_performance(lb, c.times_exited, c.times_loaded);
     }
     log::active.store(c.log_level);
+    /**
+     * Validate the configured block size before publishing it. A zero or
+     * above-cap value would build a driver that cannot work, so clamp it into
+     * `(0, audio::max_buffer_duration]` and log the correction — the engine
+     * keeps a usable block size rather than failing to start.
+     */
+    if (c.default_buffer_duration <= audio::sample_clock{0}) {
+        log::error(
+                "Configured audio default_buffer_duration of",
+                c.default_buffer_duration.count(),
+                "samples must be greater than zero; using",
+                audio::initial_buffer_duration.count());
+        c.default_buffer_duration = audio::initial_buffer_duration;
+    } else if (c.default_buffer_duration > audio::max_buffer_duration) {
+        log::error(
+                "Configured audio default_buffer_duration of",
+                c.default_buffer_duration.count(),
+                "samples exceeds the maximum of",
+                audio::max_buffer_duration.count(),
+                "samples; clamping down to it");
+        c.default_buffer_duration = audio::max_buffer_duration;
+    }
+    audio::active_buffer_duration.store(c.default_buffer_duration);
 }
 
 
