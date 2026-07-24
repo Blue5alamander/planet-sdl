@@ -8,6 +8,21 @@
 using namespace std::literals;
 
 
+namespace {
+    /**
+     * SDL reports the modifier state alongside each key event, folding the
+     * left and right keys of a kind into one mask, which is exactly the
+     * per-event reading `events::modifiers` carries.
+     */
+    planet::events::modifiers modifiers_for(SDL_Keymod const mod) noexcept {
+        return {.shift = (mod bitand SDL_KMOD_SHIFT) != 0,
+                .ctrl = (mod bitand SDL_KMOD_CTRL) != 0,
+                .alt = (mod bitand SDL_KMOD_ALT) != 0,
+                .gui = (mod bitand SDL_KMOD_GUI) != 0};
+    }
+}
+
+
 /// ## `planet::sdl::event_loop`
 
 
@@ -57,7 +72,7 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
                         "SDL_EVENT_KEY_DOWN", static_cast<int>(scancode));
                 events.key.push(
                         {static_cast<events::scancode>(scancode),
-                         events::action::down});
+                         events::action::down, modifiers_for(event.key.mod)});
                 break;
             }
             case SDL_EVENT_KEY_UP: {
@@ -66,7 +81,7 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
                         "SDL_EVENT_KEY_UP", static_cast<int>(scancode));
                 events.key.push(
                         {static_cast<events::scancode>(scancode),
-                         events::action::up});
+                         events::action::up, modifiers_for(event.key.mod)});
                 break;
             }
 
