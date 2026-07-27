@@ -12,7 +12,11 @@ namespace {
     /**
      * SDL reports the modifier state alongside each key event, folding the
      * left and right keys of a kind into one mask, which is exactly the
-     * per-event reading `events::modifiers` carries.
+     * per-event reading `events::modifiers` carries. Mouse events carry no
+     * mask of their own, so they read the current state with
+     * `SDL_GetModState()` instead — sampled as the event is drained from
+     * SDL's queue rather than when it happened, which is close enough at
+     * this loop's polling rate.
      */
     planet::events::modifiers modifiers_for(SDL_Keymod const mod) noexcept {
         return {.shift = (mod bitand SDL_KMOD_SHIFT) != 0,
@@ -93,12 +97,14 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
                 case SDL_BUTTON_LEFT:
                     events.mouse.push(
                             {events::button::left, events::action::down,
-                             last_mouse_pos, event.button.clicks});
+                             last_mouse_pos, event.button.clicks,
+                             modifiers_for(SDL_GetModState())});
                     break;
                 case SDL_BUTTON_RIGHT:
                     events.mouse.push(
                             {events::button::right, events::action::down,
-                             last_mouse_pos, event.button.clicks});
+                             last_mouse_pos, event.button.clicks,
+                             modifiers_for(SDL_GetModState())});
                     break;
                 }
                 break;
@@ -111,12 +117,14 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
                 case SDL_BUTTON_LEFT:
                     events.mouse.push(
                             {events::button::left, events::action::up,
-                             last_mouse_pos, event.button.clicks});
+                             last_mouse_pos, event.button.clicks,
+                             modifiers_for(SDL_GetModState())});
                     break;
                 case SDL_BUTTON_RIGHT:
                     events.mouse.push(
                             {events::button::right, events::action::up,
-                             last_mouse_pos, event.button.clicks});
+                             last_mouse_pos, event.button.clicks,
+                             modifiers_for(SDL_GetModState())});
                     break;
                 }
                 break;
@@ -136,7 +144,8 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
                         b = events::button::right;
                     }
                     events.mouse.push(
-                            {b, a, last_mouse_pos, event.button.clicks});
+                            {b, a, last_mouse_pos, event.button.clicks,
+                             modifiers_for(SDL_GetModState())});
                 }
                 break;
 
