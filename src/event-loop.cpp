@@ -12,8 +12,8 @@ namespace {
     /**
      * SDL reports the modifier state alongside each key event, folding the
      * left and right keys of a kind into one mask, which is exactly the
-     * per-event reading `events::modifiers` carries. Mouse events carry no
-     * mask of their own, so they read the current state with
+     * per-event reading `events::modifiers` carries. Mouse and wheel events
+     * carry no mask of their own, so they read the current state with
      * `SDL_GetModState()` instead — sampled as the event is drained from
      * SDL's queue rather than when it happened, which is close enough at
      * this loop's polling rate.
@@ -163,7 +163,8 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
 
             case SDL_EVENT_MOUSE_WHEEL:
                 events.scroll.push(
-                        {event.wheel.x, event.wheel.y, last_mouse_pos});
+                        {event.wheel.x, event.wheel.y, last_mouse_pos,
+                         modifiers_for(SDL_GetModState())});
                 break;
 
             case SDL_EVENT_QUIT: events.quit.push({}); break;
