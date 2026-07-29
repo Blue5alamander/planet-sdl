@@ -17,10 +17,12 @@ namespace planet::sdl {
      * `planet::events` type and pushes it onto the relevant queue in `events`.
      * There are two kinds of event and they are consumed in two different ways.
      *
-     * The **interactive events** -- `key`, `mouse` and `scroll` -- are the
-     * input the UI reacts to. `forward_to_baseplate` forwards them into a
+     * The **interactive events** -- `key`, `mouse`, `scroll` and `text` -- are
+     * the input the UI reacts to. `forward_to_baseplate` forwards them into a
      * `ui::baseplate`'s own queue, so code that handles user input works
-     * against the base plate rather than against this event loop.
+     * against the base plate rather than against this event loop. `text` is
+     * only produced once a widget has asked the platform for text input, and
+     * so is silent until then.
      *
      * The **window events** -- `focus`, `position` and `resize`, along with
      * `quit` -- describe the window itself rather than anything a widget acts
@@ -48,9 +50,9 @@ namespace planet::sdl {
         /// #### Forward the interactive events to the base plate running the
         /// widgets
         /**
-         * Forwards the `key`, `mouse` and `scroll` queues into the base plate's
-         * own `events`. The window events are left for the application to
-         * consume directly from `events`.
+         * Forwards the `key`, `mouse`, `scroll` and `text` queues into the base
+         * plate's own `events`. The window events are left for the application
+         * to consume directly from `events`.
          */
         felspar::coro::task<void> forward_to_baseplate(ui::baseplate &);
 

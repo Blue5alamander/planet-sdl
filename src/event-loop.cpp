@@ -36,6 +36,7 @@ felspar::coro::task<void>
     forwarders.post(events.key.forward(bp.events.key));
     forwarders.post(events.mouse.forward(bp.events.mouse));
     forwarders.post(events.scroll.forward(bp.events.scroll));
+    forwarders.post(events.text.forward(bp.events.text));
     co_await forwarders.wait_for_all();
 }
 
@@ -88,6 +89,17 @@ felspar::coro::task<void> planet::sdl::event_loop::run() {
                          events::action::up, modifiers_for(event.key.mod)});
                 break;
             }
+
+            /**
+             * The characters the keyboard actually produced, which SDL reports
+             * separately from the physical keys and only once a field has
+             * turned text input on. `event.text.text` is a NUL terminated
+             * UTF-8 string SDL owns and re-uses, so it is copied into the
+             * event's own `std::string` here rather than referred to.
+             */
+            case SDL_EVENT_TEXT_INPUT:
+                events.text.push({.utf8 = event.text.text});
+                break;
 
             case SDL_EVENT_MOUSE_BUTTON_DOWN:
                 last_mouse_pos = {
