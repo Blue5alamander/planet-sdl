@@ -19,6 +19,7 @@ add_library(planet-sdl
         init.cpp
         open_url.cpp
         surface.cpp
+        text_input.cpp
         ttf.cpp
     )
 target_include_directories(planet-sdl PUBLIC ../include)
@@ -47,6 +48,7 @@ target_sources(planet-sdl PUBLIC
         ../include/planet/sdl/rw_ops.hpp
         ../include/planet/sdl/sdl.hpp
         ../include/planet/sdl/surface.hpp
+        ../include/planet/sdl/text_input.hpp
         ../include/planet/sdl/ttf.hpp
     )
 set_property(TARGET planet-sdl PROPERTY VERIFY_INTERFACE_HEADER_SETS ON)
@@ -55,4 +57,5 @@ add_dependencies(check planet-sdl_verify_interface_header_sets)
 
 add_test_run(check planet-sdl TESTS
         init.tests.cpp
+        pixel_density.tests.cpp
     )
