@@ -44,30 +44,30 @@ namespace planet::sdl {
 
 
         /// ### Text dimensions
-        affine::extents2d measure(char const *text) const;
+        affine::extents2d measure(std::string_view text) const;
 
 
         /// ### Render text to a single line
         surface
-                render(char const *text,
+                render(std::string_view text,
                        planet::ui::scale fit = planet::ui::scale::never) const {
             return render(text, colour, fit);
         }
         surface
-                render(char const *text,
+                render(std::string_view text,
                        SDL_Color,
                        planet::ui::scale = planet::ui::scale::never) const;
 
 
         /// ### Wrap text if  it is too wide
         surface
-                render(char const *text,
+                render(std::string_view text,
                        std::uint32_t const width,
                        planet::ui::scale fit = planet::ui::scale::never) const {
             return render(text, colour, width, fit);
         }
         surface
-                render(char const *text,
+                render(std::string_view text,
                        SDL_Color,
                        std::uint32_t width,
                        planet::ui::scale = planet::ui::scale::never) const;

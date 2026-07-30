@@ -58,23 +58,26 @@ planet::sdl::font::font(
 }
 
 
-planet::affine::extents2d planet::sdl::font::measure(char const *const t) const {
+planet::affine::extents2d
+        planet::sdl::font::measure(std::string_view const t) const {
     int w{}, h{};
-    check_worked(TTF_GetStringSize(pf.get(), t, 0, &w, &h));
+    check_worked(TTF_GetStringSize(pf.get(), t.data(), t.size(), &w, &h));
     return {static_cast<float>(w), static_cast<float>(h)};
 }
 
 
 planet::sdl::surface planet::sdl::font::render(
-        char const *text, SDL_Color c, ui::scale const fit) const {
-    return {TTF_RenderText_Blended(pf.get(), text, 0, c), fit};
+        std::string_view const text, SDL_Color c, ui::scale const fit) const {
+    return {TTF_RenderText_Blended(pf.get(), text.data(), text.size(), c), fit};
 }
 
 
 planet::sdl::surface planet::sdl::font::render(
-        char const *text,
+        std::string_view const text,
         SDL_Color const c,
         std::uint32_t const width,
         ui::scale const fit) const {
-    return {TTF_RenderText_Blended_Wrapped(pf.get(), text, 0, c, width), fit};
+    return {TTF_RenderText_Blended_Wrapped(
+                    pf.get(), text.data(), text.size(), c, width),
+            fit};
 }
