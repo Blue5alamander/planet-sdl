@@ -1,8 +1,12 @@
+#include "init.hpp"
+
 #include <planet/log.hpp>
 #include <planet/sdl/init.hpp>
 #include <planet/serialise.hpp>
 
 #include <felspar/test.hpp>
+
+#include <clocale>
 
 
 namespace {
@@ -33,6 +37,21 @@ namespace {
                     saved, std::memory_order_relaxed);
         }
     };
+
+
+    /// Taking up the machine's conventions moves the time ones alone
+    /**
+     * A locale carries how numbers are written as well as how dates are, so
+     * handing over more than `LC_TIME` would change how the C library reads and
+     * writes every number in the process. The decimal separator is where that
+     * widening would show first.
+     */
+    auto const time_conventions =
+            suite.test("time_conventions", [](auto check, auto &) {
+                planet::sdl::use_system_time_conventions();
+                check(std::string_view{std::localeconv()->decimal_point} == ".")
+                        == true;
+            });
 
 
     /// Every `window_mode` survives a trip through its string form
@@ -114,8 +133,10 @@ namespace {
                         c.audio_latency_injected_block_count);
                 auto const bytes = ab.complete();
 
-                // Flip the earlier field to prove it reloads; leave the window
-                // fields to prove an old buffer does not overwrite them.
+                /**
+                 * Flip the earlier field to prove it reloads; leave the window
+                 * fields to prove an old buffer does not overwrite them.
+                 */
                 c.auto_remove_log_files = true;
                 planet::serialise::load_buffer lb{bytes.cmemory()};
                 load(lb, c);

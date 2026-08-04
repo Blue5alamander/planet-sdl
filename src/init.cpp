@@ -1,3 +1,5 @@
+#include "init.hpp"
+
 #include <planet/sdl/init.hpp>
 
 #include <planet/folders.hpp>
@@ -8,9 +10,12 @@
 
 #include <felspar/exceptions/runtime_error.hpp>
 
+#include <clocale>
+#include <cstdlib>
 #include <iostream>
 #include <string>
 #include <utility>
+#include <vector>
 
 
 using namespace std::literals;
@@ -214,6 +219,95 @@ void planet::sdl::load(serialise::load_buffer &lb, configuration &c) {
 }
 
 
+/// ## `planet::sdl::use_system_time_conventions`
+
+
+namespace {
+    /// ### The locale every program starts in, meaning nothing has been said
+    bool is_c_locale(char const *const name) noexcept {
+        return name == nullptr or name == "C"sv or name == "POSIX"sv;
+    }
+
+
+    /// ### Has this machine been told what to write?
+    /**
+     * Any of them set means the answer that came back was asked for, and it is
+     * kept even when what was asked for is the `C` locale.
+     */
+    bool environment_names_a_locale() noexcept {
+        for (auto const *const variable : {"LC_ALL", "LC_TIME", "LANG"}) {
+            auto const *const named = std::getenv(variable);
+            if (named and *named) { return true; }
+        }
+        return false;
+    }
+
+
+    /// ### The spellings of a locale the platforms' C libraries take
+    /**
+     * glibc and Darwin want `en_GB.UTF-8`, the Windows CRT wants `en-GB`, so
+     * they are tried in turn and the first accepted is the one taken up —
+     * cheaper than working out which library this is, and it falls back to the
+     * language alone on a machine that has the language but not the region.
+     */
+    std::vector<std::string> spellings_of(SDL_Locale const &locale) {
+        std::string const language{locale.language};
+        if (locale.country) {
+            std::string const region = language + '_' + locale.country;
+            return {region + ".UTF-8", region, language + '-' + locale.country,
+                    language};
+        } else {
+            return {language + ".UTF-8", language};
+        }
+    }
+
+
+    /// ### Deleter for the SDL3 preferred locale list
+    void free_locale_list(SDL_Locale **locales) noexcept { SDL_free(locales); }
+}
+
+
+void planet::sdl::use_system_time_conventions() {
+    auto const *const from_environment = std::setlocale(LC_TIME, "");
+    if (from_environment == nullptr) {
+        log::warning(
+                "The environment names a time and date locale this machine "
+                "hasn't got, so the platform's own preference is used instead");
+    } else if (not is_c_locale(from_environment)) {
+        log::info("Dates and times are written by", from_environment);
+        return;
+    } else if (environment_names_a_locale()) {
+        log::info(
+                "The environment asks for the C time and date conventions",
+                from_environment);
+        return;
+    }
+
+    int count{};
+    handle<SDL_Locale *, free_locale_list> const locales{
+            SDL_GetPreferredLocales(&count)};
+    if (locales.get() == nullptr or count < 1) {
+        log::warning(
+                "This machine doesn't say how it writes dates and times, so "
+                "the C conventions are used. SDL error",
+                SDL_GetError());
+        return;
+    }
+    auto const spellings = spellings_of(*locales.get()[0]);
+    for (auto const &spelling : spellings) {
+        if (auto const *const taken_up =
+                    std::setlocale(LC_TIME, spelling.c_str());
+            taken_up) {
+            log::info("Dates and times are written by", taken_up);
+            return;
+        }
+    }
+    log::warning(
+            "This machine hasn't got the locale it prefers in any spelling it was asked for, so the C date and time conventions are used. Tried",
+            spellings);
+}
+
+
 /// ## `planet::sdl::init`
 
 
@@ -276,6 +370,8 @@ planet::sdl::init::init(
     planet::log::debug(
             "Audio devices found", device_count, "device list",
             audio_device_list);
+    /// After `SDL_Init`, because SDL may be asked which locale to take up.
+    use_system_time_conventions();
 }
 
 
