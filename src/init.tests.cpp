@@ -12,7 +12,19 @@
 namespace {
 
 
-    auto const suite = felspar::testsuite("sdl-config");
+    /// Nothing in this suite may reach the log thread
+    /**
+     * The log thread writes its messages to `std::cout`, which is also where
+     * the test runner writes its own output from the main thread, and neither
+     * synchronises with the other. Emitting even one message therefore starts
+     * the thread and races the runner -- a real race that a thread sanitiser
+     * build stops on. `critical` is the level the whole suite needs rather
+     * than the usual `error`, because the block size clamping below logs an
+     * error on purpose.
+     */
+    auto const suite = felspar::testsuite("sdl-config", []() {
+        planet::log::active = planet::log::level::critical;
+    });
 
 
     constexpr planet::sdl::window_mode all_modes[] = {
@@ -83,7 +95,7 @@ namespace {
      */
     auto const window_config =
             suite.test("window_config", [](auto check, auto &) {
-                planet::sdl::configuration c;
+                planet::sdl::configuration c{planet::log::level::critical};
 
                 /// ### Each mode + geometry survives a save/load round-trip
                 for (auto const m : all_modes) {
