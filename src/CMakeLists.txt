@@ -16,6 +16,7 @@ endif()
 add_library(planet-sdl
         audio.cpp
         event-loop.cpp
+        file_dialog.cpp
         init.cpp
         open_url.cpp
         surface.cpp
@@ -39,6 +40,7 @@ target_sources(planet-sdl PUBLIC
   FILES
         ../include/planet/sdl/audio.hpp
         ../include/planet/sdl/event-loop.hpp
+        ../include/planet/sdl/file_dialog.hpp
         ../include/planet/sdl/forward.hpp
         ../include/planet/sdl/handle.hpp
         ../include/planet/sdl.hpp
@@ -56,6 +58,7 @@ add_dependencies(check planet-sdl_verify_interface_header_sets)
 
 
 add_test_run(check planet-sdl TESTS
+        file_dialog.tests.cpp
         init.tests.cpp
         pixel_density.tests.cpp
     )
