@@ -55,7 +55,7 @@ namespace {
 
 
 planet::sdl::files::files(planet::version const &version, configuration const &c)
-: config{c} {
+: config{c}, application_folder{version.application_folder} {
     std::filesystem::path home =
             base_storage_folder() / version.application_folder;
     set_game_folder(std::move(home));
@@ -84,6 +84,20 @@ void planet::sdl::files::set_game_folder(std::filesystem::path path) {
     config_filename = path / "configuration";
     log_folder = path / "logs";
     save_folder = path / "saves";
+    /**
+     * SDL keeps the documents folder it looks up, so the string is borrowed
+     * and copied here rather than owned. The lookup reads the platform's own
+     * answer -- the XDG user directories, the Windows known folder, the Cocoa
+     * search path -- and fails where the platform has no such folder, which is
+     * where the game folder stands in for it.
+     */
+    if (auto const *const documents = SDL_GetUserFolder(SDL_FOLDER_DOCUMENTS);
+        documents) {
+        documents_folder =
+                std::filesystem::path{documents} / application_folder;
+    } else {
+        documents_folder = path;
+    }
     game_folder = std::move(path);
 
     if (try_make_folder(log_folder)) {
@@ -103,11 +117,13 @@ void planet::sdl::files::set_game_folder(std::filesystem::path path) {
         log::write_file_headers();
         log::info(
                 "Game path", game_folder, "configuration file", config_filename,
-                "save folder", save_folder, "log file", log_filename);
+                "save folder", save_folder, "documents folder",
+                documents_folder, "log file", log_filename);
     } else {
         log::info(
                 "Game path", game_folder, "configuration file", config_filename,
-                "save folder", save_folder, "log folder", log_folder);
+                "save folder", save_folder, "documents folder",
+                documents_folder, "log folder", log_folder);
     }
     try_make_folder(save_folder);
 }

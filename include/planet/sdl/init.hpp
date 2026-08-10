@@ -174,6 +174,21 @@ namespace planet::sdl {
         /// #### Save game folder
         std::filesystem::path save_folder;
 
+        /// #### The game's folder within the player's own documents
+        std::filesystem::path documents_folder;
+        /**
+         * Where files the player is meant to find and manage for themselves
+         * belong, as against the `game_folder`, which holds the game's own book
+         * keeping in a place the platform hides from them -- and which a file
+         * dialog may well refuse to open at for that very reason.
+         *
+         * It is the `application_folder` within whatever the platform calls the
+         * user's documents, and is not created here: whoever writes there makes
+         * it. A platform that offers no documents folder -- Android, tvOS, an
+         * account with no XDG user directories -- has nowhere more visible to
+         * offer, so it is the `game_folder` there.
+         */
+
         /// #### Logging
         std::filesystem::path log_folder;
         std::optional<std::filesystem::path> log_filename, perf_filename;
@@ -182,6 +197,8 @@ namespace planet::sdl {
 
       private:
         configuration const &config;
+        /// The game's folder name, kept for `set_game_folder` to place below
+        std::filesystem::path application_folder;
     };
 
 
