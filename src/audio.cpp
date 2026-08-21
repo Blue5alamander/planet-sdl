@@ -6,6 +6,7 @@
 #include <planet/telemetry/duration.hpp>
 #include <planet/telemetry/load.hpp>
 #include <planet/telemetry/rate.hpp>
+#include <planet/threading.hpp>
 
 #include <felspar/exceptions/logic_error.hpp>
 
@@ -218,6 +219,12 @@ void planet::sdl::audio_output::audio_callback(
         SDL_AudioStream *const stream,
         int const additional_amount,
         int const) {
+    /**
+     * SDL starts this real-time thread with the hardware default, which leaves
+     * denormals to the slow microcode path. Flush them on every callback so a
+     * signal ringing out into denormals does not stall the render.
+     */
+    planet::threading::flush_denormals_to_zero();
     planet::telemetry::steady_duration::measurement const _{
             c_callback_duration};
     planet::telemetry::thread_load::measurement const _load{c_callback_load};
