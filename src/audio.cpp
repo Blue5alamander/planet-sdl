@@ -170,9 +170,12 @@ void planet::sdl::audio_output::reconnect(
         std::size_t const count = attached.load(std::memory_order_acquire);
         planet::by_index(count, [&](auto const i) {
             mixers[i]->bind_driver(*drv);
+            mixers[i]->reset_schedule_margin_min();
             mixers[i]->begin();
         });
     }
+    audio::mixer::reset_worst_schedule_margin_min();
+
     if (not SDL_ResumeAudioStreamDevice(stream.get())) {
         throw felspar::stdexcept::runtime_error{
                 "Audio device stream wouldn't resume"};
