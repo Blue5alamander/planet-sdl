@@ -1,14 +1,11 @@
-#include <planet/functional.hpp>
 #include <planet/log.hpp>
 #include <planet/sdl/audio.hpp>
 #include <planet/sdl/init.hpp>
-#include <planet/telemetry/counter.hpp>
 #include <planet/telemetry/duration.hpp>
 #include <planet/telemetry/load.hpp>
 #include <planet/telemetry/rate.hpp>
-#include <planet/threading.hpp>
 
-#include <felspar/exceptions/logic_error.hpp>
+#include <felspar/exceptions/runtime_error.hpp>
 
 
 using namespace std::literals;
@@ -38,8 +35,8 @@ namespace {
 
 
 planet::sdl::audio_output::audio_output(configuration &config)
-: config{config} {
-    last_master_mul = config.master_volume.multiplier();
+: config{config},
+  core{[&config] { return config.master_volume.multiplier(); }} {
     reconnect(config.audio_device_name);
 }
 
@@ -65,29 +62,11 @@ void planet::sdl::audio_output::reset() {
 
 
 void planet::sdl::audio_output::reserve_mixers(std::size_t const count) {
-    mixers.reserve(count);
-    last_underruns.resize(count, 0);
+    core.reserve_mixers(count);
 }
 
 
-void planet::sdl::audio_output::attach(audio::mixer &m) {
-    std::scoped_lock lock{attach_mtx};
-    if (mixers.size() == mixers.capacity()) {
-        /**
-         * `push_back` here would reallocate and move the buffer the audio
-         * callback reads lock-free on the real-time thread. Every mixer-taking
-         * constructor calls `reserve_mixers` first, so reaching this means
-         * `attach` was called without reserving room — a programming error.
-         */
-        throw felspar::stdexcept::logic_error{
-                "audio_output::attach would grow the mixer vector past its "
-                "reserved capacity while the audio callback may be reading it"};
-    }
-    m.bind_driver(*drv);
-    m.begin();
-    mixers.push_back(&m);
-    attached.store(mixers.size(), std::memory_order_release);
-}
+void planet::sdl::audio_output::attach(audio::mixer &m) { core.attach(m); }
 
 
 void planet::sdl::audio_output::reconnect(
@@ -136,8 +115,8 @@ void planet::sdl::audio_output::reconnect(
      * callback does not fire until `SDL_ResumeAudioStreamDevice` below. That
      * window is what lets us safely tear down the previous driver, rebuild it
      * against the chosen block size, and re-bind every attached mixer (which
-     * stops and restarts each producer thread) before the consumer side starts
-     * pulling from `next_frame` again.
+     * `output::rebuild_driver` does) before the consumer side starts pulling
+     * from `next_frame` again.
      */
     /**
      * The block size the mixer rings and the playback head advance in, read
@@ -145,46 +124,19 @@ void planet::sdl::audio_output::reconnect(
      * audio::max_buffer_duration]`. The stream callback renders whole blocks of
      * this size and queues them on the stream with `SDL_PutAudioStreamData`.
      */
-    std::size_t const samples =
+    block_size =
             static_cast<std::size_t>(config.default_buffer_duration.count());
-    drv.emplace(samples, config.audio_latency_injected_block_count);
-    /**
-     * Seed the published playback head with the end-time of the first block,
-     * so a producer thread that polls the clock before the first callback fires
-     * sees the same kind of value it will see between subsequent callbacks.
-     */
-    drv->playback_head.store(
-            audio::sample_clock{static_cast<audio::sample_clock::rep>(samples)},
-            std::memory_order_release);
-    /**
-     * Re-bind every mixer that was attached before this `reconnect`. The device
-     * just renegotiated its block size; without this loop those mixers would
-     * still hold a `driver const *` to the storage we just re-emplaced and
-     * would render slots sized for the previous block. `bind_driver` stops a
-     * running producer, resets the ring, and pre-rolls silence; `begin()`
-     * restarts the producer. Newly-attached mixers (added via the templated
-     * constructor after the first `reconnect`) are handled by `attach` itself.
-     */
-    {
-        std::scoped_lock lock{attach_mtx};
-        std::size_t const count = attached.load(std::memory_order_acquire);
-        planet::by_index(count, [&](auto const i) {
-            mixers[i]->bind_driver(*drv);
-            mixers[i]->reset_schedule_margin_min();
-            mixers[i]->begin();
-        });
-    }
-    audio::mixer::reset_worst_schedule_margin_min();
+    core.rebuild_driver(block_size, config.audio_latency_injected_block_count);
 
     if (not SDL_ResumeAudioStreamDevice(stream.get())) {
         throw felspar::stdexcept::runtime_error{
                 "Audio device stream wouldn't resume"};
     }
     std::chrono::milliseconds const buffer_size_ms{
-            (samples * 1000) / static_cast<std::size_t>(spec.freq)};
+            (block_size * 1000) / static_cast<std::size_t>(spec.freq)};
     planet::log::info(
             "Connected audio output. Requested device", device_name,
-            "- freq:", spec.freq, "Hz, samples:", samples,
+            "- freq:", spec.freq, "Hz, samples:", block_size,
             "buffer_size:", buffer_size_ms);
 }
 
@@ -200,6 +152,10 @@ namespace {
      * cannot read the runtime block size; the reading count therefore assumes
      * the initial working block, i.e. one callback every
      * `initial_buffer_duration` samples.
+     *
+     * These measure the SDL callback itself, so they stay named for this
+     * backend; the render-body counters (clip, underrun) live in
+     * `planet::audio::output` under backend-neutral names.
      */
     auto constexpr c_half_life = 2s;
     std::size_t constexpr c_half_life_callbacks =
@@ -211,9 +167,6 @@ namespace {
             "planet_sdl__audio__callback_duration", c_half_life_callbacks};
     planet::telemetry::thread_load c_callback_load{
             "planet_sdl__audio__callback_load", c_half_life};
-    planet::telemetry::counter c_clip_count{"planet_sdl__audio__clip_count"};
-    planet::telemetry::counter c_underrun_count{
-            "planet_sdl__audio__underrun_count"};
 }
 
 
@@ -222,12 +175,6 @@ void planet::sdl::audio_output::audio_callback(
         SDL_AudioStream *const stream,
         int const additional_amount,
         int const) {
-    /**
-     * SDL starts this real-time thread with the hardware default, which leaves
-     * denormals to the slow microcode path. Flush them on every callback so a
-     * signal ringing out into denormals does not stall the render.
-     */
-    planet::threading::flush_denormals_to_zero();
     planet::telemetry::steady_duration::measurement const _{
             c_callback_duration};
     planet::telemetry::thread_load::measurement const _load{c_callback_load};
@@ -239,72 +186,18 @@ void planet::sdl::audio_output::audio_callback(
      * render whole app-side blocks (rounding the request up) so the mixer rings
      * and the playback head always advance in the driver's block size. Any
      * surplus stays queued in the stream and is deducted from the next request.
+     * `output::render` flushes denormals for this real-time thread, so the
+     * callback does not repeat that itself.
      */
-    std::size_t const block_size = self->drv->block_size;
+    std::size_t const block_size = self->block_size;
     std::array<float, audio::max_buffer_samples * audio::stereo_buffer::channels>
             buffer;
     std::size_t const buffer_bytes =
             block_size * audio::stereo_buffer::channels * sizeof(float);
     for (int remaining = additional_amount; remaining > 0;
          remaining -= static_cast<int>(buffer_bytes)) {
-        self->render(buffer.data(), block_size);
+        self->core.render(buffer.data(), block_size);
         SDL_PutAudioStreamData(
                 stream, buffer.data(), static_cast<int>(buffer_bytes));
     }
-}
-
-
-void planet::sdl::audio_output::render(
-        float *const output, std::size_t const wanted) noexcept {
-    float const old_master_mul = last_master_mul;
-    float const target_master_mul = config.master_volume.multiplier();
-    std::size_t const count = attached.load(std::memory_order_acquire);
-
-    /// ### Integrate attached mixers
-    /**
-     * Each mixer's ring is pre-rolled with silence at construction, so we can
-     * consume from `next_frame` unconditionally — there is no startup window to
-     * gate against.
-     */
-    planet::telemetry::counter::value_type clipped{};
-    planet::by_index(wanted, [&](std::size_t const sample) {
-        std::array<float, audio::stereo_buffer::channels> mix = {};
-        for (std::size_t m{}; m < count; ++m) {
-            auto const frame = mixers[m]->next_frame();
-            for (std::size_t ch{}; ch < audio::stereo_buffer::channels; ++ch) {
-                mix[ch] += frame[ch];
-            }
-        }
-        float const master_mul = std::lerp(
-                old_master_mul, target_master_mul,
-                static_cast<float>(sample) / wanted);
-        planet::by_index(
-                audio::stereo_buffer::channels, [&](std::size_t const channel) {
-                    float const value = mix[channel] * master_mul;
-                    output[sample * audio::stereo_buffer::channels + channel] =
-                            value;
-                    if (value > 1.0f or value < -1.0f) { ++clipped; }
-                });
-    });
-    c_clip_count += clipped;
-    last_master_mul = target_master_mul;
-
-    /// ### Underrun recording
-    /// Publish the per-mixer underrun deltas once per callback.
-    for (std::size_t m{}; m < count; ++m) {
-        auto const total = mixers[m]->underrun_count();
-        c_underrun_count += total - last_underruns[m];
-        last_underruns[m] = total;
-    }
-
-    /// ### Advance the published playback head
-    /**
-     * The atomic now reflects the end-time of the block the device is about to
-     * play *next* — i.e. the deadline by which a mixer producer must have
-     * rendered for the upcoming callback.
-     */
-    auto const advanced = drv->playback_head.load(std::memory_order_relaxed)
-            + audio::sample_clock{
-                    static_cast<audio::sample_clock::rep>(wanted)};
-    drv->playback_head.store(advanced, std::memory_order_release);
 }

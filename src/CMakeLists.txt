@@ -58,6 +58,7 @@ add_dependencies(check planet-sdl_verify_interface_header_sets)
 
 
 add_test_run(check planet-sdl TESTS
+        audio.tests.cpp
         file_dialog.tests.cpp
         init.tests.cpp
         pixel_density.tests.cpp
