@@ -66,9 +66,21 @@ planet::sdl::font::font(
         asset_manager const &am,
         char const *const filename,
         std::size_t const pixels,
+        char const *const fallback_filename,
         SDL_Color const c,
         std::source_location const &loc)
 : font_data{am, filename, loc},
+  fallback_data{
+          fallback_filename
+                  ? std::optional<
+                            rw_ops_const_memory>{std::in_place, am, fallback_filename, loc}
+                  : std::optional<rw_ops_const_memory>{std::nullopt}},
+  fallback_pf{
+          fallback_data ? TTF_OpenFontIO(
+                                  fallback_data->get(),
+                                  false,
+                                  static_cast<float>(pixels))
+                        : nullptr},
   pf{TTF_OpenFontIO(font_data.get(), false, static_cast<float>(pixels))},
   colour{c},
   space{measure(" ")},
@@ -76,6 +88,13 @@ planet::sdl::font::font(
     if (not pf.get()) [[unlikely]] {
         throw felspar::stdexcept::runtime_error{
                 "TTF_OpenFontIO returned nullptr"};
+    }
+    if (fallback_data and not fallback_pf.get()) [[unlikely]] {
+        throw felspar::stdexcept::runtime_error{
+                "TTF_OpenFontIO returned nullptr for the fallback font"};
+    }
+    if (fallback_pf.get()) {
+        check_worked(TTF_AddFallbackFont(pf.get(), fallback_pf.get()));
     }
 }
 
